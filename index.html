@@ -173,7 +173,7 @@
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
             <p class="text-gray-500 mt-2">내 정보를 입력하고 세계 여행을 떠나요!</p>
         </div>
-        <form id="entry-form" class="space-y-4">
+        <form id="entry-form" class="space-y-4" onsubmit="event.preventDefault(); return false;">
             <div class="flex space-x-2">
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-grade">학년</label>
@@ -423,7 +423,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 기본 타일 데이터 (서답형을 위해 quizType 속성 추가: 'choice' or 'short')
+        // 기본 타일 데이터
         const DEFAULT_TILES = [
             { id: 0, name: '출발', flag: '🏁', type: 'start', col: 1, row: 1 },
             { id: 1, name: '한국', flag: '🇰🇷', type: 'quiz', quizType: 'choice', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
@@ -474,8 +474,15 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
+        // ★ 같은 브라우저 여러 탭 테스트를 위한 고유 플레이어 ID 생성 (sessionStorage 활용)
+        let myPlayerId = sessionStorage.getItem('myPlayerId');
+        if (!myPlayerId) {
+            myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('myPlayerId', myPlayerId);
+        }
+
         let currentRoomId = null; 
-        let currentUser = null;
+        let currentUser = null; // 파이어베이스 인증 객체 (쓰기 권한용)
         let localGameState = null;
         let unsubscribeRoom = null;
         window.botTurnInProgress = false; 
@@ -510,7 +517,7 @@
         async function initApp() {
             try { 
                 await signInAnonymously(auth); 
-                // 교사 설정 및 커스텀 문제 로드
+                
                 const adminRef = doc(db, 'settings', 'admin');
                 const adminSnap = await getDoc(adminRef);
                 if (adminSnap.exists()) {
@@ -563,7 +570,6 @@
             return name;
         }
 
-        // 숫자 4자리 랜덤 생성 (방만들기 용)
         function generateRoomCode() {
             return String(Math.floor(1000 + Math.random() * 9000));
         }
@@ -572,15 +578,15 @@
             const name = validateForm();
             if(!name || !currentUser) return;
             
-            // 4자리 초대코드 생성
             currentRoomId = generateRoomCode();
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[currentUser.uid] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
+            // 게임 내부 관리는 고유 myPlayerId를 사용합니다.
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
             
             await setDoc(roomRef, {
-                state: 'lobby', players: players, turnOrder: [currentUser.uid], currentTurnIndex: 0, tilesInfo: {}
+                state: 'lobby', players: players, turnOrder: [myPlayerId], currentTurnIndex: 0, tilesInfo: {}
             });
             
             document.getElementById('login-view').classList.add('hidden');
@@ -606,12 +612,13 @@
                 let roomData = snap.data();
                 if(roomData.turnOrder.length >= 4) { showToast("입장 불가", "방이 꽉 찼습니다.", "🚫"); return; }
 
-                if (!roomData.players[currentUser.uid]) {
+                // 고유 myPlayerId로 신규 플레이어 등록 처리
+                if (!roomData.players[myPlayerId]) {
                     const pCount = roomData.turnOrder.length;
-                    roomData.players[currentUser.uid] = {
+                    roomData.players[myPlayerId] = {
                         name: name, avatar: selectedAvatar, color: COLORS[pCount % COLORS.length], pos: 0, balance: 1000, islandTurns: 0
                     };
-                    roomData.turnOrder.push(currentUser.uid);
+                    roomData.turnOrder.push(myPlayerId);
                     await updateDoc(roomRef, { players: roomData.players, turnOrder: roomData.turnOrder });
                 }
 
@@ -619,7 +626,7 @@
                 document.getElementById('lobby-view').classList.remove('hidden');
                 document.getElementById('display-code').innerText = currentRoomId;
                 listenToRoom();
-            } catch (err) { showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌"); }
+            } catch (err) { console.error(err); showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌"); }
         });
 
         document.getElementById('btn-single-play').addEventListener('click', async () => {
@@ -630,11 +637,11 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[currentUser.uid] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
             players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0 };
             
             await setDoc(roomRef, {
-                state: 'playing', players: players, turnOrder: [currentUser.uid, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}
+                state: 'playing', players: players, turnOrder: [myPlayerId, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}
             });
             
             document.getElementById('login-view').classList.add('hidden');
@@ -746,7 +753,6 @@
             showToast("저장 완료", "해당 국가의 문제가 업데이트 되었습니다.", "✅");
         });
 
-        // 타일 가져올 때 커스텀 문제 적용하는 헬퍼 함수
         function getMergedTile(baseTile) {
             if (baseTile.type !== 'quiz') return baseTile;
             return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
@@ -786,7 +792,7 @@
 
             uids.forEach((uid, index) => {
                 const p = players[uid];
-                const isMe = uid === currentUser.uid;
+                const isMe = uid === myPlayerId;
                 const isHost = index === 0;
                 list.innerHTML += `
                     <li class="flex items-center gap-3 p-2 rounded-lg ${isMe ? 'bg-blue-100 font-bold' : ''}">
@@ -797,8 +803,8 @@
                 `;
             });
 
-            // 2명 이상이면 방장은 시작 가능
-            if (uids[0] === currentUser.uid && uids.length >= 2) {
+            // 2명 이상이면 방장은 시작 가능 (myPlayerId 기준 확인)
+            if (uids[0] === myPlayerId && uids.length >= 2) {
                 document.getElementById('start-game-btn').classList.remove('hidden');
                 document.getElementById('waiting-msg').classList.add('hidden');
             } else {
@@ -818,7 +824,7 @@
             document.querySelectorAll('.tile').forEach(e => e.remove());
             
             DEFAULT_TILES.forEach(t => {
-                const mergedTile = getMergedTile(t); // 커스텀 설정(이름 등 변경 가능성)
+                const mergedTile = getMergedTile(t); 
                 const div = document.createElement('div');
                 div.className = `tile ${mergedTile.type}`;
                 div.id = `tile-${mergedTile.id}`;
@@ -858,14 +864,14 @@
         function updateGameUI() {
             const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
-            const isMyTurn = currentUid === currentUser.uid;
+            const isMyTurn = currentUid === myPlayerId;
             const isBotTurn = currentUid.startsWith('bot_');
-            const isHost = turnOrder[0] === currentUser.uid;
+            const isHost = turnOrder[0] === myPlayerId;
             
             const slots = ['left', 'right', 'bottom', 'top'];
             slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
 
-            let myIndex = turnOrder.indexOf(currentUser.uid);
+            let myIndex = turnOrder.indexOf(myPlayerId);
             if(myIndex === -1) myIndex = 0;
 
             turnOrder.forEach((uid, idx) => {
@@ -986,15 +992,15 @@
         }
 
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
-            if (localGameState.turnOrder[localGameState.currentTurnIndex] !== currentUser.uid) return;
+            if (localGameState.turnOrder[localGameState.currentTurnIndex] !== myPlayerId) return;
             const btn = document.getElementById('roll-dice-btn');
             btn.disabled = true;
 
-            let p = localGameState.players[currentUser.uid];
+            let p = localGameState.players[myPlayerId];
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             if (p.islandTurns && p.islandTurns > 0) {
-                await updateDoc(roomRef, { [`players.${currentUser.uid}.islandTurns`]: p.islandTurns - 1 });
+                await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
                 showToast("무인도", `휴식 중입니다. ${p.islandTurns - 1}턴 남았습니다.`, "🏝️");
                 setTimeout(nextTurn, 1500);
                 return;
@@ -1017,14 +1023,14 @@
                 passGo = true;
             }
 
-            let updatePayload = { [`players.${currentUser.uid}.pos`]: newPos };
+            let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
             if(passGo) {
-                updatePayload[`players.${currentUser.uid}.balance`] = p.balance + 200;
+                updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200;
                 showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
             }
             await updateDoc(roomRef, updatePayload);
 
-            setTimeout(() => { handleTileAction(newPos, currentUser.uid, false); }, 800);
+            setTimeout(() => { handleTileAction(newPos, myPlayerId, false); }, 800);
         });
 
         async function runBotTurn(botUid) {
