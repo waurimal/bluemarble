@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 에듀마블 - 멀티플레이 보드게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+        
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .bounce-hover:hover { transform: translateY(-2px); }
+        .active-press:active { transform: scale(0.95); }
+
+        /* 보드판 그리드 설정 (5x5 형태의 테두리 16칸) */
+        .board-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
+            background-color: #7dd3fc;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+
+        .tile {
+            background-color: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 0 #e0f2fe;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tile-name { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
+        .tile-price { font-size: 11px; color: #ef4444; }
+        
+        /* 특수 칸 색상 */
+        .tile.start { background-color: #fef08a; box-shadow: 0 4px 0 #fde047; }
+        .tile.island { background-color: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; }
+        .tile.chance { background-color: #fbcfe8; box-shadow: 0 4px 0 #f472b6; }
+        .tile.rest { background-color: #bbf7d0; box-shadow: 0 4px 0 #86efac; }
+        .tile.travel { background-color: #ddd6fe; box-shadow: 0 4px 0 #a78bfa; }
+
+        /* 플레이어 말 애니메이션 */
+        .player-token {
+            position: absolute;
+            font-size: 20px;
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
+
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(0.9); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .rolling { animation: diceRoll 0.6s ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen p-2 md:p-4 flex flex-col items-center">
+
+    <!-- 글로벌 메시지 모달 (Alert 대체용) -->
+    <div id="toast-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
+            <div id="toast-icon" class="text-5xl mb-4">🔔</div>
+            <h3 id="toast-title" class="text-2xl font-bold mb-2">알림</h3>
+            <p id="toast-message" class="text-gray-600 mb-6 text-lg"></p>
+            <button onclick="closeToast()" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl">확인</button>
+        </div>
+    </div>
+
+    <!-- 로딩 스크린 -->
+    <div id="loading-view" class="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto">
+        <div class="text-6xl mb-4 animate-bounce">🎲</div>
+        <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
+    </div>
+
+    <!-- 1. 로그인 뷰 -->
+    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-10">
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-2">🏫</div>
+            <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
+            <p class="text-gray-500 mt-2">이름을 입력하고 게임에 참여해요!</p>
+        </div>
+        <form id="entry-form" class="space-y-4">
+            <div>
+                <label class="block text-gray-700 text-lg mb-1" for="student-name">이름 (닉네임)</label>
+                <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-4 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-lg text-center" id="student-name" type="text" placeholder="홍길동" required autocomplete="off" maxlength="8">
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] transition-all active-press bounce-hover">
+                    게임 입장하기 🚀
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. 로비 뷰 -->
+    <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
+        <div class="text-6xl mb-4">⛺</div>
+        <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
+        <p class="text-gray-600 mb-6">친구들이 모일 때까지 기다려주세요!</p>
+        
+        <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
+            <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">현재 접속한 친구들 (<span id="player-count">0</span>명)</h3>
+            <ul id="player-list" class="space-y-2 text-left text-lg">
+                <!-- 플레이어 목록 렌더링 -->
+            </ul>
+        </div>
+
+        <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
+            게임 시작하기 🎮
+        </button>
+        <p id="waiting-msg" class="text-gray-400 text-sm mt-4">방장(첫 번째 참가자)만 시작할 수 있어요.</p>
+    </div>
+
+    <!-- 3. 게임 뷰 -->
+    <div id="game-view" class="hidden w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-4 mt-4">
+        
+        <!-- 왼쪽: 상태 패널 -->
+        <div class="w-full md:w-1/3 bg-white rounded-3xl shadow-xl p-4 border-4 border-blue-300 flex flex-col">
+            <h2 class="text-2xl font-bold text-center text-blue-600 border-b-2 pb-2 mb-4">현재 상황</h2>
+            
+            <div id="turn-indicator" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 text-center mb-4">
+                <span class="text-lg text-yellow-800 font-bold" id="current-turn-text">누구의 턴일까요?</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-2 mb-4 border border-gray-200">
+                <h3 class="font-bold text-gray-600 text-center mb-2">플레이어 자산</h3>
+                <div id="status-players" class="space-y-2">
+                    <!-- 상태 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 주사위 굴리기 영역 -->
+            <div class="bg-blue-50 rounded-xl p-4 text-center border-2 border-blue-200">
+                <div id="dice-display" class="text-6xl mb-2 transition-all">🎲</div>
+                <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                    주사위 굴리기!
+                </button>
+                <p id="not-my-turn-msg" class="text-gray-500 font-bold">친구의 턴을 기다리세요⏳</p>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 보드판 -->
+        <div class="w-full md:w-2/3">
+            <div id="board" class="board-container relative">
+                <!-- 타일들이 JS로 렌더링 됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 퀴즈 모달 -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400">
+            <div class="text-5xl mb-2">📝</div>
+            <h2 id="quiz-title" class="text-2xl font-bold text-blue-600 mb-1">영어 퀴즈 타임!</h2>
+            <p id="quiz-subtitle" class="text-gray-500 mb-6 text-sm">정답을 맞혀야 땅을 살 수 있어요!</p>
+            
+            <div class="bg-blue-50 rounded-xl p-6 mb-6">
+                <p class="text-xl text-gray-700 font-bold mb-2">다음 단어는 영어로 무엇일까요?</p>
+                <p id="quiz-question" class="text-4xl font-black text-blue-600">사과</p>
+            </div>
+
+            <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                <!-- 선택지 버튼 렌더링 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 게임 시스템 스크립트 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // 사용자 제공 Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6YK02DdhaSVN9mx3Acd5amiiphxcobG8",
+            authDomain: "mapia-29b3a.firebaseapp.com",
+            projectId: "mapia-29b3a",
+            storageBucket: "mapia-29b3a.firebasestorage.app",
+            messagingSenderId: "937487062003",
+            appId: "1:937487062003:web:2d98688bc5d0db5bfab886",
+            measurementId: "G-GD4LMGR7VD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // 보드판 타일 16개 기획 (5x5 테두리)
+        const TILES = [
+            { id: 0, name: '출발', type: 'start', col: 1, row: 1 },
+            { id: 1, name: '학교', type: 'quiz', price: 100, col: 2, row: 1, q: '학교', a: 'School', options: ['School', 'House', 'Bank'] },
+            { id: 2, name: '공원', type: 'quiz', price: 100, col: 3, row: 1, q: '공원', a: 'Park', options: ['Park', 'Zoo', 'Mart'] },
+            { id: 3, name: '찬스', type: 'chance', col: 4, row: 1 },
+            { id: 4, name: '무인도', type: 'island', col: 5, row: 1 },
+            { id: 5, name: '도서관', type: 'quiz', price: 150, col: 5, row: 2, q: '책', a: 'Book', options: ['Book', 'Pen', 'Desk'] },
+            { id: 6, name: '병원', type: 'quiz', price: 150, col: 5, row: 3, q: '의사', a: 'Doctor', options: ['Doctor', 'Teacher', 'Farmer'] },
+            { id: 7, name: '마트', type: 'quiz', price: 150, col: 5, row: 4, q: '사과', a: 'Apple', options: ['Apple', 'Banana', 'Melon'] },
+            { id: 8, name: '휴식', type: 'rest', col: 5, row: 5 },
+            { id: 9, name: '경찰서', type: 'quiz', price: 200, col: 4, row: 5, q: '경찰관', a: 'Police', options: ['Police', 'Fire', 'Doctor'] },
+            { id: 10, name: '소방서', type: 'quiz', price: 200, col: 3, row: 5, q: '불', a: 'Fire', options: ['Water', 'Fire', 'Earth'] },
+            { id: 11, name: '찬스', type: 'chance', col: 2, row: 5 },
+            { id: 12, name: '비행기', type: 'travel', col: 1, row: 5 },
+            { id: 13, name: '빵집', type: 'quiz', price: 250, col: 1, row: 4, q: '빵', a: 'Bread', options: ['Rice', 'Bread', 'Meat'] },
+            { id: 14, name: '동물원', type: 'quiz', price: 250, col: 1, row: 3, q: '사자', a: 'Lion', options: ['Lion', 'Tiger', 'Bear'] },
+            { id: 15, name: '박물관', type: 'quiz', price: 250, col: 1, row: 2, q: '박물관', a: 'Museum', options: ['Museum', 'School', 'Park'] }
+        ];
+
+        const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
+        const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const ROOM_ID = 'global_edu_room'; // 데모용 고정 방
+
+        let currentUser = null;
+        let localGameState = null;
+        let unsubscribeRoom = null;
+        let currentResolvingQuiz = null;
+
+        // UI 요소
+        const vLoading = document.getElementById('loading-view');
+        const vLogin = document.getElementById('login-view');
+        const vLobby = document.getElementById('lobby-view');
+        const vGame = document.getElementById('game-view');
+
+        // 커스텀 알림창 함수
+        window.showToast = function(title, message, icon = '🔔') {
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-modal').classList.remove('hidden');
+        }
+        window.closeToast = function() {
+            document.getElementById('toast-modal').classList.add('hidden');
+        }
+
+        // 1. 앱 초기화 및 익명 로그인
+        async function initApp() {
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Auth Error:", error);
+                showToast("오류", "서버 인증에 실패했습니다.", "❌");
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                vLoading.classList.add('hidden');
+                vLogin.classList.remove('hidden');
+            }
+        });
+
+        // 2. 게임 참여 (로비 입장)
+        document.getElementById('entry-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) return;
+
+            const name = document.getElementById('student-name').value.trim();
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            
+            try {
+                const roomSnap = await getDoc(roomRef);
+                let roomData = roomSnap.exists() ? roomSnap.data() : {
+                    state: 'lobby', // lobby, playing
+                    players: {},
+                    turnOrder: [],
+                    currentTurnIndex: 0,
+                    tilesInfo: {} // owner 정보를 담음
+                };
+
+                // 게임이 이미 진행중이면 거부
+                if(roomData.state === 'playing' && !roomData.players[currentUser.uid]) {
+                    showToast("입장 불가", "이미 게임이 진행 중입니다.", "🚫");
+                    return;
+                }
+
+                // 플레이어 추가
+                if (!roomData.players[currentUser.uid]) {
+                    const pCount = Object.keys(roomData.players).length;
+                    roomData.players[currentUser.uid] = {
+                        name: name,
+                        avatar: AVATARS[pCount % AVATARS.length],
+                        color: COLORS[pCount % COLORS.length],
+                        pos: 0,
+                        balance: 1000
+                    };
+                    if(!roomData.turnOrder.includes(currentUser.uid)){
+                        roomData.turnOrder.push(currentUser.uid);
+                    }
+                    await setDoc(roomRef, roomData);
+                }
+
+                // 뷰 전환 및 리스너 등록
+                vLogin.classList.add('hidden');
+                vLobby.classList.remove('hidden');
+                listenToRoom();
+
+            } catch (err) {
+                console.error(err);
+                showToast("오류", "방에 입장할 수 없습니다. Firestore 권한을 확인하세요.", "❌");
+            }
+        });
+
+        // 3. 방 상태 실시간 수신
+        function listenToRoom() {
+            if(unsubscribeRoom) unsubscribeRoom();
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            
+            unsubscribeRoom = onSnapshot(roomRef, (snap) => {
+                if(!snap.exists()) return;
+                localGameState = snap.data();
+                
+                if (localGameState.state === 'lobby') {
+                    renderLobby();
+                } else if (localGameState.state === 'playing') {
+                    if (vLobby.classList.contains('hidden') === false) {
+                        vLobby.classList.add('hidden');
+                        vGame.classList.remove('hidden');
+                        initBoard();
+                    }
+                    updateGameUI();
+                }
+            }, (err) => {
+                console.error("Listen error:", err);
+            });
+        }
+
+        function renderLobby() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '';
+            const players = localGameState.players;
+            const uids = localGameState.turnOrder;
+            
+            document.getElementById('player-count').innerText = uids.length;
+
+            uids.forEach((uid, index) => {
+                const p = players[uid];
+                const isMe = uid === currentUser.uid;
+                const isHost = index === 0;
+                list.innerHTML += `
+                    <li class="flex items-center gap-3 p-2 rounded-lg ${isMe ? 'bg-blue-100 font-bold' : ''}">
+                        <span class="text-2xl">${p.avatar}</span>
+                        <span style="color:${p.color}">${p.name} ${isMe ? '(나)' : ''}</span>
+                        ${isHost ? '<span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}
+                    </li>
+                `;
+            });
+
+            // 방장만 시작 버튼 보임
+            if (uids[0] === currentUser.uid && uids.length >= 1) {
+                document.getElementById('start-game-btn').classList.remove('hidden');
+                document.getElementById('waiting-msg').classList.add('hidden');
+            } else {
+                document.getElementById('start-game-btn').classList.add('hidden');
+                document.getElementById('waiting-msg').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('start-game-btn').addEventListener('click', async () => {
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            await updateDoc(roomRef, { state: 'playing' });
+        });
+
+        // 4. 게임 보드 렌더링
+        function initBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            TILES.forEach(t => {
+                const div = document.createElement('div');
+                div.className = `tile ${t.type}`;
+                div.id = `tile-${t.id}`;
+                div.style.gridColumn = t.col;
+                div.style.gridRow = t.row;
+                
+                let content = `<div class="tile-name">${t.name}</div>`;
+                if(t.price) content += `<div class="tile-price">$${t.price}</div>`;
+                
+                div.innerHTML = content;
+                board.appendChild(div);
+            });
+            renderTokens();
+        }
+
+        // 5. 게임 상태 업데이트 (턴, 위치, 자산 등)
+        function updateGameUI() {
+            const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
+            const currentUid = turnOrder[currentTurnIndex];
+            const isMyTurn = currentUid === currentUser.uid;
+            
+            // 턴 인디케이터
+            const currentP = players[currentUid];
+            const turnText = isMyTurn ? "나의 턴입니다! 주사위를 굴리세요!" : `${currentP.name} 친구의 턴입니다...`;
+            const turnBox = document.getElementById('turn-indicator');
+            document.getElementById('current-turn-text').innerText = turnText;
+            
+            if (isMyTurn) {
+                turnBox.classList.replace('bg-yellow-100', 'bg-blue-200');
+                turnBox.classList.replace('border-yellow-400', 'border-blue-500');
+                document.getElementById('roll-dice-btn').classList.remove('hidden');
+                document.getElementById('not-my-turn-msg').classList.add('hidden');
+            } else {
+                turnBox.classList.replace('bg-blue-200', 'bg-yellow-100');
+                turnBox.classList.replace('border-blue-500', 'border-yellow-400');
+                document.getElementById('roll-dice-btn').classList.add('hidden');
+                document.getElementById('not-my-turn-msg').classList.remove('hidden');
+            }
+
+            // 플레이어 상태 리스트
+            const sList = document.getElementById('status-players');
+            sList.innerHTML = '';
+            turnOrder.forEach(uid => {
+                const p = players[uid];
+                sList.innerHTML += `
+                    <div class="flex justify-between items-center p-2 rounded-lg bg-white shadow-sm border-l-4" style="border-color:${p.color}; opacity: ${uid === currentUid ? '1' : '0.6'}">
+                        <div class="flex items-center gap-2">
+                            <span>${p.avatar}</span>
+                            <span class="font-bold">${p.name}</span>
+                        </div>
+                        <div class="font-bold text-blue-600">$${p.balance}</div>
+                    </div>
+                `;
+            });
+
+            // 타일 소유자 표시 업데이트
+            TILES.forEach(t => {
+                const tileDiv = document.getElementById(`tile-${t.id}`);
+                const ownerUid = tilesInfo[t.id]?.owner;
+                if(ownerUid && tileDiv) {
+                    const ownerColor = players[ownerUid].color;
+                    tileDiv.style.borderColor = ownerColor;
+                    tileDiv.style.borderWidth = '4px';
+                    tileDiv.style.backgroundColor = ownerColor + '20'; // 투명도 추가
+                }
+            });
+
+            renderTokens();
+        }
+
+        // 토큰 렌더링 로직
+        function renderTokens() {
+            // 기존 토큰 제거
+            document.querySelectorAll('.player-token').forEach(el => el.remove());
+            
+            const players = localGameState.players;
+            
+            // 각 칸에 있는 플레이어 그룹화
+            const posMap = {};
+            localGameState.turnOrder.forEach(uid => {
+                const pos = players[uid].pos;
+                if(!posMap[pos]) posMap[pos] = [];
+                posMap[pos].push(players[uid].avatar);
+            });
+
+            Object.keys(posMap).forEach(pos => {
+                const tileDiv = document.getElementById(`tile-${pos}`);
+                if (tileDiv) {
+                    const tokenDiv = document.createElement('div');
+                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none text-xl';
+                    tokenDiv.innerHTML = posMap[pos].join('');
+                    tileDiv.appendChild(tokenDiv);
+                }
+            });
+        }
+
+        // 6. 주사위 굴리기 및 이동 로직
+        document.getElementById('roll-dice-btn').addEventListener('click', async () => {
+            if (localGameState.turnOrder[localGameState.currentTurnIndex] !== currentUser.uid) return;
+            
+            const btn = document.getElementById('roll-dice-btn');
+            btn.disabled = true;
+            
+            const diceDiv = document.getElementById('dice-display');
+            diceDiv.classList.add('rolling');
+            
+            // 주사위 애니메이션 대기
+            await new Promise(r => setTimeout(r, 600));
+            diceDiv.classList.remove('rolling');
+            
+            const diceNum = Math.floor(Math.random() * 6) + 1;
+            const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
+            diceDiv.innerText = diceFaces[diceNum];
+
+            let p = localGameState.players[currentUser.uid];
+            let newPos = p.pos + diceNum;
+            let passGo = false;
+            
+            if (newPos >= 16) {
+                newPos = newPos % 16;
+                passGo = true;
+            }
+
+            // DB 업데이트 (이동)
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            let updatePayload = {
+                [`players.${currentUser.uid}.pos`]: newPos
+            };
+            if(passGo) {
+                updatePayload[`players.${currentUser.uid}.balance`] = p.balance + 200;
+                showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+            }
+            await updateDoc(roomRef, updatePayload);
+
+            // 이동 후 칸 액션 처리 (약간의 딜레이 후)
+            setTimeout(() => { handleTileAction(newPos); }, 800);
+        });
+
+        // 7. 칸 도착 이벤트 처리
+        async function handleTileAction(pos) {
+            const tile = TILES[pos];
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            const { players, tilesInfo } = localGameState;
+            
+            if (tile.type === 'quiz') {
+                const owner = tilesInfo[pos]?.owner;
+                if (!owner) {
+                    // 주인이 없는 땅 -> 퀴즈 맞추면 구매 가능
+                    triggerQuiz(tile, async (isCorrect) => {
+                        if (isCorrect) {
+                            if (players[currentUser.uid].balance >= tile.price) {
+                                await updateDoc(roomRef, {
+                                    [`players.${currentUser.uid}.balance`]: players[currentUser.uid].balance - tile.price,
+                                    [`tilesInfo.${pos}.owner`]: currentUser.uid
+                                });
+                                showToast("땅 구매 성공!", `정답입니다! [${tile.name}]을(를) 구매했습니다.`, "🏰");
+                            } else {
+                                showToast("잔액 부족", "정답이지만 돈이 부족해서 땅을 살 수 없어요.", "😢");
+                            }
+                        } else {
+                            showToast("오답!", `아쉽네요. 정답은 [${tile.a}] 입니다.`, "❌");
+                        }
+                        nextTurn();
+                    }, "빈 땅 발견! 퀴즈를 맞히고 구매할까요?");
+                    return; // 퀴즈 끝날때까지 턴 대기
+                } 
+                else if (owner !== currentUser.uid) {
+                    // 남의 땅 -> 통행료 퀴즈 (맞추면 반값)
+                    const toll = Math.floor(tile.price / 2);
+                    triggerQuiz(tile, async (isCorrect) => {
+                        const finalToll = isCorrect ? Math.floor(toll/2) : toll;
+                        const msg = isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`;
+                        
+                        await updateDoc(roomRef, {
+                            [`players.${currentUser.uid}.balance`]: players[currentUser.uid].balance - finalToll,
+                            [`players.${owner}.balance`]: players[owner].balance + finalToll
+                        });
+                        showToast("통행료 지불", msg, "💸");
+                        nextTurn();
+                    }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
+                    return;
+                }
+            } 
+            else if (tile.type === 'chance') {
+                showToast("찬스 카드!", "운수 좋은 날! 보너스 $100을 받습니다.", "🎁");
+                await updateDoc(roomRef, { [`players.${currentUser.uid}.balance`]: players[currentUser.uid].balance + 100 });
+            }
+            else if (tile.type === 'island') {
+                showToast("무인도!", "무인도에 갇혔습니다! (다음 턴엔 나갈 수 있어요)", "🏝️");
+            }
+
+            // 그 외 특수칸이나 내 땅인 경우 바로 턴 넘김
+            nextTurn();
+        }
+
+        // 다음 턴으로 넘기기
+        async function nextTurn() {
+            const btn = document.getElementById('roll-dice-btn');
+            btn.disabled = false; // 리셋
+            
+            const roomRef = doc(db, 'rooms', ROOM_ID);
+            const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
+            await updateDoc(roomRef, { currentTurnIndex: nextIdx });
+        }
+
+        // 8. 퀴즈 UI 컨트롤
+        function triggerQuiz(tile, callback, subtitle) {
+            const modal = document.getElementById('quiz-modal');
+            document.getElementById('quiz-subtitle').innerText = subtitle;
+            document.getElementById('quiz-question').innerText = tile.q;
+            
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            
+            // 선택지 랜덤 섞기
+            let shuffled = [...tile.options].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-50 text-blue-800 font-bold text-xl py-3 rounded-xl transition-colors";
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    modal.classList.add('hidden');
+                    callback(opt === tile.a);
+                };
+                optsContainer.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        // 시작점
+        initApp();
+
+    </script>
+</body>
+</html>
