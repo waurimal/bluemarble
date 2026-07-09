@@ -20,6 +20,39 @@
         .bounce-hover:hover { transform: translateY(-2px); }
         .active-press:active { transform: scale(0.95); }
 
+        /* 인원수에 따른 십자형(Cross) 레이아웃 시스템 (PC 기준) */
+        .game-layout {
+            display: grid;
+            grid-template-areas: 
+                ". top ."
+                "left center right"
+                ". bottom .";
+            grid-template-columns: 240px minmax(320px, 600px) 240px;
+            gap: 16px;
+            justify-content: center;
+            align-items: start;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-layout > #status-top { grid-area: top; justify-self: center; width: 100%; max-width: 240px; }
+        .game-layout > #status-left { grid-area: left; }
+        .game-layout > #status-right { grid-area: right; }
+        .game-layout > #status-bottom { grid-area: bottom; justify-self: center; width: 100%; max-width: 240px; }
+        .game-layout > #center-area { grid-area: center; }
+
+        /* 모바일 반응형: 세로로 쌓기 */
+        @media (max-width: 1024px) {
+            .game-layout {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .game-layout > div { width: 100%; max-width: 600px; }
+            .game-layout > #status-top, .game-layout > #status-bottom { max-width: 100%; }
+        }
+
         /* 보드판 그리드 설정 (5x5 형태의 테두리 16칸) */
         .board-container {
             display: grid;
@@ -27,13 +60,11 @@
             grid-template-rows: repeat(5, 1fr);
             gap: 6px;
             width: 100%;
-            max-width: 600px;
             aspect-ratio: 1 / 1;
             background-color: #7dd3fc;
             padding: 8px;
             border-radius: 16px;
             box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
-            margin: 0 auto;
         }
 
         .tile {
@@ -60,16 +91,38 @@
         .tile.rest { background-color: #bbf7d0; box-shadow: 0 4px 0 #86efac; }
         .tile.travel { background-color: #ddd6fe; box-shadow: 0 4px 0 #a78bfa; }
 
-        /* 플레이어 말 애니메이션 */
-        .player-token {
+        /* 소유자 뱃지 (왼쪽 위) */
+        .owner-marker {
             position: absolute;
-            font-size: 20px;
-            transition: all 0.5s ease-in-out;
-            z-index: 10;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+            top: -8px;
+            left: -8px;
+            width: 28px;
+            height: 28px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 2px solid;
+            z-index: 20;
         }
 
-        /* 커스텀 스크롤바 */
+        /* 플레이어 말 애니메이션 (가운데) */
+        .player-token {
+            position: absolute;
+            font-size: 24px;
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+        }
+
+        /* 아바타 선택 라디오 버튼 숨김 처리 */
+        .avatar-radio { display: none; }
+        .avatar-label { cursor: pointer; opacity: 0.5; transition: all 0.2s; filter: grayscale(100%); }
+        .avatar-radio:checked + .avatar-label { opacity: 1; filter: grayscale(0%); transform: scale(1.2); box-shadow: 0 4px 0px #93c5fd; border-radius: 50%; }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
 
@@ -91,7 +144,7 @@
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
             <h3 id="toast-title" class="text-2xl font-bold mb-2">알림</h3>
             <p id="toast-message" class="text-gray-600 mb-6 text-lg"></p>
-            <button onclick="closeToast()" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl">확인</button>
+            <button onclick="closeToast()" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press">확인</button>
         </div>
     </div>
 
@@ -101,40 +154,52 @@
         <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
     </div>
 
-    <!-- 1. 로그인 뷰 -->
-    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-10">
+    <!-- 1. 로그인 뷰 (상세 입력 및 캐릭터 선택) -->
+    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4">
         <div class="text-center mb-6">
             <div class="text-5xl mb-2">🏫</div>
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
             <p class="text-gray-500 mt-2">내 정보를 입력하고 게임에 참여해요!</p>
         </div>
         <form id="entry-form" class="space-y-4">
+            
             <!-- 학년 / 반 -->
             <div class="flex space-x-2">
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-grade">학년</label>
-                    <select id="student-grade" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
+                    <select id="student-grade" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
                         <option value="" disabled selected>선택</option>
                         <option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
                     </select>
                 </div>
                 <div class="w-1/2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-class">반</label>
-                    <select id="student-class" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
+                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-class">반 (1~10)</label>
+                    <select id="student-class" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
                         <option value="" disabled selected>선택</option>
-                        <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option>
+                        <script>
+                            for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}반</option>`);
+                        </script>
                     </select>
                 </div>
             </div>
+            
             <!-- 번호 / 이름 -->
             <div class="flex space-x-2">
                 <div class="w-1/3">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-num">번호</label>
-                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-center text-lg" id="student-num" type="number" min="1" max="99" placeholder="15">
+                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-center text-lg" id="student-num" type="number" min="1" max="99" placeholder="15">
                 </div>
                 <div class="w-2/3">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-name">이름</label>
                     <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-center text-lg" id="student-name" type="text" placeholder="홍길동" autocomplete="off" maxlength="8">
+                </div>
+            </div>
+
+            <!-- 캐릭터 선택 -->
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-1">내 캐릭터 선택</label>
+                <div class="flex justify-between items-center bg-blue-50 p-3 rounded-xl border-2 border-blue-200" id="avatar-container">
+                    <!-- JS Rendering -->
                 </div>
             </div>
             
@@ -147,20 +212,20 @@
             <!-- 기본 버튼 그룹 -->
             <div class="pt-4 grid grid-cols-2 gap-2" id="btn-group-main">
                 <button type="button" id="btn-create-room" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press bounce-hover">
-                    방 만들기
+                    방 만들기 (호스트)
                 </button>
                 <button type="button" id="btn-show-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
-                    코드 입장
+                    코드 입장 (게스트)
                 </button>
             </div>
             
             <!-- 참가 버튼 그룹 (숨김) -->
             <div class="hidden pt-2 grid-cols-2 gap-2" id="btn-group-join">
                 <button type="button" id="btn-cancel-join" class="w-full bg-gray-400 hover:bg-gray-300 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(156,163,175)] transition-all active-press">
-                    취소
+                    뒤로가기
                 </button>
                 <button type="button" id="btn-submit-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press">
-                    입장하기
+                    게임 입장하기
                 </button>
             </div>
 
@@ -179,8 +244,8 @@
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
         
         <div id="room-code-display" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 inline-block mb-4">
-            <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드</span>
-            <span class="text-3xl text-yellow-900 font-black tracking-widest" id="display-code">------</span>
+            <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드 (친구에게 알려주세요)</span>
+            <span class="text-4xl text-yellow-900 font-black tracking-widest" id="display-code">------</span>
         </div>
         
         <p class="text-gray-600 mb-6">친구들이 모일 때까지 기다려주세요!</p>
@@ -195,55 +260,57 @@
         <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
             게임 시작하기 🎮
         </button>
-        <p id="waiting-msg" class="text-gray-400 text-sm mt-4">방장만 시작할 수 있어요. (2명 이상부터 가능)</p>
+        <p id="waiting-msg" class="text-gray-400 text-sm mt-4">방장만 게임을 시작할 수 있어요.</p>
     </div>
 
-    <!-- 3. 게임 뷰 -->
-    <div id="game-view" class="hidden w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-4 mt-4">
+    <!-- 3. 게임 뷰 (상황판 레이아웃 시스템) -->
+    <div id="game-view" class="hidden game-layout mt-4">
         
-        <!-- 왼쪽: 상태 패널 -->
-        <div class="w-full md:w-1/3 bg-white rounded-3xl shadow-xl p-4 border-4 border-blue-300 flex flex-col">
-            <h2 class="text-2xl font-bold text-center text-blue-600 border-b-2 pb-2 mb-4">현재 상황</h2>
-            
-            <div id="turn-indicator" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 text-center mb-4 transition-colors duration-300">
-                <span class="text-lg text-yellow-800 font-bold" id="current-turn-text">누구의 턴일까요?</span>
+        <!-- 탑 플레이어 (4인 시) -->
+        <div id="status-top" class="hidden"></div>
+
+        <!-- 레프트 플레이어 (나) -->
+        <div id="status-left" class="hidden"></div>
+
+        <!-- 센터 (보드판 및 조작부) -->
+        <div id="center-area" class="flex flex-col">
+            <!-- 상태 인디케이터 -->
+            <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-3 text-center mb-4 transition-colors duration-300 shadow-md">
+                <span class="text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
             </div>
 
-            <div class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-2 mb-4 border border-gray-200">
-                <h3 class="font-bold text-gray-600 text-center mb-2">플레이어 자산</h3>
-                <div id="status-players" class="space-y-2">
-                    <!-- 상태 렌더링 -->
-                </div>
+            <!-- 보드판 -->
+            <div id="board" class="board-container relative mb-4">
+                <!-- 타일들이 JS로 렌더링 됩니다 -->
             </div>
 
             <!-- 주사위 굴리기 영역 -->
-            <div class="bg-blue-50 rounded-xl p-4 text-center border-2 border-blue-200">
-                <div id="dice-display" class="text-6xl mb-2 transition-all">🎲</div>
-                <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
+            <div class="bg-blue-50 rounded-2xl p-4 text-center border-4 border-blue-200 shadow-inner">
+                <div id="dice-display" class="text-7xl mb-3 transition-all inline-block">🎲</div>
+                <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-2xl py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
                     주사위 굴리기!
                 </button>
-                <p id="not-my-turn-msg" class="text-gray-500 font-bold">친구의 턴을 기다리세요⏳</p>
+                <p id="not-my-turn-msg" class="text-gray-500 font-bold text-lg">친구의 턴을 기다리세요⏳</p>
             </div>
         </div>
 
-        <!-- 오른쪽: 보드판 -->
-        <div class="w-full md:w-2/3">
-            <div id="board" class="board-container relative">
-                <!-- 타일들이 JS로 렌더링 됩니다 -->
-            </div>
-        </div>
+        <!-- 라이트 플레이어 (2인 시 우측) -->
+        <div id="status-right" class="hidden"></div>
+
+        <!-- 바텀 플레이어 (3인 시 하단) -->
+        <div id="status-bottom" class="hidden"></div>
     </div>
 
     <!-- 퀴즈 모달 -->
     <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400 transform transition-all scale-100">
             <div class="text-5xl mb-2">📝</div>
             <h2 id="quiz-title" class="text-2xl font-bold text-blue-600 mb-1">영어 퀴즈 타임!</h2>
-            <p id="quiz-subtitle" class="text-gray-500 mb-6 text-sm">정답을 맞혀야 땅을 살 수 있어요!</p>
+            <p id="quiz-subtitle" class="text-gray-500 mb-6 text-sm">정답을 맞혀야 혜택을 얻을 수 있어요!</p>
             
-            <div class="bg-blue-50 rounded-xl p-6 mb-6">
+            <div class="bg-blue-50 rounded-xl p-6 mb-6 border-2 border-blue-100">
                 <p class="text-xl text-gray-700 font-bold mb-2">다음 단어는 영어로 무엇일까요?</p>
-                <p id="quiz-question" class="text-4xl font-black text-blue-600">사과</p>
+                <p id="quiz-question" class="text-4xl font-black text-blue-600 drop-shadow-sm">사과</p>
             </div>
 
             <div id="quiz-options" class="grid grid-cols-1 gap-3">
@@ -298,14 +365,18 @@
         let currentUser = null;
         let localGameState = null;
         let unsubscribeRoom = null;
-        window.lastBotTurnIndex = -1; // AI 턴 중복 실행 방지용
+        
+        // 봇 실행 방지용 플래그
+        window.lastBotTurnIndex = -1; 
+        window.botTurnInProgress = false; 
 
-        // UI 요소
+        // UI 요소 캐싱
         const vLoading = document.getElementById('loading-view');
         const vLogin = document.getElementById('login-view');
         const vLobby = document.getElementById('lobby-view');
         const vGame = document.getElementById('game-view');
 
+        // 커스텀 알림창
         window.showToast = function(title, message, icon = '🔔') {
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-message').innerText = message;
@@ -315,6 +386,22 @@
         window.closeToast = function() {
             document.getElementById('toast-modal').classList.add('hidden');
         }
+
+        // 아바타 선택 UI 생성
+        let selectedAvatar = AVATARS[0];
+        const avatarContainer = document.getElementById('avatar-container');
+        AVATARS.forEach((av, idx) => {
+            const isChecked = idx === 0 ? 'checked' : '';
+            avatarContainer.innerHTML += `
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <input type="radio" name="avatarSelect" id="av-${idx}" value="${av}" class="avatar-radio" ${isChecked}>
+                    <label for="av-${idx}" class="avatar-label text-4xl block w-full h-full text-center leading-[48px]">${av}</label>
+                </div>
+            `;
+        });
+        avatarContainer.addEventListener('change', (e) => {
+            if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value;
+        });
 
         async function initApp() {
             try {
@@ -333,12 +420,12 @@
             }
         });
 
+        // 폼 토글 로직
         document.getElementById('btn-show-join').addEventListener('click', () => {
             document.getElementById('btn-group-main').classList.add('hidden');
             document.getElementById('btn-single-play').classList.add('hidden');
             document.getElementById('join-code-container').classList.remove('hidden');
             document.getElementById('btn-group-join').classList.replace('hidden', 'grid');
-            document.getElementById('btn-group-join').classList.add('grid-cols-2');
         });
 
         document.getElementById('btn-cancel-join').addEventListener('click', () => {
@@ -357,7 +444,7 @@
                 showToast("알림", "학년, 반, 번호, 이름을 모두 입력해주세요!", "⚠️");
                 return null;
             }
-            return name;
+            return name; // 닉네임 반환
         }
 
         // [방 만들기 - 호스트]
@@ -369,7 +456,7 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[currentUser.uid] = { name: name, avatar: AVATARS[0], color: COLORS[0], pos: 0, balance: 1000 };
+            players[currentUser.uid] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000 };
             
             await setDoc(roomRef, {
                 state: 'lobby',
@@ -416,7 +503,7 @@
                     const pCount = roomData.turnOrder.length;
                     roomData.players[currentUser.uid] = {
                         name: name,
-                        avatar: AVATARS[pCount % AVATARS.length],
+                        avatar: selectedAvatar,
                         color: COLORS[pCount % COLORS.length],
                         pos: 0,
                         balance: 1000
@@ -444,11 +531,11 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[currentUser.uid] = { name: name, avatar: AVATARS[0], color: COLORS[0], pos: 0, balance: 1000 };
-            players['bot_1'] = { name: '알파고(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000 };
+            players[currentUser.uid] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000 };
+            players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000 };
             
             await setDoc(roomRef, {
-                state: 'playing', // 혼자 하기는 로비 없이 바로 시작
+                state: 'playing', // 혼자 하기는 로비 건너뛰기
                 players: players,
                 turnOrder: [currentUser.uid, 'bot_1'],
                 currentTurnIndex: 0,
@@ -504,7 +591,6 @@
                 `;
             });
 
-            // 방장만 시작 버튼 보임 (2명 이상일 때)
             if (uids[0] === currentUser.uid && uids.length >= 2) {
                 document.getElementById('start-game-btn').classList.remove('hidden');
                 document.getElementById('waiting-msg').classList.add('hidden');
@@ -539,6 +625,24 @@
             renderTokens();
         }
 
+        function getPlayerCardHTML(p, isCurrentTurn, isMe) {
+            return `
+                <div class="bg-white rounded-3xl p-4 shadow-xl border-4 transition-all duration-300 ${isCurrentTurn ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
+                    <div class="flex items-center justify-between mb-3 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
+                        <div class="flex items-center gap-3">
+                            <div class="text-4xl bg-gray-50 rounded-full w-14 h-14 flex items-center justify-center shadow-inner border border-gray-200">${p.avatar}</div>
+                            <div class="font-black text-gray-800 text-xl">${p.name}</div>
+                        </div>
+                        ${isMe ? '<span class="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-bold shadow-sm">나(Me)</span>' : ''}
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-200 text-center shadow-inner">
+                        <div class="text-sm text-gray-500 font-bold mb-1">보유 자산</div>
+                        <div class="text-3xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
+                    </div>
+                </div>
+            `;
+        }
+
         function updateGameUI() {
             const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
@@ -546,66 +650,112 @@
             const isBotTurn = currentUid.startsWith('bot_');
             const isHost = turnOrder[0] === currentUser.uid;
             
+            // 1. 상황판 레이아웃 매핑 (왼/오/아래/위)
+            const slots = ['left', 'right', 'bottom', 'top'];
+            slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
+
+            let myIndex = turnOrder.indexOf(currentUser.uid);
+            if(myIndex === -1) myIndex = 0; // 예외 처리
+
+            turnOrder.forEach((uid, idx) => {
+                const p = players[uid];
+                const isTurn = uid === currentUid;
+                let targetSlot = '';
+                
+                if (idx === myIndex) {
+                    targetSlot = 'left'; // 본인은 무조건 왼쪽
+                } else {
+                    const relativeIdx = (idx - myIndex + turnOrder.length) % turnOrder.length;
+                    if (relativeIdx === 1) targetSlot = 'right';
+                    else if (relativeIdx === 2) targetSlot = 'bottom';
+                    else if (relativeIdx === 3) targetSlot = 'top';
+                }
+
+                const container = document.getElementById(`status-${targetSlot}`);
+                if(container) {
+                    container.innerHTML = getPlayerCardHTML(p, isTurn, idx === myIndex);
+                    container.classList.remove('hidden');
+                }
+            });
+
+            // 빈 슬롯 숨기기
+            slots.forEach(s => {
+                const container = document.getElementById(`status-${s}`);
+                if(container.innerHTML === '') container.classList.add('hidden');
+            });
+
+            // 2. 턴 인디케이터 및 주사위 컨트롤
             const currentP = players[currentUid];
             const turnBox = document.getElementById('turn-indicator');
-            
+            const turnText = document.getElementById('current-turn-text');
+            const diceBtn = document.getElementById('roll-dice-btn');
+            const waitMsg = document.getElementById('not-my-turn-msg');
+
             if (isMyTurn) {
-                document.getElementById('current-turn-text').innerText = "나의 턴입니다! 주사위를 굴리세요!";
-                turnBox.classList.replace('bg-yellow-100', 'bg-blue-200');
-                turnBox.classList.replace('border-yellow-400', 'border-blue-500');
-                document.getElementById('roll-dice-btn').classList.remove('hidden');
-                document.getElementById('not-my-turn-msg').classList.add('hidden');
+                turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
+                turnBox.classList.replace('bg-yellow-100', 'bg-blue-100');
+                turnBox.classList.replace('border-yellow-400', 'border-blue-400');
+                diceBtn.classList.remove('hidden');
+                waitMsg.classList.add('hidden');
             } else if (isBotTurn) {
-                document.getElementById('current-turn-text').innerText = "컴퓨터(AI)의 턴입니다... 🤖";
-                turnBox.classList.replace('bg-blue-200', 'bg-yellow-100');
-                turnBox.classList.replace('border-blue-500', 'border-yellow-400');
-                document.getElementById('roll-dice-btn').classList.add('hidden');
-                document.getElementById('not-my-turn-msg').classList.remove('hidden');
-                document.getElementById('not-my-turn-msg').innerText = "컴퓨터가 주사위를 굴립니다⏳";
+                turnText.innerText = "컴퓨터(AI)의 턴입니다... 🤖";
+                turnBox.classList.replace('bg-blue-100', 'bg-gray-100');
+                turnBox.classList.replace('border-blue-400', 'border-gray-400');
+                diceBtn.classList.add('hidden');
+                waitMsg.classList.remove('hidden');
+                waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
                 
-                // 호스트가 컴퓨터의 턴을 대신 실행 (중복 실행 방지)
-                if (isHost && window.lastBotTurnIndex !== currentTurnIndex) {
+                // 봇 턴 실행 (호스트 전용, 중복 방지)
+                if (isHost && !window.botTurnInProgress && window.lastBotTurnIndex !== currentTurnIndex) {
+                    window.botTurnInProgress = true;
                     window.lastBotTurnIndex = currentTurnIndex;
                     setTimeout(() => runBotTurn(currentUid), 1500);
                 }
             } else {
-                document.getElementById('current-turn-text').innerText = `${currentP.name} 친구의 턴입니다...`;
-                turnBox.classList.replace('bg-blue-200', 'bg-yellow-100');
-                turnBox.classList.replace('border-blue-500', 'border-yellow-400');
-                document.getElementById('roll-dice-btn').classList.add('hidden');
-                document.getElementById('not-my-turn-msg').classList.remove('hidden');
-                document.getElementById('not-my-turn-msg').innerText = "친구의 턴을 기다리세요⏳";
+                turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
+                turnBox.classList.replace('bg-blue-100', 'bg-yellow-100');
+                turnBox.classList.replace('border-blue-400', 'border-yellow-400');
+                diceBtn.classList.add('hidden');
+                waitMsg.classList.remove('hidden');
+                waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            const sList = document.getElementById('status-players');
-            sList.innerHTML = '';
-            turnOrder.forEach(uid => {
-                const p = players[uid];
-                sList.innerHTML += `
-                    <div class="flex justify-between items-center p-2 rounded-lg bg-white shadow-sm border-l-4 transition-opacity duration-300" style="border-color:${p.color}; opacity: ${uid === currentUid ? '1' : '0.5'}">
-                        <div class="flex items-center gap-2">
-                            <span>${p.avatar}</span>
-                            <span class="font-bold">${p.name}</span>
-                        </div>
-                        <div class="font-bold text-blue-600">$${p.balance}</div>
-                    </div>
-                `;
-            });
+            if (!isBotTurn) window.botTurnInProgress = false; // 봇 턴이 아니면 플래그 리셋
 
+            // 3. 타일 소유자 마커 (왼쪽 상단 뱃지) 업데이트
             TILES.forEach(t => {
                 const tileDiv = document.getElementById(`tile-${t.id}`);
                 const ownerUid = tilesInfo[t.id]?.owner;
+                
+                // 기존 마커 제거
+                const oldMarker = tileDiv?.querySelector('.owner-marker');
+                if (oldMarker) oldMarker.remove();
+
                 if(ownerUid && tileDiv) {
                     const ownerColor = players[ownerUid].color;
+                    const ownerAvatar = players[ownerUid].avatar;
+                    
+                    // 뱃지 생성
+                    const marker = document.createElement('div');
+                    marker.className = 'owner-marker';
+                    marker.style.borderColor = ownerColor;
+                    marker.innerHTML = ownerAvatar;
+                    tileDiv.appendChild(marker);
+
                     tileDiv.style.borderColor = ownerColor;
-                    tileDiv.style.borderWidth = '4px';
-                    tileDiv.style.backgroundColor = ownerColor + '20';
+                    tileDiv.style.borderWidth = '3px';
+                    tileDiv.style.backgroundColor = ownerColor + '15'; 
+                } else if(tileDiv && t.type !== 'start' && t.type !== 'island' && t.type !== 'chance' && t.type !== 'rest' && t.type !== 'travel') {
+                    // 미소유 일반 칸 초기화
+                    tileDiv.style.borderColor = 'transparent';
+                    tileDiv.style.backgroundColor = 'white';
                 }
             });
 
             renderTokens();
         }
 
+        // 말(토큰) 렌더링
         function renderTokens() {
             document.querySelectorAll('.player-token').forEach(el => el.remove());
             const players = localGameState.players;
@@ -621,8 +771,8 @@
                 const tileDiv = document.getElementById(`tile-${pos}`);
                 if (tileDiv) {
                     const tokenDiv = document.createElement('div');
-                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none text-xl';
-                    tokenDiv.innerHTML = posMap[pos].join('');
+                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none gap-1';
+                    tokenDiv.innerHTML = posMap[pos].map(a => `<span>${a}</span>`).join('');
                     tileDiv.appendChild(tokenDiv);
                 }
             });
@@ -655,9 +805,8 @@
             }
 
             const roomRef = doc(db, 'rooms', currentRoomId);
-            let updatePayload = {
-                [`players.${currentUser.uid}.pos`]: newPos
-            };
+            let updatePayload = { [`players.${currentUser.uid}.pos`]: newPos };
+            
             if(passGo) {
                 updatePayload[`players.${currentUser.uid}.balance`] = p.balance + 200;
                 showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
@@ -667,37 +816,89 @@
             setTimeout(() => { handleTileAction(newPos); }, 800);
         });
 
-        // 컴퓨터(AI) 주사위
+        // 컴퓨터(AI) 주사위 및 행동 (안전장치 추가)
         async function runBotTurn(botUid) {
-            const diceDiv = document.getElementById('dice-display');
-            diceDiv.classList.add('rolling');
-            
-            await new Promise(r => setTimeout(r, 600));
-            diceDiv.classList.remove('rolling');
-            
-            const diceNum = Math.floor(Math.random() * 6) + 1;
-            const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-            diceDiv.innerText = diceFaces[diceNum];
+            try {
+                const diceDiv = document.getElementById('dice-display');
+                diceDiv.classList.add('rolling');
+                
+                await new Promise(r => setTimeout(r, 600));
+                diceDiv.classList.remove('rolling');
+                
+                const diceNum = Math.floor(Math.random() * 6) + 1;
+                const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
+                diceDiv.innerText = diceFaces[diceNum];
 
-            let p = localGameState.players[botUid];
-            let newPos = p.pos + diceNum;
-            let passGo = false;
-            
-            if (newPos >= 16) {
-                newPos = newPos % 16;
-                passGo = true;
+                let p = localGameState.players[botUid];
+                let newPos = p.pos + diceNum;
+                let passGo = false;
+                
+                if (newPos >= 16) {
+                    newPos = newPos % 16;
+                    passGo = true;
+                }
+
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                let updatePayload = { [`players.${botUid}.pos`]: newPos };
+                if(passGo) updatePayload[`players.${botUid}.balance`] = p.balance + 200;
+                
+                await updateDoc(roomRef, updatePayload);
+
+                // DB 업데이트 후 봇 액션 처리
+                setTimeout(() => { handleBotTileAction(newPos, botUid); }, 1200);
+            } catch (err) {
+                console.error("Bot turn error:", err);
+                nextTurn(); // 에러 발생 시 강제로 턴 넘김 (프리징 방지)
             }
+        }
 
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            let updatePayload = {
-                [`players.${botUid}.pos`]: newPos
-            };
-            if(passGo) {
-                updatePayload[`players.${botUid}.balance`] = p.balance + 200;
+        async function handleBotTileAction(pos, botUid) {
+            try {
+                const tile = TILES[pos];
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                const { players, tilesInfo } = localGameState;
+                
+                if (tile.type === 'quiz') {
+                    const owner = tilesInfo[pos]?.owner;
+                    const isCorrect = Math.random() < 0.7; // 컴퓨터 정답 확률 70%
+                    
+                    if (!owner) {
+                        if (isCorrect && players[botUid].balance >= tile.price) {
+                            await updateDoc(roomRef, {
+                                [`players.${botUid}.balance`]: players[botUid].balance - tile.price,
+                                [`tilesInfo.${pos}.owner`]: botUid
+                            });
+                            showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 샀습니다!`, "🤖");
+                        } else {
+                            showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖");
+                        }
+                    } 
+                    else if (owner !== botUid) {
+                        const toll = Math.floor(tile.price / 2);
+                        const finalToll = isCorrect ? Math.floor(toll/2) : toll;
+                        const msg = isCorrect ? `컴퓨터가 정답을 맞춰 통행료를 반값($${finalToll})만 냈습니다.` : `컴퓨터가 틀려서 통행료 $${finalToll}을 냈습니다.`;
+                        
+                        await updateDoc(roomRef, {
+                            [`players.${botUid}.balance`]: players[botUid].balance - finalToll,
+                            [`players.${owner}.balance`]: players[owner].balance + finalToll
+                        });
+                        showToast("컴퓨터 통행료 지불", msg, "💸");
+                    }
+                } 
+                else if (tile.type === 'chance') {
+                    await updateDoc(roomRef, { [`players.${botUid}.balance`]: players[botUid].balance + 100 });
+                    showToast("컴퓨터 찬스!", "컴퓨터가 보너스 $100을 받았습니다.", "🎁");
+                }
+                else if (tile.type === 'island') {
+                    showToast("컴퓨터 무인도!", "컴퓨터가 무인도에 도착했습니다!", "🏝️");
+                }
+
+                // 팝업 읽을 시간 부여 후 턴 넘김
+                setTimeout(nextTurn, 3000); 
+            } catch (err) {
+                console.error("Bot action error:", err);
+                nextTurn(); 
             }
-            await updateDoc(roomRef, updatePayload);
-
-            setTimeout(() => { handleBotTileAction(newPos, botUid); }, 1000);
         }
 
         async function handleTileAction(pos) {
@@ -715,7 +916,7 @@
                                     [`players.${currentUser.uid}.balance`]: players[currentUser.uid].balance - tile.price,
                                     [`tilesInfo.${pos}.owner`]: currentUser.uid
                                 });
-                                showToast("땅 구매 성공!", `정답입니다! [${tile.name}]을(를) 구매했습니다.`, "🏰");
+                                showToast("땅 구매 성공!", `정답입니다! [${tile.name}] 땅을 획득했습니다.`, "🏰");
                             } else {
                                 showToast("잔액 부족", "정답이지만 돈이 부족해서 땅을 살 수 없어요.", "😢");
                             }
@@ -723,8 +924,8 @@
                             showToast("오답!", `아쉽네요. 정답은 [${tile.a}] 입니다.`, "❌");
                         }
                         nextTurn();
-                    }, "빈 땅 발견! 퀴즈를 맞히고 구매할까요?");
-                    return;
+                    }, "빈 땅 발견! 퀴즈를 맞히고 획득할까요?");
+                    return; 
                 } 
                 else if (owner !== currentUser.uid) {
                     const toll = Math.floor(tile.price / 2);
@@ -747,61 +948,23 @@
                 await updateDoc(roomRef, { [`players.${currentUser.uid}.balance`]: players[currentUser.uid].balance + 100 });
             }
             else if (tile.type === 'island') {
-                showToast("무인도!", "무인도에 갇혔습니다! (다음 턴엔 나갈 수 있어요)", "🏝️");
+                showToast("무인도!", "무인도에 도착했습니다! (한 턴 쉬기)", "🏝️");
             }
             nextTurn();
         }
 
-        async function handleBotTileAction(pos, botUid) {
-            const tile = TILES[pos];
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            const { players, tilesInfo } = localGameState;
-            
-            if (tile.type === 'quiz') {
-                const owner = tilesInfo[pos]?.owner;
-                const isCorrect = Math.random() < 0.7; // 컴퓨터 정답 확률 70%
-                
-                if (!owner) {
-                    if (isCorrect && players[botUid].balance >= tile.price) {
-                        await updateDoc(roomRef, {
-                            [`players.${botUid}.balance`]: players[botUid].balance - tile.price,
-                            [`tilesInfo.${pos}.owner`]: botUid
-                        });
-                        showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 샀습니다!`, "🤖");
-                    } else {
-                        showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖");
-                    }
-                } 
-                else if (owner !== botUid) {
-                    const toll = Math.floor(tile.price / 2);
-                    const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                    const msg = isCorrect ? `컴퓨터가 정답을 맞춰 통행료를 반값($${finalToll})만 냈습니다.` : `컴퓨터가 틀려서 통행료 $${finalToll}을 냈습니다.`;
-                    
-                    await updateDoc(roomRef, {
-                        [`players.${botUid}.balance`]: players[botUid].balance - finalToll,
-                        [`players.${owner}.balance`]: players[owner].balance + finalToll
-                    });
-                    showToast("컴퓨터 통행료 지불", msg, "💸");
-                }
-            } 
-            else if (tile.type === 'chance') {
-                await updateDoc(roomRef, { [`players.${botUid}.balance`]: players[botUid].balance + 100 });
-                showToast("컴퓨터 찬스!", "컴퓨터가 보너스 $100을 받았습니다.", "🎁");
-            }
-            else if (tile.type === 'island') {
-                showToast("컴퓨터 무인도!", "컴퓨터가 무인도에 갇혔습니다!", "🏝️");
-            }
-
-            setTimeout(nextTurn, 2500); // 팝업 읽을 시간 확보 후 다음 턴
-        }
-
         async function nextTurn() {
-            const btn = document.getElementById('roll-dice-btn');
-            btn.disabled = false; 
-            
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
-            await updateDoc(roomRef, { currentTurnIndex: nextIdx });
+            try {
+                const btn = document.getElementById('roll-dice-btn');
+                btn.disabled = false; 
+                window.botTurnInProgress = false; // 안전 리셋
+                
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
+                await updateDoc(roomRef, { currentTurnIndex: nextIdx });
+            } catch (err) {
+                console.error("nextTurn Error:", err);
+            }
         }
 
         function triggerQuiz(tile, callback, subtitle) {
@@ -816,7 +979,7 @@
             
             shuffled.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-50 text-blue-800 font-bold text-xl py-3 rounded-xl transition-colors";
+                btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-2xl transition-colors shadow-sm active-press";
                 btn.innerText = opt;
                 btn.onclick = () => {
                     modal.classList.add('hidden');
