@@ -62,6 +62,7 @@
             padding: 6px;
             border-radius: 16px;
             box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .tile {
@@ -146,7 +147,6 @@
 </head>
 <body class="min-h-screen p-2 md:p-4 flex flex-col items-center relative">
 
-    <!-- 토스트 알림창 -->
     <div id="toast-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
@@ -156,13 +156,11 @@
         </div>
     </div>
 
-    <!-- 로딩 뷰 -->
     <div id="loading-view" class="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto">
         <div class="text-6xl mb-4 animate-bounce">🎲</div>
         <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
     </div>
 
-    <!-- 1. 로그인 (메인) 뷰 -->
     <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4 relative">
         <button id="btn-show-teacher-auth" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors text-sm font-bold flex items-center gap-1">
             <span>⚙️</span>선생님 전용
@@ -173,9 +171,7 @@
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
             <p class="text-gray-500 mt-2">내 정보를 입력하고 세계 여행을 떠나요!</p>
         </div>
-        
-        <!-- form 대신 div를 사용하여 엔터키 오작동 완벽 차단 -->
-        <div id="entry-form" class="space-y-4">
+        <form id="entry-form" class="space-y-4" onsubmit="event.preventDefault(); return false;">
             <div class="flex space-x-2">
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-grade">학년</label>
@@ -239,10 +235,9 @@
                     혼자 하기 (vs 컴퓨터)
                 </button>
             </div>
-        </div>
+        </form>
     </div>
 
-    <!-- 2. 교사 모드 인증 모달 -->
     <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-gray-700">
             <h3 class="text-2xl font-bold mb-2">선생님 인증</h3>
@@ -255,7 +250,6 @@
         </div>
     </div>
 
-    <!-- 교사 모드 비번 변경 모달 -->
     <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
             <h3 class="text-xl font-bold mb-4">비밀번호 변경</h3>
@@ -267,7 +261,6 @@
         </div>
     </div>
 
-    <!-- 3. 교사 모드 (대시보드) 뷰 -->
     <div id="teacher-view" class="hidden w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-gray-700 mt-4">
         <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
             <h2 class="text-3xl font-bold text-gray-800">🧑‍🏫 교사 모드 - 문제 출제</h2>
@@ -281,14 +274,12 @@
             <div class="md:col-span-1 border-r-2 border-gray-100 pr-4">
                 <h3 class="font-bold text-lg mb-2 text-gray-600">국가(타일) 선택</h3>
                 <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2" id="teacher-tile-list">
-                    <!-- JS Rendering -->
                 </div>
             </div>
             
             <div class="md:col-span-2 pl-2">
                 <div id="teacher-editor" class="hidden flex-col gap-4">
                     <h3 class="text-2xl font-bold text-blue-600" id="editor-title">국가명</h3>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">문제 유형</label>
                         <select id="edit-quiz-type" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl">
@@ -296,17 +287,14 @@
                             <option value="short">서답형 (주관식)</option>
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">질문 (문제)</label>
                         <input type="text" id="edit-q" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl text-lg" placeholder="예: 대한민국">
                     </div>
-
                     <div>
                         <label class="block text-blue-700 text-sm font-bold mb-1">정답 (영어)</label>
                         <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-3 rounded-xl text-xl font-bold" placeholder="예: Korea">
                     </div>
-
                     <div id="choice-options-group" class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-red-700 text-sm font-bold mb-1">오답 1</label>
@@ -318,7 +306,6 @@
                         </div>
                         <p class="col-span-2 text-sm text-gray-500 mt-1">* 선택형일 경우, 정답과 오답 2개가 섞여서 출제됩니다.</p>
                     </div>
-
                     <div class="mt-4 pt-4 border-t-2 border-gray-100 flex justify-end">
                         <button id="btn-save-quiz" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press text-lg">
                             이 문제 저장하기
@@ -332,7 +319,6 @@
         </div>
     </div>
 
-    <!-- 4. 로비 뷰 -->
     <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
         <div class="text-6xl mb-4">⛺</div>
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
@@ -342,7 +328,24 @@
             <span class="text-5xl text-yellow-900 font-black tracking-widest" id="display-code">----</span>
         </div>
         
-        <p class="text-gray-600 mb-6">최소 2명이 모이면 방장이 게임을 시작할 수 있습니다!</p>
+        <p class="text-gray-600 mb-4">친구들이 모일 때까지 기다려주세요!</p>
+
+        <!-- 방장 전용: 게임 종료 조건 설정 패널 -->
+        <div id="host-settings-panel" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-4 text-left">
+            <h3 class="font-bold text-lg text-blue-800 mb-2 flex items-center gap-1"><span>⚙️</span>게임 규칙 설정 (방장 전용)</h3>
+            <div class="flex flex-col gap-2">
+                <select id="rule-type" class="w-full bg-white border border-blue-300 text-gray-700 py-2 px-3 rounded-xl focus:outline-none focus:border-blue-500 font-bold" onchange="updateRuleParamsUI()">
+                    <option value="time">⏳ 시간 제한 모드</option>
+                    <option value="turn">🏁 바퀴 수 제한 모드</option>
+                    <option value="asset">💰 목표 자산 달성 모드</option>
+                    <option value="bankrupt">💀 파산 서바이벌 모드</option>
+                </select>
+                <select id="rule-param" class="w-full bg-white border border-blue-300 text-gray-700 py-2 px-3 rounded-xl focus:outline-none focus:border-blue-500 font-bold">
+                    <!-- JS로 동적 생성됨 -->
+                </select>
+            </div>
+            <p class="text-xs text-blue-600 mt-2">* 방장이 [게임 시작]을 누르면 이 규칙으로 게임이 시작됩니다.</p>
+        </div>
         
         <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
             <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">접속한 여행자들 (<span id="player-count">0</span>/4명)</h3>
@@ -356,7 +359,6 @@
         <p id="waiting-msg" class="text-gray-400 text-sm mt-4 font-bold">인원 대기 중... (2명 이상 필요)</p>
     </div>
 
-    <!-- 5. 게임 뷰 -->
     <div id="game-view" class="hidden game-layout mt-4">
         <div id="status-top" class="hidden"></div>
         <div id="status-left" class="hidden"></div>
@@ -364,6 +366,17 @@
         <div id="status-bottom" class="hidden"></div>
 
         <div id="center-area" class="flex flex-col items-center">
+            
+            <div id="game-info-bar" class="w-full max-w-[600px] bg-indigo-600 text-white rounded-2xl p-3 mb-2 flex justify-between items-center shadow-md border-4 border-indigo-400">
+                <div class="font-bold text-lg flex items-center gap-2">
+                    <span id="rule-icon-display">⏳</span>
+                    <span id="rule-text-display">시간 제한 모드</span>
+                </div>
+                <div class="font-black text-2xl text-yellow-300 drop-shadow-sm tracking-wider" id="rule-status-display">
+                    --:--
+                </div>
+            </div>
+
             <div id="board" class="board-container relative">
                 <div id="board-inner-center" class="flex flex-col items-center justify-center p-2 sm:p-4 bg-white/70 backdrop-blur-sm rounded-2xl shadow-inner z-0" style="grid-column: 2 / 9; grid-row: 2 / 9;">
                     <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
@@ -371,7 +384,11 @@
                     </div>
 
                     <div class="bg-blue-50 rounded-2xl p-3 sm:p-4 text-center border-4 border-blue-200 shadow-inner w-full max-w-[280px]">
-                        <div id="dice-display" class="text-6xl sm:text-7xl mb-2 sm:mb-3 transition-all inline-block">🎲</div>
+                        <!-- 주사위 2개 컨테이너 -->
+                        <div class="flex justify-center gap-2 mb-2 sm:mb-3">
+                            <div id="dice-display-1" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
+                            <div id="dice-display-2" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
+                        </div>
                         <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
                             주사위 굴리기!
                         </button>
@@ -382,7 +399,7 @@
         </div>
     </div>
 
-    <!-- 인게임 퀴즈 모달 -->
+    <!-- 퀴즈 모달 -->
     <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400 transform transition-all scale-100">
             <div class="text-5xl mb-2">📝</div>
@@ -394,15 +411,31 @@
                 <p id="quiz-question" class="text-4xl font-black text-blue-600 drop-shadow-sm">사과</p>
             </div>
 
-            <!-- 선택형 버튼 영역 -->
             <div id="quiz-options-container" class="grid grid-cols-1 gap-3 hidden">
             </div>
 
-            <!-- 서답형 입력 영역 -->
             <div id="quiz-short-container" class="flex flex-col gap-3 hidden">
                 <input type="text" id="quiz-short-input" class="w-full bg-gray-50 border-2 border-gray-300 p-4 rounded-xl text-center text-2xl font-bold" placeholder="정답을 영어로 입력하세요" autocomplete="off">
                 <button id="quiz-short-submit" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press">정답 제출하기</button>
             </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-70 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-md text-center shadow-2xl border-4 border-purple-500 transform transition-all scale-100">
+            <div class="text-6xl mb-2 animate-bounce">🏆</div>
+            <h2 class="text-3xl font-black text-purple-600 mb-2">게임 종료!</h2>
+            <p id="game-over-reason" class="text-gray-500 font-bold mb-6 text-sm">시간이 종료되었습니다.</p>
+            
+            <div class="bg-purple-50 rounded-2xl p-4 mb-6 border-2 border-purple-200 shadow-inner">
+                <h3 class="font-bold text-lg text-purple-800 mb-3 border-b-2 border-purple-200 pb-2">최종 자산 순위</h3>
+                <ul id="ranking-list" class="space-y-3 text-left">
+                </ul>
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_4px_0_rgb(168,85,247)] active-press transition-colors">
+                처음으로 돌아가기
+            </button>
         </div>
     </div>
 
@@ -425,7 +458,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 기본 타일 데이터
         const DEFAULT_TILES = [
             { id: 0, name: '출발', flag: '🏁', type: 'start', col: 1, row: 1 },
             { id: 1, name: '한국', flag: '🇰🇷', type: 'quiz', quizType: 'choice', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
@@ -476,17 +508,19 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
-        // 🚀 핵심 수정사항: 매 접속(탭 새로고침)마다 무조건 완전히 새로운 유저 ID를 발급!
-        // 파이어베이스 익명 로그인의 세션 중복 문제를 회피하여 1인 다역 테스트를 완벽 지원합니다.
-        const myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+        let myPlayerId = sessionStorage.getItem('myPlayerId');
+        if (!myPlayerId) {
+            myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('myPlayerId', myPlayerId);
+        }
 
         let currentRoomId = null; 
-        let currentUser = null; 
+        let currentUser = null;
         let localGameState = null;
         let unsubscribeRoom = null;
         window.botTurnInProgress = false; 
+        let gameTimerInterval = null;
 
-        // 커스텀 문제 저장소
         let customQuizzes = {};
         let sysTeacherPw = "1234";
 
@@ -498,7 +532,6 @@
         }
         window.closeToast = function() { document.getElementById('toast-modal').classList.add('hidden'); }
 
-        // 캐릭터 선택 렌더링
         let selectedAvatar = AVATARS[0];
         const avatarContainer = document.getElementById('avatar-container');
         AVATARS.forEach((av, idx) => {
@@ -512,11 +545,9 @@
         });
         avatarContainer.addEventListener('change', (e) => { if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value; });
 
-        // 초기화 및 글로벌 설정 로드
         async function initApp() {
             try { 
                 await signInAnonymously(auth); 
-                
                 const adminRef = doc(db, 'settings', 'admin');
                 const adminSnap = await getDoc(adminRef);
                 if (adminSnap.exists()) {
@@ -536,21 +567,46 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user; // 권한 확인용으로만 유지
+                currentUser = user;
                 document.getElementById('loading-view').classList.add('hidden');
                 document.getElementById('login-view').classList.remove('hidden');
             }
         });
 
-        // 엔터키 방지 이벤트 (인풋 창에서 엔터 누를시 submit 버튼 작동)
-        document.getElementById('room-code').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('btn-submit-join').click();
+        window.updateRuleParamsUI = function() {
+            const type = document.getElementById('rule-type').value;
+            const paramSelect = document.getElementById('rule-param');
+            paramSelect.innerHTML = '';
+            
+            if(type === 'time') {
+                paramSelect.innerHTML = `
+                    <option value="5">5분 (스피드 게임)</option>
+                    <option value="10" selected>10분 (보통)</option>
+                    <option value="15">15분 (약간 김)</option>
+                    <option value="20">20분 (정규 게임)</option>
+                `;
+                paramSelect.disabled = false;
+            } else if(type === 'turn') {
+                paramSelect.innerHTML = `
+                    <option value="5">모두 5바퀴 돌면 종료</option>
+                    <option value="10" selected>모두 10바퀴 돌면 종료</option>
+                    <option value="15">모두 15바퀴 돌면 종료</option>
+                `;
+                paramSelect.disabled = false;
+            } else if(type === 'asset') {
+                paramSelect.innerHTML = `
+                    <option value="3000">$3,000 먼저 모으기</option>
+                    <option value="5000" selected>$5,000 먼저 모으기</option>
+                    <option value="10000">$10,000 먼저 모으기</option>
+                `;
+                paramSelect.disabled = false;
+            } else if(type === 'bankrupt') {
+                paramSelect.innerHTML = `<option value="0">한 명이라도 파산하면 즉시 종료</option>`;
+                paramSelect.disabled = true;
             }
-        });
+        }
+        updateRuleParamsUI();
 
-        // ------------------ 로그인 & 로비 UI 이벤트 ------------------ //
         document.getElementById('btn-show-join').addEventListener('click', () => {
             document.getElementById('btn-group-main').classList.add('hidden');
             document.getElementById('btn-single-play').classList.add('hidden');
@@ -589,10 +645,14 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1 };
             
             await setDoc(roomRef, {
-                state: 'lobby', players: players, turnOrder: [myPlayerId], currentTurnIndex: 0, tilesInfo: {}
+                state: 'lobby', 
+                players: players, 
+                turnOrder: [myPlayerId], 
+                currentTurnIndex: 0, 
+                tilesInfo: {}
             });
             
             document.getElementById('login-view').classList.add('hidden');
@@ -618,11 +678,10 @@
                 let roomData = snap.data();
                 if(roomData.turnOrder.length >= 4) { showToast("입장 불가", "방이 꽉 찼습니다.", "🚫"); return; }
 
-                // 고유 myPlayerId로 신규 플레이어 완벽 등록
                 if (!roomData.players[myPlayerId]) {
                     const pCount = roomData.turnOrder.length;
                     roomData.players[myPlayerId] = {
-                        name: name, avatar: selectedAvatar, color: COLORS[pCount % COLORS.length], pos: 0, balance: 1000, islandTurns: 0
+                        name: name, avatar: selectedAvatar, color: COLORS[pCount % COLORS.length], pos: 0, balance: 1000, islandTurns: 0, round: 1
                     };
                     roomData.turnOrder.push(myPlayerId);
                     await updateDoc(roomRef, { players: roomData.players, turnOrder: roomData.turnOrder });
@@ -643,18 +702,23 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
-            players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0 };
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1 };
+            players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0, round: 1 };
             
             await setDoc(roomRef, {
-                state: 'playing', players: players, turnOrder: [myPlayerId, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}
+                state: 'lobby', 
+                players: players, 
+                turnOrder: [myPlayerId, 'bot_1'], 
+                currentTurnIndex: 0, 
+                tilesInfo: {}
             });
             
             document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('lobby-view').classList.remove('hidden');
+            document.getElementById('display-code').innerText = currentRoomId;
             listenToRoom();
         });
 
-        // ------------------ 교사 모드 로직 ------------------ //
         document.getElementById('btn-show-teacher-auth').addEventListener('click', () => {
             document.getElementById('teacher-auth-modal').classList.remove('hidden');
             document.getElementById('teacher-pw-input').value = '';
@@ -764,8 +828,6 @@
             return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
         }
 
-
-        // ------------------ 멀티플레이 및 로비 동기화 ------------------ //
         function listenToRoom() {
             if(!currentRoomId) return;
             if(unsubscribeRoom) unsubscribeRoom();
@@ -782,8 +844,11 @@
                         document.getElementById('lobby-view').classList.add('hidden');
                         document.getElementById('game-view').classList.remove('hidden');
                         initBoard();
+                        startClientTimer();
                     }
                     updateGameUI();
+                } else if (localGameState.state === 'finished') {
+                    renderGameOver(localGameState.endReason);
                 }
             });
         }
@@ -809,22 +874,34 @@
                 `;
             });
 
-            // 2명 이상이면 방장은 시작 가능
-            if (uids[0] === myPlayerId && uids.length >= 2) {
-                document.getElementById('start-game-btn').classList.remove('hidden');
-                document.getElementById('waiting-msg').classList.add('hidden');
+            if (uids[0] === myPlayerId) {
+                document.getElementById('host-settings-panel').classList.remove('hidden');
+                if (uids.length >= 2) {
+                    document.getElementById('start-game-btn').classList.remove('hidden');
+                    document.getElementById('waiting-msg').classList.add('hidden');
+                } else {
+                    document.getElementById('start-game-btn').classList.add('hidden');
+                    document.getElementById('waiting-msg').classList.remove('hidden');
+                }
             } else {
-                document.getElementById('start-game-btn').classList.add('hidden');
-                document.getElementById('waiting-msg').classList.remove('hidden');
+                document.getElementById('host-settings-panel').classList.add('hidden');
             }
         }
 
         document.getElementById('start-game-btn').addEventListener('click', async () => {
+            const ruleType = document.getElementById('rule-type').value;
+            const ruleParam = parseInt(document.getElementById('rule-param').value) || 0;
+            const now = Date.now();
+            
             const roomRef = doc(db, 'rooms', currentRoomId);
-            await updateDoc(roomRef, { state: 'playing' });
+            await updateDoc(roomRef, { 
+                state: 'playing',
+                rule: { type: ruleType, value: ruleParam },
+                startTime: now,
+                endTime: ruleType === 'time' ? now + (ruleParam * 60 * 1000) : null
+            });
         });
 
-        // ------------------ 게임 보드 로직 ------------------ //
         function initBoard() {
             const board = document.getElementById('board');
             document.querySelectorAll('.tile').forEach(e => e.remove());
@@ -862,12 +939,116 @@
                         <div class="text-xs text-gray-500 font-bold mb-1">자산</div>
                         <div class="text-2xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
                         ${(p.islandTurns && p.islandTurns > 0) ? `<div class="text-xs text-red-500 font-bold mt-1">무인도 (${p.islandTurns}턴)</div>` : ''}
+                        ${localGameState.rule.type === 'turn' ? `<div class="text-xs text-blue-500 font-bold mt-1">진행: ${p.round}바퀴</div>` : ''}
                     </div>
                 </div>
             `;
         }
 
+        function updateRuleInfoBar() {
+            if(!localGameState || !localGameState.rule) return;
+            const rule = localGameState.rule;
+            const icon = document.getElementById('rule-icon-display');
+            const text = document.getElementById('rule-text-display');
+            const status = document.getElementById('rule-status-display');
+            
+            if(rule.type === 'time') {
+                icon.innerText = '⏳';
+                text.innerText = '시간 제한 모드';
+            } else if(rule.type === 'turn') {
+                icon.innerText = '🏁';
+                text.innerText = '바퀴 수 제한 모드';
+                let maxRound = 1;
+                Object.values(localGameState.players).forEach(p => { if(p.round > maxRound) maxRound = p.round; });
+                status.innerText = `최고 ${maxRound} / ${rule.value} 바퀴`;
+            } else if(rule.type === 'asset') {
+                icon.innerText = '💰';
+                text.innerText = '목표 자산 모드';
+                status.innerText = `목표: $${rule.value}`;
+            } else if(rule.type === 'bankrupt') {
+                icon.innerText = '💀';
+                text.innerText = '파산 서바이벌 모드';
+                status.innerText = `생존 경쟁 중`;
+            }
+        }
+
+        function startClientTimer() {
+            if(gameTimerInterval) clearInterval(gameTimerInterval);
+            gameTimerInterval = setInterval(() => {
+                if(!localGameState || localGameState.state !== 'playing' || !localGameState.rule) return;
+                
+                if(localGameState.rule.type === 'time') {
+                    const timeLeft = Math.max(0, localGameState.endTime - Date.now());
+                    const m = Math.floor(timeLeft / 60000).toString().padStart(2, '0');
+                    const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                    document.getElementById('rule-status-display').innerText = `${m}:${s}`;
+                    
+                    if(timeLeft === 0 && localGameState.turnOrder[0] === myPlayerId) {
+                        endGame("약속된 시간이 모두 종료되었습니다!");
+                    }
+                }
+            }, 1000);
+        }
+
+        function calculateTotalAssets(uid) {
+            let p = localGameState.players[uid];
+            let total = p.balance;
+            DEFAULT_TILES.forEach(t => {
+                if (localGameState.tilesInfo[t.id]?.owner === uid) {
+                    total += (t.price || 0);
+                }
+            });
+            return total;
+        }
+
+        async function endGame(reasonMsg) {
+            if (localGameState.turnOrder[0] !== myPlayerId) return; 
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            await updateDoc(roomRef, { state: 'finished', endReason: reasonMsg });
+        }
+
+        function renderGameOver(reasonMsg) {
+            document.getElementById('game-over-reason').innerText = reasonMsg;
+            const list = document.getElementById('ranking-list');
+            list.innerHTML = '';
+
+            const ranking = localGameState.turnOrder.map(uid => {
+                return {
+                    uid: uid,
+                    name: localGameState.players[uid].name,
+                    avatar: localGameState.players[uid].avatar,
+                    totalAsset: calculateTotalAssets(uid)
+                };
+            }).sort((a, b) => b.totalAsset - a.totalAsset);
+
+            ranking.forEach((p, idx) => {
+                let badge = '';
+                if(idx === 0) badge = '🥇 1등';
+                else if(idx === 1) badge = '🥈 2등';
+                else if(idx === 2) badge = '🥉 3등';
+                else badge = `${idx+1}등`;
+
+                const isMe = p.uid === myPlayerId;
+                list.innerHTML += `
+                    <li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}">
+                        <div class="flex items-center gap-3">
+                            <span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span>
+                            <span class="text-3xl">${p.avatar}</span>
+                            <span class="font-bold text-lg text-gray-800">${p.name} ${isMe ? '(나)' : ''}</span>
+                        </div>
+                        <div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset}</div>
+                    </li>
+                `;
+            });
+
+            document.getElementById('game-over-modal').classList.remove('hidden');
+        }
+
         function updateGameUI() {
+            if(localGameState.state !== 'playing') return;
+
+            updateRuleInfoBar();
+
             const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
             const isMyTurn = currentUid === myPlayerId;
@@ -1008,35 +1189,49 @@
             if (p.islandTurns && p.islandTurns > 0) {
                 await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
                 showToast("무인도", `휴식 중입니다. ${p.islandTurns - 1}턴 남았습니다.`, "🏝️");
-                setTimeout(nextTurn, 1500);
+                setTimeout(() => nextTurn(false), 1500);
                 return;
             }
             
-            const diceDiv = document.getElementById('dice-display');
-            diceDiv.classList.add('rolling');
+            const diceDiv1 = document.getElementById('dice-display-1');
+            const diceDiv2 = document.getElementById('dice-display-2');
+            diceDiv1.classList.add('rolling');
+            diceDiv2.classList.add('rolling');
             await new Promise(r => setTimeout(r, 600));
-            diceDiv.classList.remove('rolling');
+            diceDiv1.classList.remove('rolling');
+            diceDiv2.classList.remove('rolling');
             
-            const diceNum = Math.floor(Math.random() * 6) + 1;
+            const diceNum1 = Math.floor(Math.random() * 6) + 1;
+            const diceNum2 = Math.floor(Math.random() * 6) + 1;
+            const isDouble = (diceNum1 === diceNum2);
+            
             const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-            diceDiv.innerText = diceFaces[diceNum];
+            diceDiv1.innerText = diceFaces[diceNum1];
+            diceDiv2.innerText = diceFaces[diceNum2];
 
-            let newPos = p.pos + diceNum;
+            const diceSum = diceNum1 + diceNum2;
+            let newPos = p.pos + diceSum;
             let passGo = false;
+            let newRound = p.round;
             
             if (newPos >= 32) {
                 newPos = newPos % 32;
                 passGo = true;
+                newRound++;
             }
 
-            let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
+            let updatePayload = { 
+                [`players.${myPlayerId}.pos`]: newPos,
+                [`players.${myPlayerId}.round`]: newRound
+            };
+            
             if(passGo) {
                 updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200;
                 showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
             }
             await updateDoc(roomRef, updatePayload);
 
-            setTimeout(() => { handleTileAction(newPos, myPlayerId, false); }, 800);
+            setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
         });
 
         async function runBotTurn(botUid) {
@@ -1047,39 +1242,79 @@
                 if (p.islandTurns && p.islandTurns > 0) {
                     await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
                     showToast("컴퓨터 무인도", `컴퓨터가 무인도에서 쉬고 있습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
-                    setTimeout(nextTurn, 2000);
+                    setTimeout(() => nextTurn(false), 2000);
                     return;
                 }
 
-                const diceDiv = document.getElementById('dice-display');
-                diceDiv.classList.add('rolling');
+                const diceDiv1 = document.getElementById('dice-display-1');
+                const diceDiv2 = document.getElementById('dice-display-2');
+                diceDiv1.classList.add('rolling');
+                diceDiv2.classList.add('rolling');
                 await new Promise(r => setTimeout(r, 600));
-                diceDiv.classList.remove('rolling');
+                diceDiv1.classList.remove('rolling');
+                diceDiv2.classList.remove('rolling');
                 
-                const diceNum = Math.floor(Math.random() * 6) + 1;
+                const diceNum1 = Math.floor(Math.random() * 6) + 1;
+                const diceNum2 = Math.floor(Math.random() * 6) + 1;
+                const isDouble = (diceNum1 === diceNum2);
+                
                 const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-                diceDiv.innerText = diceFaces[diceNum];
+                diceDiv1.innerText = diceFaces[diceNum1];
+                diceDiv2.innerText = diceFaces[diceNum2];
 
-                let newPos = p.pos + diceNum;
+                const diceSum = diceNum1 + diceNum2;
+                let newPos = p.pos + diceSum;
                 let passGo = false;
+                let newRound = p.round;
                 
                 if (newPos >= 32) {
                     newPos = newPos % 32;
                     passGo = true;
+                    newRound++;
                 }
 
-                let updatePayload = { [`players.${botUid}.pos`]: newPos };
+                let updatePayload = { 
+                    [`players.${botUid}.pos`]: newPos,
+                    [`players.${botUid}.round`]: newRound
+                };
                 if(passGo) updatePayload[`players.${botUid}.balance`] = p.balance + 200;
                 
                 await updateDoc(roomRef, updatePayload);
-                setTimeout(() => { handleTileAction(newPos, botUid, true); }, 1200);
+                setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
             } catch (err) {
                 console.error("Bot turn error:", err);
-                nextTurn(); 
+                nextTurn(false); 
             }
         }
 
-        async function handleTileAction(pos, uid, isBot) {
+        async function checkWinConditions(uid) {
+            if (localGameState.turnOrder[0] !== myPlayerId) return false; 
+            
+            const p = localGameState.players[uid];
+            const rule = localGameState.rule;
+            
+            if (rule.type === 'asset' && calculateTotalAssets(uid) >= rule.value) {
+                await endGame(`${p.name} 님이 목표 자산($${rule.value})을 가장 먼저 달성했습니다!`);
+                return true;
+            }
+            if (rule.type === 'bankrupt' && p.balance < 0) {
+                await endGame(`${p.name} 님이 통행료를 내지 못해 파산했습니다!`);
+                return true;
+            }
+            if (rule.type === 'turn') {
+                let allFinished = true;
+                Object.values(localGameState.players).forEach(player => {
+                    if (player.round <= rule.value) allFinished = false; 
+                });
+                if (allFinished) {
+                    await endGame(`모든 플레이어가 ${rule.value} 바퀴를 완주했습니다!`);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        async function handleTileAction(pos, uid, isBot, isDouble) {
             try {
                 const baseTile = DEFAULT_TILES[pos];
                 const tile = getMergedTile(baseTile);
@@ -1112,7 +1347,11 @@
                             });
                             showToast("컴퓨터 통행료 지불", msg, "💸");
                         }
-                        setTimeout(nextTurn, 3000);
+                        
+                        setTimeout(async () => {
+                            const ended = await checkWinConditions(uid);
+                            if(!ended) nextTurn(isDouble);
+                        }, 3000);
                         return;
                     } 
                     else {
@@ -1127,7 +1366,9 @@
                                         showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰");
                                     } else { showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢"); }
                                 } else { showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌"); }
-                                nextTurn();
+                                
+                                const ended = await checkWinConditions(uid);
+                                if(!ended) nextTurn(isDouble);
                             }, "새로운 나라 발견! 퀴즈를 맞히면 구매할 수 있어요.");
                             return; 
                         } else if (owner !== uid) {
@@ -1140,7 +1381,9 @@
                                     [`players.${owner}.balance`]: players[owner].balance + finalToll
                                 });
                                 showToast("통행료 지불", msg, "💸");
-                                nextTurn();
+                                
+                                const ended = await checkWinConditions(uid);
+                                if(!ended) nextTurn(isDouble);
                             }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
                             return;
                         }
@@ -1156,43 +1399,59 @@
                         updatePayload[`players.${uid}.pos`] = card.pos;
                         if (card.pos === 0) { 
                             updatePayload[`players.${uid}.balance`] = players[uid].balance + 200;
+                            updatePayload[`players.${uid}.round`] = players[uid].round + 1;
                         } else if (card.pos === 8) { 
                             updatePayload[`players.${uid}.islandTurns`] = 3;
+                            isDouble = false; // 무인도에 가면 더블 규칙 취소
                         }
                     }
                     
                     showToast("황금열쇠 🗝️", `[${card.title}]\n${card.msg}`, "✨");
                     await updateDoc(roomRef, updatePayload);
-                    setTimeout(nextTurn, 3000);
+                    
+                    setTimeout(async () => {
+                        const ended = await checkWinConditions(uid);
+                        if(!ended) nextTurn(isDouble);
+                    }, 3000);
                     return;
                 }
                 else if (tile.type === 'island') {
                     showToast(isBot ? "컴퓨터 무인도!" : "무인도!", "무인도에 도착했습니다! (3턴 쉬기)", "🏝️");
                     await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3 });
+                    isDouble = false; // 무인도에 도착하면 더블 규칙 취소
                 }
                 
-                nextTurn();
+                const ended = await checkWinConditions(uid);
+                if(!ended) nextTurn(isDouble);
             } catch (err) {
                 console.error("Action error:", err);
-                nextTurn();
+                nextTurn(false);
             }
         }
 
-        async function nextTurn() {
+        async function nextTurn(isDouble = false) {
             try {
+                if(localGameState.state !== 'playing') return;
+                
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
                 window.botTurnInProgress = false; 
                 
                 const roomRef = doc(db, 'rooms', currentRoomId);
-                const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
-                await updateDoc(roomRef, { currentTurnIndex: nextIdx });
+                
+                if (isDouble) {
+                    showToast("더블! 🎲🎲", "주사위가 같은 숫자가 나왔어요! 한 번 더 굴립니다.", "🎉");
+                    // 턴을 넘기지 않고 DB 업데이트만 발생시켜 로컬 UI 갱신 (봇 포함)
+                    await updateDoc(roomRef, { lastActionTime: Date.now() }); 
+                } else {
+                    const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
+                    await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
+                }
             } catch (err) {
                 console.error("nextTurn Error:", err);
             }
         }
 
-        // 선택형/서답형 통합 퀴즈 모달 
         function triggerQuiz(tile, callback, subtitle) {
             const modal = document.getElementById('quiz-modal');
             document.getElementById('quiz-subtitle').innerText = subtitle;
@@ -1204,7 +1463,6 @@
             const shortSubmitBtn = document.getElementById('quiz-short-submit');
             
             if (tile.quizType === 'short') {
-                // 서답형 UI 표시
                 choiceContainer.classList.add('hidden');
                 shortContainer.classList.remove('hidden');
                 shortInput.value = '';
@@ -1216,7 +1474,6 @@
                     callback(ans === tile.a.toLowerCase());
                 };
             } else {
-                // 선택형 UI 표시
                 shortContainer.classList.add('hidden');
                 choiceContainer.classList.remove('hidden');
                 choiceContainer.innerHTML = '';
