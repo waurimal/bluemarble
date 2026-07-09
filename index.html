@@ -70,7 +70,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 6px;
             text-align: center;
             position: relative;
             box-shadow: 0 3px 0 #e0f2fe;
@@ -78,8 +79,9 @@
             transition: all 0.3s ease;
         }
 
-        .tile-name { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 1px; word-break: keep-all; line-height: 1.1; }
-        .tile-price { font-size: 10px; color: #ef4444; font-weight: bold;}
+        .tile-name { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 2px; word-break: keep-all; line-height: 1.1; z-index: 2; }
+        .tile-flag { font-size: 22px; margin-bottom: 2px; z-index: 2; line-height: 1; }
+        .tile-price { font-size: 10px; color: #ef4444; font-weight: bold; z-index: 2; }
         
         .tile.start { background-color: #fef08a; box-shadow: 0 3px 0 #fde047; }
         .tile.island { background-color: #cbd5e1; box-shadow: 0 3px 0 #94a3b8; }
@@ -104,12 +106,25 @@
             z-index: 20;
         }
 
-        .player-token {
+        .token-container {
             position: absolute;
-            font-size: 16px;
-            transition: all 0.5s ease-in-out;
+            bottom: 3px;
+            left: 2px;
+            right: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2px;
             z-index: 10;
+            min-height: 18px;
+        }
+
+        .player-token {
+            font-size: 15px;
+            transition: all 0.3s ease-in-out;
             filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+            line-height: 1;
         }
 
         .avatar-radio { display: none; }
@@ -303,43 +318,43 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 대륙별 타일 배치 (위: 아시아, 오른쪽: 아메리카, 아래: 유럽, 왼쪽: 아프리카)
+        // 대륙별 타일 배치 및 국기(flag) 속성 분리 적용
         const TILES = [
-            { id: 0, name: '출발', type: 'start', col: 1, row: 1 },
-            { id: 1, name: '🇰🇷 한국', type: 'quiz', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
-            { id: 2, name: '🇯🇵 일본', type: 'quiz', price: 100, col: 3, row: 1, q: '일본', a: 'Japan', options: ['Japan', 'USA', 'UK'] },
-            { id: 3, name: '🗝️ 찬스', type: 'chance', col: 4, row: 1 },
-            { id: 4, name: '🇨🇳 중국', type: 'quiz', price: 120, col: 5, row: 1, q: '중국', a: 'China', options: ['China', 'India', 'France'] },
-            { id: 5, name: '🇻🇳 베트남', type: 'quiz', price: 120, col: 6, row: 1, q: '베트남', a: 'Vietnam', options: ['Vietnam', 'Thailand', 'Spain'] },
-            { id: 6, name: '🗝️ 찬스', type: 'chance', col: 7, row: 1 },
-            { id: 7, name: '🇹🇭 태국', type: 'quiz', price: 140, col: 8, row: 1, q: '태국', a: 'Thailand', options: ['Thailand', 'Korea', 'Canada'] },
-            { id: 8, name: '🏝️ 무인도', type: 'island', col: 9, row: 1 }, // 코너 1 (무인도)
+            { id: 0, name: '출발', flag: '🏁', type: 'start', col: 1, row: 1 },
+            { id: 1, name: '한국', flag: '🇰🇷', type: 'quiz', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
+            { id: 2, name: '일본', flag: '🇯🇵', type: 'quiz', price: 100, col: 3, row: 1, q: '일본', a: 'Japan', options: ['Japan', 'USA', 'UK'] },
+            { id: 3, name: '찬스', flag: '🗝️', type: 'chance', col: 4, row: 1 },
+            { id: 4, name: '중국', flag: '🇨🇳', type: 'quiz', price: 120, col: 5, row: 1, q: '중국', a: 'China', options: ['China', 'India', 'France'] },
+            { id: 5, name: '베트남', flag: '🇻🇳', type: 'quiz', price: 120, col: 6, row: 1, q: '베트남', a: 'Vietnam', options: ['Vietnam', 'Thailand', 'Spain'] },
+            { id: 6, name: '찬스', flag: '🗝️', type: 'chance', col: 7, row: 1 },
+            { id: 7, name: '태국', flag: '🇹🇭', type: 'quiz', price: 140, col: 8, row: 1, q: '태국', a: 'Thailand', options: ['Thailand', 'Korea', 'Canada'] },
+            { id: 8, name: '무인도', flag: '🏝️', type: 'island', col: 9, row: 1 },
             
-            { id: 9, name: '🇺🇸 미국', type: 'quiz', price: 150, col: 9, row: 2, q: '미국', a: 'USA', options: ['USA', 'UK', 'Brazil'] },
-            { id: 10, name: '🇨🇦 캐나다', type: 'quiz', price: 150, col: 9, row: 3, q: '캐나다', a: 'Canada', options: ['Canada', 'Mexico', 'Peru'] },
-            { id: 11, name: '🗝️ 찬스', type: 'chance', col: 9, row: 4 },
-            { id: 12, name: '🇲🇽 멕시코', type: 'quiz', price: 170, col: 9, row: 5, q: '멕시코', a: 'Mexico', options: ['Mexico', 'Spain', 'Italy'] },
-            { id: 13, name: '🇧🇷 브라질', type: 'quiz', price: 170, col: 9, row: 6, q: '브라질', a: 'Brazil', options: ['Brazil', 'Argentina', 'Chile'] },
-            { id: 14, name: '🗝️ 찬스', type: 'chance', col: 9, row: 7 },
-            { id: 15, name: '🇦🇷 아르헨', type: 'quiz', price: 190, col: 9, row: 8, q: '아르헨티나', a: 'Argentina', options: ['Argentina', 'Brazil', 'Mexico'] },
-            { id: 16, name: '☕ 휴식', type: 'rest', col: 9, row: 9 }, // 코너 2 (휴식)
+            { id: 9, name: '미국', flag: '🇺🇸', type: 'quiz', price: 150, col: 9, row: 2, q: '미국', a: 'USA', options: ['USA', 'UK', 'Brazil'] },
+            { id: 10, name: '캐나다', flag: '🇨🇦', type: 'quiz', price: 150, col: 9, row: 3, q: '캐나다', a: 'Canada', options: ['Canada', 'Mexico', 'Peru'] },
+            { id: 11, name: '찬스', flag: '🗝️', type: 'chance', col: 9, row: 4 },
+            { id: 12, name: '멕시코', flag: '🇲🇽', type: 'quiz', price: 170, col: 9, row: 5, q: '멕시코', a: 'Mexico', options: ['Mexico', 'Spain', 'Italy'] },
+            { id: 13, name: '브라질', flag: '🇧🇷', type: 'quiz', price: 170, col: 9, row: 6, q: '브라질', a: 'Brazil', options: ['Brazil', 'Argentina', 'Chile'] },
+            { id: 14, name: '찬스', flag: '🗝️', type: 'chance', col: 9, row: 7 },
+            { id: 15, name: '아르헨', flag: '🇦🇷', type: 'quiz', price: 190, col: 9, row: 8, q: '아르헨티나', a: 'Argentina', options: ['Argentina', 'Brazil', 'Mexico'] },
+            { id: 16, name: '휴식', flag: '☕', type: 'rest', col: 9, row: 9 },
             
-            { id: 17, name: '🇬🇧 영국', type: 'quiz', price: 200, col: 8, row: 9, q: '영국', a: 'UK', options: ['UK', 'USA', 'France'] },
-            { id: 18, name: '🇫🇷 프랑스', type: 'quiz', price: 200, col: 7, row: 9, q: '프랑스', a: 'France', options: ['France', 'Germany', 'Spain'] },
-            { id: 19, name: '🗝️ 찬스', type: 'chance', col: 6, row: 9 },
-            { id: 20, name: '🇩🇪 독일', type: 'quiz', price: 220, col: 5, row: 9, q: '독일', a: 'Germany', options: ['Germany', 'Italy', 'UK'] },
-            { id: 21, name: '🇮🇹 이탈리아', type: 'quiz', price: 220, col: 4, row: 9, q: '이탈리아', a: 'Italy', options: ['Italy', 'France', 'Greece'] },
-            { id: 22, name: '🗝️ 찬스', type: 'chance', col: 3, row: 9 },
-            { id: 23, name: '🇪🇸 스페인', type: 'quiz', price: 240, col: 2, row: 9, q: '스페인', a: 'Spain', options: ['Spain', 'Mexico', 'Brazil'] },
-            { id: 24, name: '✈️ 비행기', type: 'travel', col: 1, row: 9 }, // 코너 3 (비행기)
+            { id: 17, name: '영국', flag: '🇬🇧', type: 'quiz', price: 200, col: 8, row: 9, q: '영국', a: 'UK', options: ['UK', 'USA', 'France'] },
+            { id: 18, name: '프랑스', flag: '🇫🇷', type: 'quiz', price: 200, col: 7, row: 9, q: '프랑스', a: 'France', options: ['France', 'Germany', 'Spain'] },
+            { id: 19, name: '찬스', flag: '🗝️', type: 'chance', col: 6, row: 9 },
+            { id: 20, name: '독일', flag: '🇩🇪', type: 'quiz', price: 220, col: 5, row: 9, q: '독일', a: 'Germany', options: ['Germany', 'Italy', 'UK'] },
+            { id: 21, name: '이탈리아', flag: '🇮🇹', type: 'quiz', price: 220, col: 4, row: 9, q: '이탈리아', a: 'Italy', options: ['Italy', 'France', 'Greece'] },
+            { id: 22, name: '찬스', flag: '🗝️', type: 'chance', col: 3, row: 9 },
+            { id: 23, name: '스페인', flag: '🇪🇸', type: 'quiz', price: 240, col: 2, row: 9, q: '스페인', a: 'Spain', options: ['Spain', 'Mexico', 'Brazil'] },
+            { id: 24, name: '비행기', flag: '✈️', type: 'travel', col: 1, row: 9 },
             
-            { id: 25, name: '🇪🇬 이집트', type: 'quiz', price: 250, col: 1, row: 8, q: '이집트', a: 'Egypt', options: ['Egypt', 'Kenya', 'Ghana'] },
-            { id: 26, name: '🇰🇪 케냐', type: 'quiz', price: 250, col: 1, row: 7, q: '케냐', a: 'Kenya', options: ['Kenya', 'South Africa', 'Morocco'] },
-            { id: 27, name: '🗝️ 찬스', type: 'chance', col: 1, row: 6 },
-            { id: 28, name: '🇿🇦 남아공', type: 'quiz', price: 270, col: 1, row: 5, q: '남아프리카', a: 'South Africa', options: ['South Africa', 'Egypt', 'Ghana'] },
-            { id: 29, name: '🇲🇦 모로코', type: 'quiz', price: 270, col: 1, row: 4, q: '모로코', a: 'Morocco', options: ['Morocco', 'Kenya', 'Spain'] },
-            { id: 30, name: '🗝️ 찬스', type: 'chance', col: 1, row: 3 },
-            { id: 31, name: '🇬🇭 가나', type: 'quiz', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
+            { id: 25, name: '이집트', flag: '🇪🇬', type: 'quiz', price: 250, col: 1, row: 8, q: '이집트', a: 'Egypt', options: ['Egypt', 'Kenya', 'Ghana'] },
+            { id: 26, name: '케냐', flag: '🇰🇪', type: 'quiz', price: 250, col: 1, row: 7, q: '케냐', a: 'Kenya', options: ['Kenya', 'South Africa', 'Morocco'] },
+            { id: 27, name: '찬스', flag: '🗝️', type: 'chance', col: 1, row: 6 },
+            { id: 28, name: '남아공', flag: '🇿🇦', type: 'quiz', price: 270, col: 1, row: 5, q: '남아프리카', a: 'South Africa', options: ['South Africa', 'Egypt', 'Ghana'] },
+            { id: 29, name: '모로코', flag: '🇲🇦', type: 'quiz', price: 270, col: 1, row: 4, q: '모로코', a: 'Morocco', options: ['Morocco', 'Kenya', 'Spain'] },
+            { id: 30, name: '찬스', flag: '🗝️', type: 'chance', col: 1, row: 3 },
+            { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
         // 황금열쇠(찬스) 카드 효과 목록
@@ -565,7 +580,11 @@
                 div.style.gridRow = t.row;
                 
                 let content = `<div class="tile-name">${t.name}</div>`;
+                if(t.flag) content += `<div class="tile-flag">${t.flag}</div>`;
                 if(t.price) content += `<div class="tile-price">$${t.price}</div>`;
+                
+                // 플레이어 말이 들어갈 전용 컨테이너 (타일 하단)
+                content += `<div class="token-container" id="token-container-${t.id}"></div>`;
                 
                 div.innerHTML = content;
                 board.appendChild(div);
@@ -593,8 +612,6 @@
         }
 
         function updateGameUI() {
-            window.botTurnInProgress = false; 
-
             const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
             const isMyTurn = currentUid === currentUser.uid;
@@ -664,6 +681,7 @@
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
                 
+                // 봇 무한 반복 실행 방지
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
                     setTimeout(() => runBotTurn(currentUid), 1500);
@@ -706,7 +724,8 @@
         }
 
         function renderTokens() {
-            document.querySelectorAll('.player-token').forEach(el => el.remove());
+            // 기존 토큰들을 초기화합니다.
+            document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
             const players = localGameState.players;
             const posMap = {};
             
@@ -716,13 +735,11 @@
                 posMap[pos].push(players[uid].avatar);
             });
 
+            // 각 타일 하단의 지정된 컨테이너에 말(토큰)을 배치합니다.
             Object.keys(posMap).forEach(pos => {
-                const tileDiv = document.getElementById(`tile-${pos}`);
-                if (tileDiv) {
-                    const tokenDiv = document.createElement('div');
-                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none gap-0.5';
-                    tokenDiv.innerHTML = posMap[pos].map(a => `<span>${a}</span>`).join('');
-                    tileDiv.appendChild(tokenDiv);
+                const container = document.getElementById(`token-container-${pos}`);
+                if (container) {
+                    container.innerHTML = posMap[pos].map(a => `<div class="player-token">${a}</div>`).join('');
                 }
             });
         }
@@ -916,6 +933,8 @@
             try {
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
+                
+                // 턴이 완전히 넘어가는 시점에만 봇 상태를 초기화합니다.
                 window.botTurnInProgress = false; 
                 
                 const roomRef = doc(db, 'rooms', currentRoomId);
