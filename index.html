@@ -173,7 +173,9 @@
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
             <p class="text-gray-500 mt-2">내 정보를 입력하고 세계 여행을 떠나요!</p>
         </div>
-        <form id="entry-form" class="space-y-4" onsubmit="event.preventDefault(); return false;">
+        
+        <!-- form 대신 div를 사용하여 엔터키 오작동 완벽 차단 -->
+        <div id="entry-form" class="space-y-4">
             <div class="flex space-x-2">
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-grade">학년</label>
@@ -237,7 +239,7 @@
                     혼자 하기 (vs 컴퓨터)
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- 2. 교사 모드 인증 모달 -->
@@ -474,15 +476,12 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
-        // ★ 같은 브라우저 여러 탭 테스트를 위한 고유 플레이어 ID 생성 (sessionStorage 활용)
-        let myPlayerId = sessionStorage.getItem('myPlayerId');
-        if (!myPlayerId) {
-            myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
-            sessionStorage.setItem('myPlayerId', myPlayerId);
-        }
+        // 🚀 핵심 수정사항: 매 접속(탭 새로고침)마다 무조건 완전히 새로운 유저 ID를 발급!
+        // 파이어베이스 익명 로그인의 세션 중복 문제를 회피하여 1인 다역 테스트를 완벽 지원합니다.
+        const myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
 
         let currentRoomId = null; 
-        let currentUser = null; // 파이어베이스 인증 객체 (쓰기 권한용)
+        let currentUser = null; 
         let localGameState = null;
         let unsubscribeRoom = null;
         window.botTurnInProgress = false; 
@@ -537,9 +536,17 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
+                currentUser = user; // 권한 확인용으로만 유지
                 document.getElementById('loading-view').classList.add('hidden');
                 document.getElementById('login-view').classList.remove('hidden');
+            }
+        });
+
+        // 엔터키 방지 이벤트 (인풋 창에서 엔터 누를시 submit 버튼 작동)
+        document.getElementById('room-code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('btn-submit-join').click();
             }
         });
 
@@ -582,7 +589,6 @@
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            // 게임 내부 관리는 고유 myPlayerId를 사용합니다.
             players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0 };
             
             await setDoc(roomRef, {
@@ -612,7 +618,7 @@
                 let roomData = snap.data();
                 if(roomData.turnOrder.length >= 4) { showToast("입장 불가", "방이 꽉 찼습니다.", "🚫"); return; }
 
-                // 고유 myPlayerId로 신규 플레이어 등록 처리
+                // 고유 myPlayerId로 신규 플레이어 완벽 등록
                 if (!roomData.players[myPlayerId]) {
                     const pCount = roomData.turnOrder.length;
                     roomData.players[myPlayerId] = {
@@ -803,7 +809,7 @@
                 `;
             });
 
-            // 2명 이상이면 방장은 시작 가능 (myPlayerId 기준 확인)
+            // 2명 이상이면 방장은 시작 가능
             if (uids[0] === myPlayerId && uids.length >= 2) {
                 document.getElementById('start-game-btn').classList.remove('hidden');
                 document.getElementById('waiting-msg').classList.add('hidden');
