@@ -20,19 +20,18 @@
         .bounce-hover:hover { transform: translateY(-2px); }
         .active-press:active { transform: scale(0.95); }
 
-        /* 인원수에 따른 십자형(Cross) 레이아웃 시스템 (PC 기준) */
         .game-layout {
             display: grid;
             grid-template-areas: 
                 ". top ."
                 "left center right"
                 ". bottom .";
-            grid-template-columns: 240px minmax(320px, 600px) 240px;
+            grid-template-columns: 240px minmax(320px, 700px) 240px;
             gap: 16px;
             justify-content: center;
             align-items: start;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
@@ -40,10 +39,10 @@
         .game-layout > #status-left { grid-area: left; }
         .game-layout > #status-right { grid-area: right; }
         .game-layout > #status-bottom { grid-area: bottom; justify-self: center; width: 100%; max-width: 240px; }
-        .game-layout > #center-area { grid-area: center; }
+        .game-layout > #center-area { grid-area: center; width: 100%; }
 
         /* 모바일 반응형: 세로로 쌓기 */
-        @media (max-width: 1024px) {
+        @media (max-width: 1100px) {
             .game-layout {
                 display: flex;
                 flex-direction: column;
@@ -53,57 +52,56 @@
             .game-layout > #status-top, .game-layout > #status-bottom { max-width: 100%; }
         }
 
-        /* 보드판 그리드 설정 (5x5 형태의 테두리 16칸) */
         .board-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 3px;
             width: 100%;
             aspect-ratio: 1 / 1;
             background-color: #7dd3fc;
-            padding: 8px;
+            padding: 6px;
             border-radius: 16px;
             box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .tile {
             background-color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             position: relative;
-            box-shadow: 0 4px 0 #e0f2fe;
-            border: 3px solid transparent;
+            box-shadow: 0 3px 0 #e0f2fe;
+            border: 2px solid transparent;
             transition: all 0.3s ease;
         }
 
-        .tile-name { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
-        .tile-price { font-size: 11px; color: #ef4444; }
+        .tile-name { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 1px; word-break: keep-all; line-height: 1.1; }
+        .tile-price { font-size: 9px; color: #ef4444; }
         
         /* 특수 칸 색상 */
-        .tile.start { background-color: #fef08a; box-shadow: 0 4px 0 #fde047; }
-        .tile.island { background-color: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; }
-        .tile.chance { background-color: #fbcfe8; box-shadow: 0 4px 0 #f472b6; }
-        .tile.rest { background-color: #bbf7d0; box-shadow: 0 4px 0 #86efac; }
-        .tile.travel { background-color: #ddd6fe; box-shadow: 0 4px 0 #a78bfa; }
+        .tile.start { background-color: #fef08a; box-shadow: 0 3px 0 #fde047; }
+        .tile.island { background-color: #cbd5e1; box-shadow: 0 3px 0 #94a3b8; }
+        .tile.chance { background-color: #fbcfe8; box-shadow: 0 3px 0 #f472b6; }
+        .tile.rest { background-color: #bbf7d0; box-shadow: 0 3px 0 #86efac; }
+        .tile.travel { background-color: #ddd6fe; box-shadow: 0 3px 0 #a78bfa; }
 
         /* 소유자 뱃지 (왼쪽 위) */
         .owner-marker {
             position: absolute;
-            top: -8px;
-            left: -8px;
-            width: 28px;
-            height: 28px;
+            top: -6px;
+            left: -6px;
+            width: 22px;
+            height: 22px;
             background-color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             border: 2px solid;
             z-index: 20;
@@ -112,10 +110,10 @@
         /* 플레이어 말 애니메이션 (가운데) */
         .player-token {
             position: absolute;
-            font-size: 24px;
+            font-size: 16px;
             transition: all 0.5s ease-in-out;
             z-index: 10;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
         }
 
         /* 아바타 선택 라디오 버튼 숨김 처리 */
@@ -126,6 +124,7 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
 
+        /* 주사위 애니메이션 */
         @keyframes diceRoll {
             0% { transform: rotate(0deg) scale(1); }
             25% { transform: rotate(90deg) scale(1.2); }
@@ -138,7 +137,6 @@
 </head>
 <body class="min-h-screen p-2 md:p-4 flex flex-col items-center">
 
-    <!-- 글로벌 메시지 모달 (Alert 대체용) -->
     <div id="toast-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
@@ -148,13 +146,12 @@
         </div>
     </div>
 
-    <!-- 로딩 스크린 -->
     <div id="loading-view" class="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto">
         <div class="text-6xl mb-4 animate-bounce">🎲</div>
         <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
     </div>
 
-    <!-- 1. 로그인 뷰 (상세 입력 및 캐릭터 선택) -->
+    <!-- 로그인 뷰 -->
     <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4">
         <div class="text-center mb-6">
             <div class="text-5xl mb-2">🏫</div>
@@ -238,7 +235,6 @@
         </form>
     </div>
 
-    <!-- 2. 로비 뷰 -->
     <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
         <div class="text-6xl mb-4">⛺</div>
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
@@ -263,45 +259,40 @@
         <p id="waiting-msg" class="text-gray-400 text-sm mt-4">방장만 게임을 시작할 수 있어요.</p>
     </div>
 
-    <!-- 3. 게임 뷰 (상황판 레이아웃 시스템) -->
     <div id="game-view" class="hidden game-layout mt-4">
         
-        <!-- 탑 플레이어 (4인 시) -->
+        <!-- 플레이어 카드 영역 (위, 왼쪽, 오른쪽, 아래) -->
         <div id="status-top" class="hidden"></div>
-
-        <!-- 레프트 플레이어 (나) -->
         <div id="status-left" class="hidden"></div>
-
-        <!-- 센터 (보드판 및 조작부) -->
-        <div id="center-area" class="flex flex-col">
-            <!-- 상태 인디케이터 -->
-            <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-3 text-center mb-4 transition-colors duration-300 shadow-md">
-                <span class="text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
-            </div>
-
-            <!-- 보드판 -->
-            <div id="board" class="board-container relative mb-4">
-                <!-- 타일들이 JS로 렌더링 됩니다 -->
-            </div>
-
-            <!-- 주사위 굴리기 영역 -->
-            <div class="bg-blue-50 rounded-2xl p-4 text-center border-4 border-blue-200 shadow-inner">
-                <div id="dice-display" class="text-7xl mb-3 transition-all inline-block">🎲</div>
-                <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-2xl py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
-                    주사위 굴리기!
-                </button>
-                <p id="not-my-turn-msg" class="text-gray-500 font-bold text-lg">친구의 턴을 기다리세요⏳</p>
-            </div>
-        </div>
-
-        <!-- 라이트 플레이어 (2인 시 우측) -->
         <div id="status-right" class="hidden"></div>
-
-        <!-- 바텀 플레이어 (3인 시 하단) -->
         <div id="status-bottom" class="hidden"></div>
+
+        <!-- 중앙 보드판 영역 -->
+        <div id="center-area" class="flex flex-col items-center">
+            
+            <div id="board" class="board-container relative">
+                <!-- 보드판 정중앙 컨트롤 센터 (주사위 및 턴 알림) -->
+                <div id="board-inner-center" class="flex flex-col items-center justify-center p-2 sm:p-4 bg-white/70 backdrop-blur-sm rounded-2xl shadow-inner z-0" style="grid-column: 2 / 9; grid-row: 2 / 9;">
+                    
+                    <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
+                        <span class="text-lg sm:text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
+                    </div>
+
+                    <div class="bg-blue-50 rounded-2xl p-3 sm:p-4 text-center border-4 border-blue-200 shadow-inner w-full max-w-[280px]">
+                        <div id="dice-display" class="text-6xl sm:text-7xl mb-2 sm:mb-3 transition-all inline-block">🎲</div>
+                        <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                            주사위 굴리기!
+                        </button>
+                        <p id="not-my-turn-msg" class="text-gray-500 font-bold text-base sm:text-lg">친구의 턴을 기다리세요⏳</p>
+                    </div>
+
+                </div>
+                <!-- 타일들이 이 아래에 JS로 렌더링 됩니다 -->
+            </div>
+            
+        </div>
     </div>
 
-    <!-- 퀴즈 모달 -->
     <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400 transform transition-all scale-100">
             <div class="text-5xl mb-2">📝</div>
@@ -319,7 +310,6 @@
         </div>
     </div>
 
-    <!-- 게임 시스템 스크립트 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -339,23 +329,40 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // 32칸 보드 데이터 배열 (9x9 테두리용 좌표 맵핑)
         const TILES = [
             { id: 0, name: '출발', type: 'start', col: 1, row: 1 },
-            { id: 1, name: '학교', type: 'quiz', price: 100, col: 2, row: 1, q: '학교', a: 'School', options: ['School', 'House', 'Bank'] },
-            { id: 2, name: '공원', type: 'quiz', price: 100, col: 3, row: 1, q: '공원', a: 'Park', options: ['Park', 'Zoo', 'Mart'] },
+            { id: 1, name: '사과', type: 'quiz', price: 100, col: 2, row: 1, q: '사과', a: 'Apple', options: ['Apple', 'Banana', 'Grape'] },
+            { id: 2, name: '바나나', type: 'quiz', price: 100, col: 3, row: 1, q: '바나나', a: 'Banana', options: ['Apple', 'Banana', 'Melon'] },
             { id: 3, name: '찬스', type: 'chance', col: 4, row: 1 },
-            { id: 4, name: '무인도', type: 'island', col: 5, row: 1 },
-            { id: 5, name: '도서관', type: 'quiz', price: 150, col: 5, row: 2, q: '책', a: 'Book', options: ['Book', 'Pen', 'Desk'] },
-            { id: 6, name: '병원', type: 'quiz', price: 150, col: 5, row: 3, q: '의사', a: 'Doctor', options: ['Doctor', 'Teacher', 'Farmer'] },
-            { id: 7, name: '마트', type: 'quiz', price: 150, col: 5, row: 4, q: '사과', a: 'Apple', options: ['Apple', 'Banana', 'Melon'] },
-            { id: 8, name: '휴식', type: 'rest', col: 5, row: 5 },
-            { id: 9, name: '경찰서', type: 'quiz', price: 200, col: 4, row: 5, q: '경찰관', a: 'Police', options: ['Police', 'Fire', 'Doctor'] },
-            { id: 10, name: '소방서', type: 'quiz', price: 200, col: 3, row: 5, q: '불', a: 'Fire', options: ['Water', 'Fire', 'Earth'] },
-            { id: 11, name: '찬스', type: 'chance', col: 2, row: 5 },
-            { id: 12, name: '비행기', type: 'travel', col: 1, row: 5 },
-            { id: 13, name: '빵집', type: 'quiz', price: 250, col: 1, row: 4, q: '빵', a: 'Bread', options: ['Rice', 'Bread', 'Meat'] },
-            { id: 14, name: '동물원', type: 'quiz', price: 250, col: 1, row: 3, q: '사자', a: 'Lion', options: ['Lion', 'Tiger', 'Bear'] },
-            { id: 15, name: '박물관', type: 'quiz', price: 250, col: 1, row: 2, q: '박물관', a: 'Museum', options: ['Museum', 'School', 'Park'] }
+            { id: 4, name: '학교', type: 'quiz', price: 100, col: 5, row: 1, q: '학교', a: 'School', options: ['School', 'Park', 'Bank'] },
+            { id: 5, name: '공원', type: 'quiz', price: 120, col: 6, row: 1, q: '공원', a: 'Park', options: ['Park', 'Zoo', 'Mart'] },
+            { id: 6, name: '찬스', type: 'chance', col: 7, row: 1 },
+            { id: 7, name: '은행', type: 'quiz', price: 120, col: 8, row: 1, q: '은행', a: 'Bank', options: ['Bank', 'School', 'Hospital'] },
+            { id: 8, name: '무인도', type: 'island', col: 9, row: 1 }, // 1시 방향 코너
+            { id: 9, name: '고양이', type: 'quiz', price: 150, col: 9, row: 2, q: '고양이', a: 'Cat', options: ['Cat', 'Dog', 'Pig'] },
+            { id: 10, name: '개', type: 'quiz', price: 150, col: 9, row: 3, q: '강아지(개)', a: 'Dog', options: ['Dog', 'Cat', 'Fox'] },
+            { id: 11, name: '사자', type: 'quiz', price: 150, col: 9, row: 4, q: '사자', a: 'Lion', options: ['Lion', 'Tiger', 'Bear'] },
+            { id: 12, name: '찬스', type: 'chance', col: 9, row: 5 },
+            { id: 13, name: '호랑이', type: 'quiz', price: 180, col: 9, row: 6, q: '호랑이', a: 'Tiger', options: ['Tiger', 'Lion', 'Wolf'] },
+            { id: 14, name: '곰', type: 'quiz', price: 180, col: 9, row: 7, q: '곰', a: 'Bear', options: ['Bear', 'Pig', 'Cow'] },
+            { id: 15, name: '돼지', type: 'quiz', price: 180, col: 9, row: 8, q: '돼지', a: 'Pig', options: ['Pig', 'Horse', 'Sheep'] },
+            { id: 16, name: '휴식', type: 'rest', col: 9, row: 9 }, // 5시 방향 코너
+            { id: 17, name: '빨강', type: 'quiz', price: 200, col: 8, row: 9, q: '빨간색', a: 'Red', options: ['Red', 'Blue', 'Green'] },
+            { id: 18, name: '파랑', type: 'quiz', price: 200, col: 7, row: 9, q: '파란색', a: 'Blue', options: ['Blue', 'Yellow', 'Black'] },
+            { id: 19, name: '노랑', type: 'quiz', price: 200, col: 6, row: 9, q: '노란색', a: 'Yellow', options: ['Yellow', 'Green', 'White'] },
+            { id: 20, name: '찬스', type: 'chance', col: 5, row: 9 },
+            { id: 21, name: '초록', type: 'quiz', price: 220, col: 4, row: 9, q: '초록색', a: 'Green', options: ['Green', 'Red', 'Blue'] },
+            { id: 22, name: '검정', type: 'quiz', price: 220, col: 3, row: 9, q: '검은색', a: 'Black', options: ['Black', 'White', 'Gray'] },
+            { id: 23, name: '하양', type: 'quiz', price: 220, col: 2, row: 9, q: '하얀색', a: 'White', options: ['White', 'Red', 'Black'] },
+            { id: 24, name: '비행기', type: 'travel', col: 1, row: 9 }, // 7시 방향 코너
+            { id: 25, name: '엄마', type: 'quiz', price: 250, col: 1, row: 8, q: '엄마', a: 'Mother', options: ['Mother', 'Father', 'Sister'] },
+            { id: 26, name: '아빠', type: 'quiz', price: 250, col: 1, row: 7, q: '아빠', a: 'Father', options: ['Father', 'Brother', 'Mother'] },
+            { id: 27, name: '찬스', type: 'chance', col: 1, row: 6 },
+            { id: 28, name: '눈(신체)', type: 'quiz', price: 280, col: 1, row: 5, q: '눈 (신체부위)', a: 'Eye', options: ['Eye', 'Nose', 'Ear'] },
+            { id: 29, name: '코', type: 'quiz', price: 280, col: 1, row: 4, q: '코', a: 'Nose', options: ['Nose', 'Mouth', 'Hand'] },
+            { id: 30, name: '입', type: 'quiz', price: 300, col: 1, row: 3, q: '입', a: 'Mouth', options: ['Mouth', 'Foot', 'Head'] },
+            { id: 31, name: '귀', type: 'quiz', price: 300, col: 1, row: 2, q: '귀', a: 'Ear', options: ['Ear', 'Eye', 'Arm'] }
         ];
 
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
@@ -366,15 +373,8 @@
         let localGameState = null;
         let unsubscribeRoom = null;
         
-        // 봇 실행 방지용 플래그
-        window.lastBotTurnIndex = -1; 
+        // 봇 실행 방지용 플래그 (안정성 강화)
         window.botTurnInProgress = false; 
-
-        // UI 요소 캐싱
-        const vLoading = document.getElementById('loading-view');
-        const vLogin = document.getElementById('login-view');
-        const vLobby = document.getElementById('lobby-view');
-        const vGame = document.getElementById('game-view');
 
         // 커스텀 알림창
         window.showToast = function(title, message, icon = '🔔') {
@@ -403,6 +403,7 @@
             if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value;
         });
 
+        // 앱 초기화 및 익명 로그인
         async function initApp() {
             try {
                 await signInAnonymously(auth);
@@ -415,8 +416,8 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                vLoading.classList.add('hidden');
-                vLogin.classList.remove('hidden');
+                document.getElementById('loading-view').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('hidden');
             }
         });
 
@@ -444,7 +445,7 @@
                 showToast("알림", "학년, 반, 번호, 이름을 모두 입력해주세요!", "⚠️");
                 return null;
             }
-            return name; // 닉네임 반환
+            return name;
         }
 
         // [방 만들기 - 호스트]
@@ -466,8 +467,8 @@
                 tilesInfo: {}
             });
             
-            vLogin.classList.add('hidden');
-            vLobby.classList.remove('hidden');
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('lobby-view').classList.remove('hidden');
             document.getElementById('display-code').innerText = currentRoomId;
             listenToRoom();
         });
@@ -512,12 +513,11 @@
                     await updateDoc(roomRef, { players: roomData.players, turnOrder: roomData.turnOrder });
                 }
 
-                vLogin.classList.add('hidden');
-                vLobby.classList.remove('hidden');
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('lobby-view').classList.remove('hidden');
                 document.getElementById('display-code').innerText = currentRoomId;
                 listenToRoom();
             } catch (err) {
-                console.error(err);
                 showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌");
             }
         });
@@ -535,17 +535,18 @@
             players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000 };
             
             await setDoc(roomRef, {
-                state: 'playing', // 혼자 하기는 로비 건너뛰기
+                state: 'playing', 
                 players: players,
                 turnOrder: [currentUser.uid, 'bot_1'],
                 currentTurnIndex: 0,
                 tilesInfo: {}
             });
             
-            vLogin.classList.add('hidden');
+            document.getElementById('login-view').classList.add('hidden');
             listenToRoom();
         });
 
+        // 방 상태 실시간 수신
         function listenToRoom() {
             if(!currentRoomId) return;
             if(unsubscribeRoom) unsubscribeRoom();
@@ -558,15 +559,13 @@
                 if (localGameState.state === 'lobby') {
                     renderLobby();
                 } else if (localGameState.state === 'playing') {
-                    if (vLobby.classList.contains('hidden') === false || vGame.classList.contains('hidden')) {
-                        vLobby.classList.add('hidden');
-                        vGame.classList.remove('hidden');
+                    if (document.getElementById('lobby-view').classList.contains('hidden') === false || document.getElementById('game-view').classList.contains('hidden')) {
+                        document.getElementById('lobby-view').classList.add('hidden');
+                        document.getElementById('game-view').classList.remove('hidden');
                         initBoard();
                     }
                     updateGameUI();
                 }
-            }, (err) => {
-                console.error("Listen error:", err);
             });
         }
 
@@ -605,9 +604,11 @@
             await updateDoc(roomRef, { state: 'playing' });
         });
 
+        // 타일 초기 렌더링 (가운데 정적 컨트롤 패널은 유지하고 타일만 추가)
         function initBoard() {
             const board = document.getElementById('board');
-            board.innerHTML = '';
+            // 기존 생성된 타일만 지우고 다시 그립니다. (중앙 UI 보존)
+            document.querySelectorAll('.tile').forEach(e => e.remove());
             
             TILES.forEach(t => {
                 const div = document.createElement('div');
@@ -625,24 +626,26 @@
             renderTokens();
         }
 
+        // 플레이어 상태창 HTML 템플릿
         function getPlayerCardHTML(p, isCurrentTurn, isMe) {
             return `
-                <div class="bg-white rounded-3xl p-4 shadow-xl border-4 transition-all duration-300 ${isCurrentTurn ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
-                    <div class="flex items-center justify-between mb-3 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
-                        <div class="flex items-center gap-3">
-                            <div class="text-4xl bg-gray-50 rounded-full w-14 h-14 flex items-center justify-center shadow-inner border border-gray-200">${p.avatar}</div>
-                            <div class="font-black text-gray-800 text-xl">${p.name}</div>
+                <div class="bg-white rounded-3xl p-3 shadow-xl border-4 transition-all duration-300 ${isCurrentTurn ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
+                    <div class="flex items-center justify-between mb-2 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
+                        <div class="flex items-center gap-2">
+                            <div class="text-3xl bg-gray-50 rounded-full w-12 h-12 flex items-center justify-center shadow-inner border border-gray-200">${p.avatar}</div>
+                            <div class="font-black text-gray-800 text-lg">${p.name}</div>
                         </div>
-                        ${isMe ? '<span class="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-bold shadow-sm">나(Me)</span>' : ''}
+                        ${isMe ? '<span class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-bold shadow-sm">나</span>' : ''}
                     </div>
-                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-200 text-center shadow-inner">
-                        <div class="text-sm text-gray-500 font-bold mb-1">보유 자산</div>
-                        <div class="text-3xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
+                    <div class="bg-gray-50 rounded-2xl p-2 border border-gray-200 text-center shadow-inner">
+                        <div class="text-xs text-gray-500 font-bold mb-1">자산</div>
+                        <div class="text-2xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
                     </div>
                 </div>
             `;
         }
 
+        // 게임 UI 업데이트
         function updateGameUI() {
             const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
@@ -650,12 +653,12 @@
             const isBotTurn = currentUid.startsWith('bot_');
             const isHost = turnOrder[0] === currentUser.uid;
             
-            // 1. 상황판 레이아웃 매핑 (왼/오/아래/위)
+            // 상황판 레이아웃 매핑 (항상 나는 왼쪽)
             const slots = ['left', 'right', 'bottom', 'top'];
             slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
 
             let myIndex = turnOrder.indexOf(currentUser.uid);
-            if(myIndex === -1) myIndex = 0; // 예외 처리
+            if(myIndex === -1) myIndex = 0;
 
             turnOrder.forEach((uid, idx) => {
                 const p = players[uid];
@@ -663,7 +666,7 @@
                 let targetSlot = '';
                 
                 if (idx === myIndex) {
-                    targetSlot = 'left'; // 본인은 무조건 왼쪽
+                    targetSlot = 'left';
                 } else {
                     const relativeIdx = (idx - myIndex + turnOrder.length) % turnOrder.length;
                     if (relativeIdx === 1) targetSlot = 'right';
@@ -678,13 +681,12 @@
                 }
             });
 
-            // 빈 슬롯 숨기기
             slots.forEach(s => {
                 const container = document.getElementById(`status-${s}`);
                 if(container.innerHTML === '') container.classList.add('hidden');
             });
 
-            // 2. 턴 인디케이터 및 주사위 컨트롤
+            // 턴 인디케이터 및 주사위
             const currentP = players[currentUid];
             const turnBox = document.getElementById('turn-indicator');
             const turnText = document.getElementById('current-turn-text');
@@ -692,6 +694,7 @@
             const waitMsg = document.getElementById('not-my-turn-msg');
 
             if (isMyTurn) {
+                window.botTurnInProgress = false; // 안전장치 초기화
                 turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
                 turnBox.classList.replace('bg-yellow-100', 'bg-blue-100');
                 turnBox.classList.replace('border-yellow-400', 'border-blue-400');
@@ -705,13 +708,13 @@
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
                 
-                // 봇 턴 실행 (호스트 전용, 중복 방지)
-                if (isHost && !window.botTurnInProgress && window.lastBotTurnIndex !== currentTurnIndex) {
+                // 봇 턴 실행 (프리징 방지 및 중복실행 방지 철저히 관리)
+                if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
-                    window.lastBotTurnIndex = currentTurnIndex;
                     setTimeout(() => runBotTurn(currentUid), 1500);
                 }
             } else {
+                window.botTurnInProgress = false; // 안전장치 초기화
                 turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
                 turnBox.classList.replace('bg-blue-100', 'bg-yellow-100');
                 turnBox.classList.replace('border-blue-400', 'border-yellow-400');
@@ -720,14 +723,11 @@
                 waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            if (!isBotTurn) window.botTurnInProgress = false; // 봇 턴이 아니면 플래그 리셋
-
-            // 3. 타일 소유자 마커 (왼쪽 상단 뱃지) 업데이트
+            // 타일 소유자 뱃지 렌더링
             TILES.forEach(t => {
                 const tileDiv = document.getElementById(`tile-${t.id}`);
                 const ownerUid = tilesInfo[t.id]?.owner;
                 
-                // 기존 마커 제거
                 const oldMarker = tileDiv?.querySelector('.owner-marker');
                 if (oldMarker) oldMarker.remove();
 
@@ -735,7 +735,6 @@
                     const ownerColor = players[ownerUid].color;
                     const ownerAvatar = players[ownerUid].avatar;
                     
-                    // 뱃지 생성
                     const marker = document.createElement('div');
                     marker.className = 'owner-marker';
                     marker.style.borderColor = ownerColor;
@@ -746,7 +745,6 @@
                     tileDiv.style.borderWidth = '3px';
                     tileDiv.style.backgroundColor = ownerColor + '15'; 
                 } else if(tileDiv && t.type !== 'start' && t.type !== 'island' && t.type !== 'chance' && t.type !== 'rest' && t.type !== 'travel') {
-                    // 미소유 일반 칸 초기화
                     tileDiv.style.borderColor = 'transparent';
                     tileDiv.style.backgroundColor = 'white';
                 }
@@ -755,7 +753,7 @@
             renderTokens();
         }
 
-        // 말(토큰) 렌더링
+        // 플레이어 말(토큰) 렌더링
         function renderTokens() {
             document.querySelectorAll('.player-token').forEach(el => el.remove());
             const players = localGameState.players;
@@ -771,14 +769,14 @@
                 const tileDiv = document.getElementById(`tile-${pos}`);
                 if (tileDiv) {
                     const tokenDiv = document.createElement('div');
-                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none gap-1';
+                    tokenDiv.className = 'player-token flex flex-wrap justify-center content-center w-full h-full inset-0 pointer-events-none gap-0.5';
                     tokenDiv.innerHTML = posMap[pos].map(a => `<span>${a}</span>`).join('');
                     tileDiv.appendChild(tokenDiv);
                 }
             });
         }
 
-        // 내 턴 주사위
+        // 내 턴 주사위 버튼 클릭
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
             if (localGameState.turnOrder[localGameState.currentTurnIndex] !== currentUser.uid) return;
             
@@ -799,8 +797,9 @@
             let newPos = p.pos + diceNum;
             let passGo = false;
             
-            if (newPos >= 16) {
-                newPos = newPos % 16;
+            // 전체 32칸이므로 32로 나눈 나머지값 적용
+            if (newPos >= 32) {
+                newPos = newPos % 32;
                 passGo = true;
             }
 
@@ -816,7 +815,7 @@
             setTimeout(() => { handleTileAction(newPos); }, 800);
         });
 
-        // 컴퓨터(AI) 주사위 및 행동 (안전장치 추가)
+        // 컴퓨터(AI) 주사위 굴리기 및 로직 실행
         async function runBotTurn(botUid) {
             try {
                 const diceDiv = document.getElementById('dice-display');
@@ -833,8 +832,8 @@
                 let newPos = p.pos + diceNum;
                 let passGo = false;
                 
-                if (newPos >= 16) {
-                    newPos = newPos % 16;
+                if (newPos >= 32) {
+                    newPos = newPos % 32;
                     passGo = true;
                 }
 
@@ -844,11 +843,10 @@
                 
                 await updateDoc(roomRef, updatePayload);
 
-                // DB 업데이트 후 봇 액션 처리
                 setTimeout(() => { handleBotTileAction(newPos, botUid); }, 1200);
             } catch (err) {
                 console.error("Bot turn error:", err);
-                nextTurn(); // 에러 발생 시 강제로 턴 넘김 (프리징 방지)
+                nextTurn(); 
             }
         }
 
@@ -893,7 +891,7 @@
                     showToast("컴퓨터 무인도!", "컴퓨터가 무인도에 도착했습니다!", "🏝️");
                 }
 
-                // 팝업 읽을 시간 부여 후 턴 넘김
+                // 팝업 읽을 시간(3초) 부여 후 확실하게 턴 넘김
                 setTimeout(nextTurn, 3000); 
             } catch (err) {
                 console.error("Bot action error:", err);
@@ -957,7 +955,9 @@
             try {
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
-                window.botTurnInProgress = false; // 안전 리셋
+                
+                // 확실하게 봇 플래그를 해제하여 다음 턴 준비
+                window.botTurnInProgress = false; 
                 
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
