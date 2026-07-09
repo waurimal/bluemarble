@@ -144,9 +144,10 @@
         .rolling { animation: diceRoll 0.6s ease-in-out; }
     </style>
 </head>
-<body class="min-h-screen p-2 md:p-4 flex flex-col items-center">
+<body class="min-h-screen p-2 md:p-4 flex flex-col items-center relative">
 
-    <div id="toast-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <!-- 토스트 알림창 -->
+    <div id="toast-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
             <h3 id="toast-title" class="text-2xl font-bold mb-2">알림</h3>
@@ -155,13 +156,19 @@
         </div>
     </div>
 
+    <!-- 로딩 뷰 -->
     <div id="loading-view" class="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto">
         <div class="text-6xl mb-4 animate-bounce">🎲</div>
         <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
     </div>
 
-    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4">
-        <div class="text-center mb-6">
+    <!-- 1. 로그인 (메인) 뷰 -->
+    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4 relative">
+        <button id="btn-show-teacher-auth" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors text-sm font-bold flex items-center gap-1">
+            <span>⚙️</span>선생님 전용
+        </button>
+        
+        <div class="text-center mb-6 mt-4">
             <div class="text-5xl mb-2">🌍</div>
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
             <p class="text-gray-500 mt-2">내 정보를 입력하고 세계 여행을 떠나요!</p>
@@ -179,9 +186,7 @@
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-class">반 (1~10)</label>
                     <select id="student-class" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
                         <option value="" disabled selected>선택</option>
-                        <script>
-                            for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}반</option>`);
-                        </script>
+                        <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}반</option>`);</script>
                     </select>
                 </div>
             </div>
@@ -205,16 +210,16 @@
             </div>
             
             <div id="join-code-container" class="hidden mt-4 pt-4 border-t-2 border-dashed border-gray-200">
-                <label class="block text-gray-700 text-sm font-bold mb-1" for="room-code">입장 코드 (6자리)</label>
-                <input class="block w-full bg-green-50 border-2 border-green-200 text-gray-700 py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-green-500 text-center text-2xl font-bold tracking-widest uppercase" id="room-code" type="text" placeholder="ABCDEF" maxlength="6">
+                <label class="block text-gray-700 text-sm font-bold mb-1" for="room-code">입장 코드 (숫자 4자리)</label>
+                <input class="block w-full bg-green-50 border-2 border-green-200 text-gray-700 py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-green-500 text-center text-3xl font-bold tracking-widest" id="room-code" type="number" placeholder="1234" maxlength="4" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);">
             </div>
 
             <div class="pt-4 grid grid-cols-2 gap-2" id="btn-group-main">
                 <button type="button" id="btn-create-room" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press bounce-hover">
-                    방 만들기 (호스트)
+                    방 만들기
                 </button>
                 <button type="button" id="btn-show-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
-                    코드 입장 (게스트)
+                    코드 입장
                 </button>
             </div>
             
@@ -235,16 +240,107 @@
         </form>
     </div>
 
+    <!-- 2. 교사 모드 인증 모달 -->
+    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-gray-700">
+            <h3 class="text-2xl font-bold mb-2">선생님 인증</h3>
+            <p class="text-gray-500 mb-4 text-sm">비밀번호를 입력하세요. (초기: 1234)</p>
+            <input type="password" id="teacher-pw-input" class="block w-full bg-gray-50 border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl text-center text-xl mb-4" placeholder="****">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('teacher-auth-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
+                <button id="btn-submit-teacher-auth" class="w-1/2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl">인증</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 교사 모드 비번 변경 모달 -->
+    <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
+            <h3 class="text-xl font-bold mb-4">비밀번호 변경</h3>
+            <input type="password" id="new-pw-input" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-4 rounded-xl text-center text-lg mb-4" placeholder="새 비밀번호 입력">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('pw-change-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
+                <button id="btn-save-new-pw" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl">변경 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 교사 모드 (대시보드) 뷰 -->
+    <div id="teacher-view" class="hidden w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-gray-700 mt-4">
+        <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">🧑‍🏫 교사 모드 - 문제 출제</h2>
+            <div class="flex gap-2">
+                <button id="btn-change-pw" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-sm">비번 변경</button>
+                <button id="btn-close-teacher" class="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg">돌아가기</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 border-r-2 border-gray-100 pr-4">
+                <h3 class="font-bold text-lg mb-2 text-gray-600">국가(타일) 선택</h3>
+                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2" id="teacher-tile-list">
+                    <!-- JS Rendering -->
+                </div>
+            </div>
+            
+            <div class="md:col-span-2 pl-2">
+                <div id="teacher-editor" class="hidden flex-col gap-4">
+                    <h3 class="text-2xl font-bold text-blue-600" id="editor-title">국가명</h3>
+                    
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">문제 유형</label>
+                        <select id="edit-quiz-type" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl">
+                            <option value="choice">선택형 (객관식)</option>
+                            <option value="short">서답형 (주관식)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">질문 (문제)</label>
+                        <input type="text" id="edit-q" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl text-lg" placeholder="예: 대한민국">
+                    </div>
+
+                    <div>
+                        <label class="block text-blue-700 text-sm font-bold mb-1">정답 (영어)</label>
+                        <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-3 rounded-xl text-xl font-bold" placeholder="예: Korea">
+                    </div>
+
+                    <div id="choice-options-group" class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-red-700 text-sm font-bold mb-1">오답 1</label>
+                            <input type="text" id="edit-wrong1" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: Japan">
+                        </div>
+                        <div>
+                            <label class="block text-red-700 text-sm font-bold mb-1">오답 2</label>
+                            <input type="text" id="edit-wrong2" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: China">
+                        </div>
+                        <p class="col-span-2 text-sm text-gray-500 mt-1">* 선택형일 경우, 정답과 오답 2개가 섞여서 출제됩니다.</p>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t-2 border-gray-100 flex justify-end">
+                        <button id="btn-save-quiz" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press text-lg">
+                            이 문제 저장하기
+                        </button>
+                    </div>
+                </div>
+                <div id="editor-placeholder" class="h-full flex items-center justify-center text-gray-400 font-bold text-lg">
+                    왼쪽에서 문제를 출제할 국가를 선택하세요.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 로비 뷰 -->
     <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
         <div class="text-6xl mb-4">⛺</div>
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
         
         <div id="room-code-display" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 inline-block mb-4">
             <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드 (친구에게 알려주세요)</span>
-            <span class="text-4xl text-yellow-900 font-black tracking-widest" id="display-code">------</span>
+            <span class="text-5xl text-yellow-900 font-black tracking-widest" id="display-code">----</span>
         </div>
         
-        <p class="text-gray-600 mb-6">친구들이 모일 때까지 기다려주세요!</p>
+        <p class="text-gray-600 mb-6">최소 2명이 모이면 방장이 게임을 시작할 수 있습니다!</p>
         
         <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
             <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">접속한 여행자들 (<span id="player-count">0</span>/4명)</h3>
@@ -255,9 +351,10 @@
         <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
             게임 시작하기 🎮
         </button>
-        <p id="waiting-msg" class="text-gray-400 text-sm mt-4">방장만 게임을 시작할 수 있어요.</p>
+        <p id="waiting-msg" class="text-gray-400 text-sm mt-4 font-bold">인원 대기 중... (2명 이상 필요)</p>
     </div>
 
+    <!-- 5. 게임 뷰 -->
     <div id="game-view" class="hidden game-layout mt-4">
         <div id="status-top" class="hidden"></div>
         <div id="status-left" class="hidden"></div>
@@ -283,6 +380,7 @@
         </div>
     </div>
 
+    <!-- 인게임 퀴즈 모달 -->
     <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400 transform transition-all scale-100">
             <div class="text-5xl mb-2">📝</div>
@@ -294,7 +392,14 @@
                 <p id="quiz-question" class="text-4xl font-black text-blue-600 drop-shadow-sm">사과</p>
             </div>
 
-            <div id="quiz-options" class="grid grid-cols-1 gap-3">
+            <!-- 선택형 버튼 영역 -->
+            <div id="quiz-options-container" class="grid grid-cols-1 gap-3 hidden">
+            </div>
+
+            <!-- 서답형 입력 영역 -->
+            <div id="quiz-short-container" class="flex flex-col gap-3 hidden">
+                <input type="text" id="quiz-short-input" class="w-full bg-gray-50 border-2 border-gray-300 p-4 rounded-xl text-center text-2xl font-bold" placeholder="정답을 영어로 입력하세요" autocomplete="off">
+                <button id="quiz-short-submit" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press">정답 제출하기</button>
             </div>
         </div>
     </div>
@@ -318,46 +423,45 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 대륙별 타일 배치 및 국기(flag) 속성 분리 적용
-        const TILES = [
+        // 기본 타일 데이터 (서답형을 위해 quizType 속성 추가: 'choice' or 'short')
+        const DEFAULT_TILES = [
             { id: 0, name: '출발', flag: '🏁', type: 'start', col: 1, row: 1 },
-            { id: 1, name: '한국', flag: '🇰🇷', type: 'quiz', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
-            { id: 2, name: '일본', flag: '🇯🇵', type: 'quiz', price: 100, col: 3, row: 1, q: '일본', a: 'Japan', options: ['Japan', 'USA', 'UK'] },
+            { id: 1, name: '한국', flag: '🇰🇷', type: 'quiz', quizType: 'choice', price: 100, col: 2, row: 1, q: '대한민국', a: 'Korea', options: ['Korea', 'Japan', 'China'] },
+            { id: 2, name: '일본', flag: '🇯🇵', type: 'quiz', quizType: 'choice', price: 100, col: 3, row: 1, q: '일본', a: 'Japan', options: ['Japan', 'USA', 'UK'] },
             { id: 3, name: '찬스', flag: '🗝️', type: 'chance', col: 4, row: 1 },
-            { id: 4, name: '중국', flag: '🇨🇳', type: 'quiz', price: 120, col: 5, row: 1, q: '중국', a: 'China', options: ['China', 'India', 'France'] },
-            { id: 5, name: '베트남', flag: '🇻🇳', type: 'quiz', price: 120, col: 6, row: 1, q: '베트남', a: 'Vietnam', options: ['Vietnam', 'Thailand', 'Spain'] },
+            { id: 4, name: '중국', flag: '🇨🇳', type: 'quiz', quizType: 'choice', price: 120, col: 5, row: 1, q: '중국', a: 'China', options: ['China', 'India', 'France'] },
+            { id: 5, name: '베트남', flag: '🇻🇳', type: 'quiz', quizType: 'choice', price: 120, col: 6, row: 1, q: '베트남', a: 'Vietnam', options: ['Vietnam', 'Thailand', 'Spain'] },
             { id: 6, name: '찬스', flag: '🗝️', type: 'chance', col: 7, row: 1 },
-            { id: 7, name: '태국', flag: '🇹🇭', type: 'quiz', price: 140, col: 8, row: 1, q: '태국', a: 'Thailand', options: ['Thailand', 'Korea', 'Canada'] },
+            { id: 7, name: '태국', flag: '🇹🇭', type: 'quiz', quizType: 'choice', price: 140, col: 8, row: 1, q: '태국', a: 'Thailand', options: ['Thailand', 'Korea', 'Canada'] },
             { id: 8, name: '무인도', flag: '🏝️', type: 'island', col: 9, row: 1 },
             
-            { id: 9, name: '미국', flag: '🇺🇸', type: 'quiz', price: 150, col: 9, row: 2, q: '미국', a: 'USA', options: ['USA', 'UK', 'Brazil'] },
-            { id: 10, name: '캐나다', flag: '🇨🇦', type: 'quiz', price: 150, col: 9, row: 3, q: '캐나다', a: 'Canada', options: ['Canada', 'Mexico', 'Peru'] },
+            { id: 9, name: '미국', flag: '🇺🇸', type: 'quiz', quizType: 'choice', price: 150, col: 9, row: 2, q: '미국', a: 'USA', options: ['USA', 'UK', 'Brazil'] },
+            { id: 10, name: '캐나다', flag: '🇨🇦', type: 'quiz', quizType: 'choice', price: 150, col: 9, row: 3, q: '캐나다', a: 'Canada', options: ['Canada', 'Mexico', 'Peru'] },
             { id: 11, name: '찬스', flag: '🗝️', type: 'chance', col: 9, row: 4 },
-            { id: 12, name: '멕시코', flag: '🇲🇽', type: 'quiz', price: 170, col: 9, row: 5, q: '멕시코', a: 'Mexico', options: ['Mexico', 'Spain', 'Italy'] },
-            { id: 13, name: '브라질', flag: '🇧🇷', type: 'quiz', price: 170, col: 9, row: 6, q: '브라질', a: 'Brazil', options: ['Brazil', 'Argentina', 'Chile'] },
+            { id: 12, name: '멕시코', flag: '🇲🇽', type: 'quiz', quizType: 'choice', price: 170, col: 9, row: 5, q: '멕시코', a: 'Mexico', options: ['Mexico', 'Spain', 'Italy'] },
+            { id: 13, name: '브라질', flag: '🇧🇷', type: 'quiz', quizType: 'choice', price: 170, col: 9, row: 6, q: '브라질', a: 'Brazil', options: ['Brazil', 'Argentina', 'Chile'] },
             { id: 14, name: '찬스', flag: '🗝️', type: 'chance', col: 9, row: 7 },
-            { id: 15, name: '아르헨', flag: '🇦🇷', type: 'quiz', price: 190, col: 9, row: 8, q: '아르헨티나', a: 'Argentina', options: ['Argentina', 'Brazil', 'Mexico'] },
+            { id: 15, name: '아르헨', flag: '🇦🇷', type: 'quiz', quizType: 'choice', price: 190, col: 9, row: 8, q: '아르헨티나', a: 'Argentina', options: ['Argentina', 'Brazil', 'Mexico'] },
             { id: 16, name: '휴식', flag: '☕', type: 'rest', col: 9, row: 9 },
             
-            { id: 17, name: '영국', flag: '🇬🇧', type: 'quiz', price: 200, col: 8, row: 9, q: '영국', a: 'UK', options: ['UK', 'USA', 'France'] },
-            { id: 18, name: '프랑스', flag: '🇫🇷', type: 'quiz', price: 200, col: 7, row: 9, q: '프랑스', a: 'France', options: ['France', 'Germany', 'Spain'] },
+            { id: 17, name: '영국', flag: '🇬🇧', type: 'quiz', quizType: 'choice', price: 200, col: 8, row: 9, q: '영국', a: 'UK', options: ['UK', 'USA', 'France'] },
+            { id: 18, name: '프랑스', flag: '🇫🇷', type: 'quiz', quizType: 'choice', price: 200, col: 7, row: 9, q: '프랑스', a: 'France', options: ['France', 'Germany', 'Spain'] },
             { id: 19, name: '찬스', flag: '🗝️', type: 'chance', col: 6, row: 9 },
-            { id: 20, name: '독일', flag: '🇩🇪', type: 'quiz', price: 220, col: 5, row: 9, q: '독일', a: 'Germany', options: ['Germany', 'Italy', 'UK'] },
-            { id: 21, name: '이탈리아', flag: '🇮🇹', type: 'quiz', price: 220, col: 4, row: 9, q: '이탈리아', a: 'Italy', options: ['Italy', 'France', 'Greece'] },
+            { id: 20, name: '독일', flag: '🇩🇪', type: 'quiz', quizType: 'choice', price: 220, col: 5, row: 9, q: '독일', a: 'Germany', options: ['Germany', 'Italy', 'UK'] },
+            { id: 21, name: '이탈리아', flag: '🇮🇹', type: 'quiz', quizType: 'choice', price: 220, col: 4, row: 9, q: '이탈리아', a: 'Italy', options: ['Italy', 'France', 'Greece'] },
             { id: 22, name: '찬스', flag: '🗝️', type: 'chance', col: 3, row: 9 },
-            { id: 23, name: '스페인', flag: '🇪🇸', type: 'quiz', price: 240, col: 2, row: 9, q: '스페인', a: 'Spain', options: ['Spain', 'Mexico', 'Brazil'] },
+            { id: 23, name: '스페인', flag: '🇪🇸', type: 'quiz', quizType: 'choice', price: 240, col: 2, row: 9, q: '스페인', a: 'Spain', options: ['Spain', 'Mexico', 'Brazil'] },
             { id: 24, name: '비행기', flag: '✈️', type: 'travel', col: 1, row: 9 },
             
-            { id: 25, name: '이집트', flag: '🇪🇬', type: 'quiz', price: 250, col: 1, row: 8, q: '이집트', a: 'Egypt', options: ['Egypt', 'Kenya', 'Ghana'] },
-            { id: 26, name: '케냐', flag: '🇰🇪', type: 'quiz', price: 250, col: 1, row: 7, q: '케냐', a: 'Kenya', options: ['Kenya', 'South Africa', 'Morocco'] },
+            { id: 25, name: '이집트', flag: '🇪🇬', type: 'quiz', quizType: 'choice', price: 250, col: 1, row: 8, q: '이집트', a: 'Egypt', options: ['Egypt', 'Kenya', 'Ghana'] },
+            { id: 26, name: '케냐', flag: '🇰🇪', type: 'quiz', quizType: 'choice', price: 250, col: 1, row: 7, q: '케냐', a: 'Kenya', options: ['Kenya', 'South Africa', 'Morocco'] },
             { id: 27, name: '찬스', flag: '🗝️', type: 'chance', col: 1, row: 6 },
-            { id: 28, name: '남아공', flag: '🇿🇦', type: 'quiz', price: 270, col: 1, row: 5, q: '남아프리카', a: 'South Africa', options: ['South Africa', 'Egypt', 'Ghana'] },
-            { id: 29, name: '모로코', flag: '🇲🇦', type: 'quiz', price: 270, col: 1, row: 4, q: '모로코', a: 'Morocco', options: ['Morocco', 'Kenya', 'Spain'] },
+            { id: 28, name: '남아공', flag: '🇿🇦', type: 'quiz', quizType: 'choice', price: 270, col: 1, row: 5, q: '남아프리카', a: 'South Africa', options: ['South Africa', 'Egypt', 'Ghana'] },
+            { id: 29, name: '모로코', flag: '🇲🇦', type: 'quiz', quizType: 'choice', price: 270, col: 1, row: 4, q: '모로코', a: 'Morocco', options: ['Morocco', 'Kenya', 'Spain'] },
             { id: 30, name: '찬스', flag: '🗝️', type: 'chance', col: 1, row: 3 },
-            { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
+            { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', quizType: 'choice', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
-        // 황금열쇠(찬스) 카드 효과 목록
         const CHANCE_CARDS = [
             { title: "황금 열쇠 발견", msg: "숨겨진 보물을 찾았습니다! +$200", type: "money", val: 200 },
             { title: "지갑 분실", msg: "길을 잃고 지갑을 잃어버렸습니다. -$100", type: "money", val: -100 },
@@ -376,16 +480,19 @@
         let unsubscribeRoom = null;
         window.botTurnInProgress = false; 
 
+        // 커스텀 문제 저장소
+        let customQuizzes = {};
+        let sysTeacherPw = "1234";
+
         window.showToast = function(title, message, icon = '🔔') {
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-message').innerText = message;
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-modal').classList.remove('hidden');
         }
-        window.closeToast = function() {
-            document.getElementById('toast-modal').classList.add('hidden');
-        }
+        window.closeToast = function() { document.getElementById('toast-modal').classList.add('hidden'); }
 
+        // 캐릭터 선택 렌더링
         let selectedAvatar = AVATARS[0];
         const avatarContainer = document.getElementById('avatar-container');
         AVATARS.forEach((av, idx) => {
@@ -397,13 +504,28 @@
                 </div>
             `;
         });
-        avatarContainer.addEventListener('change', (e) => {
-            if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value;
-        });
+        avatarContainer.addEventListener('change', (e) => { if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value; });
 
+        // 초기화 및 글로벌 설정 로드
         async function initApp() {
-            try { await signInAnonymously(auth); } 
-            catch (error) { showToast("오류", "서버 인증에 실패했습니다.", "❌"); }
+            try { 
+                await signInAnonymously(auth); 
+                // 교사 설정 및 커스텀 문제 로드
+                const adminRef = doc(db, 'settings', 'admin');
+                const adminSnap = await getDoc(adminRef);
+                if (adminSnap.exists()) {
+                    sysTeacherPw = adminSnap.data().teacherPassword || "1234";
+                } else {
+                    await setDoc(adminRef, { teacherPassword: "1234" });
+                }
+
+                const quizRef = doc(db, 'settings', 'quizzes');
+                const quizSnap = await getDoc(quizRef);
+                if (quizSnap.exists()) {
+                    customQuizzes = quizSnap.data().data || {};
+                }
+            } 
+            catch (error) { console.error(error); showToast("오류", "서버 인증에 실패했습니다.", "❌"); }
         }
 
         onAuthStateChanged(auth, (user) => {
@@ -414,6 +536,7 @@
             }
         });
 
+        // ------------------ 로그인 & 로비 UI 이벤트 ------------------ //
         document.getElementById('btn-show-join').addEventListener('click', () => {
             document.getElementById('btn-group-main').classList.add('hidden');
             document.getElementById('btn-single-play').classList.add('hidden');
@@ -440,10 +563,17 @@
             return name;
         }
 
+        // 숫자 4자리 랜덤 생성 (방만들기 용)
+        function generateRoomCode() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
         document.getElementById('btn-create-room').addEventListener('click', async () => {
             const name = validateForm();
             if(!name || !currentUser) return;
-            currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            // 4자리 초대코드 생성
+            currentRoomId = generateRoomCode();
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
@@ -463,8 +593,8 @@
             const name = validateForm();
             if(!name || !currentUser) return;
 
-            const code = document.getElementById('room-code').value.trim().toUpperCase();
-            if(code.length !== 6) { showToast("오류", "6자리 코드를 정확히 입력하세요.", "❌"); return; }
+            const code = document.getElementById('room-code').value.trim();
+            if(code.length !== 4) { showToast("오류", "4자리 숫자 코드를 정확히 입력하세요.", "❌"); return; }
             currentRoomId = code;
             const roomRef = doc(db, 'rooms', currentRoomId);
             
@@ -496,7 +626,7 @@
             const name = validateForm();
             if(!name || !currentUser) return;
 
-            currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            currentRoomId = generateRoomCode();
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
@@ -511,6 +641,119 @@
             listenToRoom();
         });
 
+        // ------------------ 교사 모드 로직 ------------------ //
+        document.getElementById('btn-show-teacher-auth').addEventListener('click', () => {
+            document.getElementById('teacher-auth-modal').classList.remove('hidden');
+            document.getElementById('teacher-pw-input').value = '';
+        });
+
+        document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => {
+            const pw = document.getElementById('teacher-pw-input').value;
+            if (pw === sysTeacherPw) {
+                document.getElementById('teacher-auth-modal').classList.add('hidden');
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('teacher-view').classList.remove('hidden');
+                renderTeacherTileList();
+            } else {
+                showToast("인증 실패", "비밀번호가 틀렸습니다.", "❌");
+            }
+        });
+
+        document.getElementById('btn-close-teacher').addEventListener('click', () => {
+            document.getElementById('teacher-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-change-pw').addEventListener('click', () => {
+            document.getElementById('pw-change-modal').classList.remove('hidden');
+            document.getElementById('new-pw-input').value = '';
+        });
+
+        document.getElementById('btn-save-new-pw').addEventListener('click', async () => {
+            const newPw = document.getElementById('new-pw-input').value.trim();
+            if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; }
+            
+            await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw });
+            sysTeacherPw = newPw;
+            document.getElementById('pw-change-modal').classList.add('hidden');
+            showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅");
+        });
+
+        let currentEditingTileId = null;
+
+        function renderTeacherTileList() {
+            const list = document.getElementById('teacher-tile-list');
+            list.innerHTML = '';
+            DEFAULT_TILES.filter(t => t.type === 'quiz').forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg border-2 border-gray-200 hover:bg-blue-50 focus:bg-blue-100 focus:border-blue-400 font-bold text-gray-700 transition-colors";
+                btn.innerHTML = `${t.flag} ${t.name}`;
+                btn.onclick = () => loadTileToEditor(t.id);
+                list.appendChild(btn);
+            });
+        }
+
+        function loadTileToEditor(id) {
+            currentEditingTileId = id;
+            document.getElementById('editor-placeholder').classList.add('hidden');
+            document.getElementById('teacher-editor').classList.replace('hidden', 'flex');
+            
+            const baseTile = DEFAULT_TILES.find(t => t.id === id);
+            const savedQuiz = customQuizzes[id] || {};
+            const qType = savedQuiz.quizType || baseTile.quizType;
+            
+            document.getElementById('editor-title').innerText = `${baseTile.flag} ${baseTile.name} 출제하기`;
+            document.getElementById('edit-quiz-type').value = qType;
+            document.getElementById('edit-q').value = savedQuiz.q || baseTile.q;
+            document.getElementById('edit-a').value = savedQuiz.a || baseTile.a;
+            
+            const optionsGroup = document.getElementById('choice-options-group');
+            if (qType === 'choice') {
+                optionsGroup.classList.remove('hidden');
+                let opts = savedQuiz.options || baseTile.options;
+                let wrongOpts = opts.filter(o => o.toLowerCase() !== (savedQuiz.a || baseTile.a).toLowerCase());
+                document.getElementById('edit-wrong1').value = wrongOpts[0] || '';
+                document.getElementById('edit-wrong2').value = wrongOpts[1] || '';
+            } else {
+                optionsGroup.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('edit-quiz-type').addEventListener('change', (e) => {
+            if(e.target.value === 'choice') document.getElementById('choice-options-group').classList.remove('hidden');
+            else document.getElementById('choice-options-group').classList.add('hidden');
+        });
+
+        document.getElementById('btn-save-quiz').addEventListener('click', async () => {
+            if (currentEditingTileId === null) return;
+            const qType = document.getElementById('edit-quiz-type').value;
+            const q = document.getElementById('edit-q').value.trim();
+            const a = document.getElementById('edit-a').value.trim();
+            
+            if(!q || !a) { showToast("경고", "질문과 정답을 모두 입력하세요.", "⚠️"); return; }
+            
+            let dataToSave = { quizType: qType, q: q, a: a };
+            
+            if (qType === 'choice') {
+                const w1 = document.getElementById('edit-wrong1').value.trim();
+                const w2 = document.getElementById('edit-wrong2').value.trim();
+                if(!w1 || !w2) { showToast("경고", "오답 2개를 모두 입력하세요.", "⚠️"); return; }
+                dataToSave.options = [a, w1, w2];
+            }
+
+            customQuizzes[currentEditingTileId] = dataToSave;
+            await setDoc(doc(db, 'settings', 'quizzes'), { data: customQuizzes }, { merge: true });
+            showToast("저장 완료", "해당 국가의 문제가 업데이트 되었습니다.", "✅");
+        });
+
+        // 타일 가져올 때 커스텀 문제 적용하는 헬퍼 함수
+        function getMergedTile(baseTile) {
+            if (baseTile.type !== 'quiz') return baseTile;
+            return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
+        }
+
+
+        // ------------------ 멀티플레이 및 로비 동기화 ------------------ //
         function listenToRoom() {
             if(!currentRoomId) return;
             if(unsubscribeRoom) unsubscribeRoom();
@@ -554,6 +797,7 @@
                 `;
             });
 
+            // 2명 이상이면 방장은 시작 가능
             if (uids[0] === currentUser.uid && uids.length >= 2) {
                 document.getElementById('start-game-btn').classList.remove('hidden');
                 document.getElementById('waiting-msg').classList.add('hidden');
@@ -568,24 +812,24 @@
             await updateDoc(roomRef, { state: 'playing' });
         });
 
+        // ------------------ 게임 보드 로직 ------------------ //
         function initBoard() {
             const board = document.getElementById('board');
             document.querySelectorAll('.tile').forEach(e => e.remove());
             
-            TILES.forEach(t => {
+            DEFAULT_TILES.forEach(t => {
+                const mergedTile = getMergedTile(t); // 커스텀 설정(이름 등 변경 가능성)
                 const div = document.createElement('div');
-                div.className = `tile ${t.type}`;
-                div.id = `tile-${t.id}`;
-                div.style.gridColumn = t.col;
-                div.style.gridRow = t.row;
+                div.className = `tile ${mergedTile.type}`;
+                div.id = `tile-${mergedTile.id}`;
+                div.style.gridColumn = mergedTile.col;
+                div.style.gridRow = mergedTile.row;
                 
-                let content = `<div class="tile-name">${t.name}</div>`;
-                if(t.flag) content += `<div class="tile-flag">${t.flag}</div>`;
-                if(t.price) content += `<div class="tile-price">$${t.price}</div>`;
+                let content = `<div class="tile-name">${mergedTile.name}</div>`;
+                if(mergedTile.flag) content += `<div class="tile-flag">${mergedTile.flag}</div>`;
+                if(mergedTile.price) content += `<div class="tile-price">$${mergedTile.price}</div>`;
                 
-                // 플레이어 말이 들어갈 전용 컨테이너 (타일 하단)
-                content += `<div class="token-container" id="token-container-${t.id}"></div>`;
-                
+                content += `<div class="token-container" id="token-container-${mergedTile.id}"></div>`;
                 div.innerHTML = content;
                 board.appendChild(div);
             });
@@ -681,7 +925,6 @@
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
                 
-                // 봇 무한 반복 실행 방지
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
                     setTimeout(() => runBotTurn(currentUid), 1500);
@@ -695,7 +938,7 @@
                 waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            TILES.forEach(t => {
+            DEFAULT_TILES.forEach(t => {
                 const tileDiv = document.getElementById(`tile-${t.id}`);
                 const ownerUid = tilesInfo[t.id]?.owner;
                 
@@ -724,7 +967,6 @@
         }
 
         function renderTokens() {
-            // 기존 토큰들을 초기화합니다.
             document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
             const players = localGameState.players;
             const posMap = {};
@@ -735,7 +977,6 @@
                 posMap[pos].push(players[uid].avatar);
             });
 
-            // 각 타일 하단의 지정된 컨테이너에 말(토큰)을 배치합니다.
             Object.keys(posMap).forEach(pos => {
                 const container = document.getElementById(`token-container-${pos}`);
                 if (container) {
@@ -752,7 +993,6 @@
             let p = localGameState.players[currentUser.uid];
             const roomRef = doc(db, 'rooms', currentRoomId);
             
-            // 무인도 체크 로직
             if (p.islandTurns && p.islandTurns > 0) {
                 await updateDoc(roomRef, { [`players.${currentUser.uid}.islandTurns`]: p.islandTurns - 1 });
                 showToast("무인도", `휴식 중입니다. ${p.islandTurns - 1}턴 남았습니다.`, "🏝️");
@@ -792,7 +1032,6 @@
                 let p = localGameState.players[botUid];
                 const roomRef = doc(db, 'rooms', currentRoomId);
 
-                // 무인도 봇 체크
                 if (p.islandTurns && p.islandTurns > 0) {
                     await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
                     showToast("컴퓨터 무인도", `컴퓨터가 무인도에서 쉬고 있습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
@@ -830,7 +1069,9 @@
 
         async function handleTileAction(pos, uid, isBot) {
             try {
-                const tile = TILES[pos];
+                const baseTile = DEFAULT_TILES[pos];
+                const tile = getMergedTile(baseTile);
+                
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 const { players, tilesInfo } = localGameState;
                 
@@ -838,7 +1079,7 @@
                     const owner = tilesInfo[pos]?.owner;
                     
                     if (isBot) {
-                        const isCorrect = Math.random() < 0.7; // 70% chance for bot
+                        const isCorrect = Math.random() < 0.7; 
                         if (!owner) {
                             if (isCorrect && players[uid].balance >= tile.price) {
                                 await updateDoc(roomRef, {
@@ -863,7 +1104,6 @@
                         return;
                     } 
                     else {
-                        // User logic
                         if (!owner) {
                             triggerQuiz(tile, async (isCorrect) => {
                                 if (isCorrect) {
@@ -895,7 +1135,6 @@
                     }
                 } 
                 else if (tile.type === 'chance') {
-                    // 다양한 황금열쇠 시스템 랜덤 뽑기
                     const card = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
                     let updatePayload = {};
                     
@@ -903,17 +1142,15 @@
                         updatePayload[`players.${uid}.balance`] = players[uid].balance + card.val;
                     } else if (card.type === "move") {
                         updatePayload[`players.${uid}.pos`] = card.pos;
-                        if (card.pos === 0) { // 출발지로
+                        if (card.pos === 0) { 
                             updatePayload[`players.${uid}.balance`] = players[uid].balance + 200;
-                        } else if (card.pos === 8) { // 무인도로
+                        } else if (card.pos === 8) { 
                             updatePayload[`players.${uid}.islandTurns`] = 3;
                         }
                     }
                     
-                    const pName = isBot ? "컴퓨터" : "나";
                     showToast("황금열쇠 🗝️", `[${card.title}]\n${card.msg}`, "✨");
                     await updateDoc(roomRef, updatePayload);
-                    
                     setTimeout(nextTurn, 3000);
                     return;
                 }
@@ -933,8 +1170,6 @@
             try {
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
-                
-                // 턴이 완전히 넘어가는 시점에만 봇 상태를 초기화합니다.
                 window.botTurnInProgress = false; 
                 
                 const roomRef = doc(db, 'rooms', currentRoomId);
@@ -945,26 +1180,47 @@
             }
         }
 
+        // 선택형/서답형 통합 퀴즈 모달 
         function triggerQuiz(tile, callback, subtitle) {
             const modal = document.getElementById('quiz-modal');
             document.getElementById('quiz-subtitle').innerText = subtitle;
             document.getElementById('quiz-question').innerText = tile.q;
             
-            const optsContainer = document.getElementById('quiz-options');
-            optsContainer.innerHTML = '';
+            const choiceContainer = document.getElementById('quiz-options-container');
+            const shortContainer = document.getElementById('quiz-short-container');
+            const shortInput = document.getElementById('quiz-short-input');
+            const shortSubmitBtn = document.getElementById('quiz-short-submit');
             
-            let shuffled = [...tile.options].sort(() => Math.random() - 0.5);
-            
-            shuffled.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-2xl transition-colors shadow-sm active-press";
-                btn.innerText = opt;
-                btn.onclick = () => {
+            if (tile.quizType === 'short') {
+                // 서답형 UI 표시
+                choiceContainer.classList.add('hidden');
+                shortContainer.classList.remove('hidden');
+                shortInput.value = '';
+                
+                shortSubmitBtn.onclick = () => {
+                    const ans = shortInput.value.trim().toLowerCase();
+                    if(!ans) return;
                     modal.classList.add('hidden');
-                    callback(opt === tile.a);
+                    callback(ans === tile.a.toLowerCase());
                 };
-                optsContainer.appendChild(btn);
-            });
+            } else {
+                // 선택형 UI 표시
+                shortContainer.classList.add('hidden');
+                choiceContainer.classList.remove('hidden');
+                choiceContainer.innerHTML = '';
+                
+                let shuffled = [...tile.options].sort(() => Math.random() - 0.5);
+                shuffled.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-2xl transition-colors shadow-sm active-press";
+                    btn.innerText = opt;
+                    btn.onclick = () => {
+                        modal.classList.add('hidden');
+                        callback(opt === tile.a);
+                    };
+                    choiceContainer.appendChild(btn);
+                });
+            }
 
             modal.classList.remove('hidden');
         }
