@@ -152,7 +152,7 @@
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
             <h3 id="toast-title" class="text-2xl font-bold mb-2">알림</h3>
-            <p id="toast-message" class="text-gray-600 mb-6 text-lg"></p>
+            <p id="toast-message" class="text-gray-600 mb-6 text-lg whitespace-pre-wrap"></p>
             <button onclick="closeToast()" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press">확인</button>
         </div>
     </div>
@@ -490,6 +490,7 @@
             { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', quizType: 'choice', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
+        // 재미있는 30가지 찬스 카드 (오프라인 투표 미션 포함)
         const CHANCE_CARDS = [
             { title: "황금 열쇠 발견", msg: "숨겨진 보물을 찾았습니다! +$200", type: "money", val: 200 },
             { title: "지갑 분실", msg: "길을 잃고 지갑을 잃어버렸습니다. -$100", type: "money", val: -100 },
@@ -526,6 +527,7 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
+        // 탭마다 고유한 아이디 부여
         let myPlayerId = sessionStorage.getItem('myPlayerId');
         if (!myPlayerId) {
             myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
@@ -697,7 +699,8 @@
                 if (localGameState.state === 'lobby') {
                     renderLobby();
                 } else if (localGameState.state === 'playing') {
-                    if (!document.getElementById('lobby-view').classList.contains('hidden')) {
+                    // ★ 중요: game-view가 숨겨져 있다면 비행기 모달 등 전체 보드 세팅을 다시 초기화합니다! (새로고침 방어)
+                    if (document.getElementById('game-view').classList.contains('hidden')) {
                         document.getElementById('lobby-view').classList.add('hidden');
                         document.getElementById('game-view').classList.remove('hidden');
                         initBoard();
@@ -763,6 +766,7 @@
             });
         }
 
+        // 비행기 이동 모달 옵션 생성
         function renderTravelModalOptions() {
             const grid = document.getElementById('travel-tile-grid');
             grid.innerHTML = '';
@@ -813,7 +817,7 @@
             });
             slots.forEach(s => { if(document.getElementById(`status-${s}`).innerHTML === '') document.getElementById(`status-${s}`).classList.add('hidden'); });
 
-            // 2. 투표 UI 핸들링 (Race Condition 방지 처리 완료)
+            // 2. 투표 UI 핸들링
             if (voteState && voteState.active) {
                 document.getElementById('vote-modal').classList.remove('hidden');
                 document.getElementById('vote-title').innerText = voteState.title;
@@ -847,10 +851,9 @@
                         }
                     });
 
-                    // 봇 투표를 동기적으로 처리 후 한 번만 DB에 보냄 (루프 방지)
                     if (botVoted) {
                         updateDoc(doc(db, 'rooms', currentRoomId), { voteState: voteState });
-                        return; // 반영 완료 후 다음 Snapshot에서 집계하도록 여기서 중단
+                        return;
                     }
 
                     if (voteState.voters.length >= expectedVoters) {
@@ -866,7 +869,8 @@
                                     await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
                                 }
                                 showToast("투표 결과", rMsg, "📢");
-                                setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 2500);
+                                // 결과를 4초간 넉넉하게 띄워줌
+                                setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 4000);
                             } catch(err) {
                                 console.error(err);
                                 window.voteResolving = false;
@@ -976,6 +980,7 @@
             }
         };
 
+        // 비행기 이동 처리 함수
         window.executeTravel = async function(targetPos, isBot=false, botUid=null) {
             try {
                 document.getElementById('travel-modal').classList.add('hidden');
@@ -1008,6 +1013,7 @@
                 const p = localGameState.players[myPlayerId];
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 
+                // 비행기 칸인 경우 주사위 굴리지 않고 모달 열기
                 if (p.canTravel) {
                     document.getElementById('travel-modal').classList.remove('hidden');
                     btn.disabled = false; // 모달이 행동을 대신하므로 다시 활성화
@@ -1077,7 +1083,6 @@
                 await new Promise(r => setTimeout(r, 600));
                 diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
                 
-                // 봇도 주사위 2개로 수정 완료
                 const diceNum1 = Math.floor(Math.random() * 6) + 1;
                 const diceNum2 = Math.floor(Math.random() * 6) + 1;
                 const isDouble = (diceNum1 === diceNum2);
@@ -1109,7 +1114,7 @@
                 setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
             } catch (err) { 
                 console.error("Bot turn error:", err); 
-                nextTurn(false); // 봇 에러 발생 시에도 턴은 확실히 넘김
+                nextTurn(false); 
             }
         }
 
@@ -1183,10 +1188,11 @@
                             else if (card.pos === 8) { updatePayload[`players.${uid}.islandTurns`] = 3; isDouble = false; }
                             else if (card.pos === 24) { updatePayload[`players.${uid}.canTravel`] = true; isDouble = false; }
                         }
-                        showToast("찬스 카드 🗝️", `[${card.title}]\n${card.msg}`, "✨");
+                        // 5초 연장하여 아이들이 충분히 읽을 수 있게 처리
+                        showToast("찬스 카드 🗝️", `[${card.title}]\n${card.msg}\n\n(5초 후 자동으로 진행됩니다)`, "✨");
                         await updateDoc(roomRef, updatePayload);
                         const ended = await checkWinConditions();
-                        if(!ended) setTimeout(() => nextTurn(isDouble), 3000);
+                        if(!ended) setTimeout(() => nextTurn(isDouble), 5000);
                         return;
                     }
                 }
