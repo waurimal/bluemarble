@@ -345,7 +345,7 @@
 
             <div id="board" class="board-container relative">
                 <div id="board-inner-center" class="flex flex-col items-center justify-center p-2 sm:p-4 bg-white/70 backdrop-blur-sm rounded-2xl shadow-inner z-0" style="grid-column: 2 / 9; grid-row: 2 / 9;">
-                    <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
+                    <div id="turn-indicator" class="border-4 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
                         <span class="text-lg sm:text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
                     </div>
                     <div class="bg-blue-50 rounded-2xl p-3 sm:p-4 text-center border-4 border-blue-200 shadow-inner w-full max-w-[280px]">
@@ -353,7 +353,7 @@
                             <div id="dice-display-1" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                             <div id="dice-display-2" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                         </div>
-                        <button id="roll-dice-btn" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                        <button id="roll-dice-btn" class="w-full text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
                             주사위 굴리기!
                         </button>
                         <p id="not-my-turn-msg" class="text-gray-500 font-bold text-base sm:text-lg">친구의 턴을 기다리세요⏳</p>
@@ -527,7 +527,6 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
-        // 탭마다 고유한 아이디 부여
         let myPlayerId = sessionStorage.getItem('myPlayerId');
         if (!myPlayerId) {
             myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
@@ -687,6 +686,106 @@
             listenToRoom();
         });
 
+        // ------------------ 교사 모드 로직 ------------------ //
+        document.getElementById('btn-show-teacher-auth').addEventListener('click', () => {
+            document.getElementById('teacher-auth-modal').classList.remove('hidden');
+            document.getElementById('teacher-pw-input').value = '';
+        });
+
+        document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => {
+            const pw = document.getElementById('teacher-pw-input').value;
+            if (pw === sysTeacherPw) {
+                document.getElementById('teacher-auth-modal').classList.add('hidden');
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('teacher-view').classList.remove('hidden');
+                renderTeacherTileList();
+            } else { showToast("인증 실패", "비밀번호가 틀렸습니다.", "❌"); }
+        });
+
+        document.getElementById('btn-close-teacher').addEventListener('click', () => {
+            document.getElementById('teacher-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-change-pw').addEventListener('click', () => {
+            document.getElementById('pw-change-modal').classList.remove('hidden');
+            document.getElementById('new-pw-input').value = '';
+        });
+
+        document.getElementById('btn-save-new-pw').addEventListener('click', async () => {
+            const newPw = document.getElementById('new-pw-input').value.trim();
+            if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; }
+            await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw });
+            sysTeacherPw = newPw;
+            document.getElementById('pw-change-modal').classList.add('hidden');
+            showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅");
+        });
+
+        let currentEditingTileId = null;
+
+        function renderTeacherTileList() {
+            const list = document.getElementById('teacher-tile-list');
+            list.innerHTML = '';
+            DEFAULT_TILES.filter(t => t.type === 'quiz').forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg border-2 border-gray-200 hover:bg-blue-50 focus:bg-blue-100 focus:border-blue-400 font-bold text-gray-700 transition-colors";
+                btn.innerHTML = `${t.flag} ${t.name}`;
+                btn.onclick = () => loadTileToEditor(t.id);
+                list.appendChild(btn);
+            });
+        }
+
+        function loadTileToEditor(id) {
+            currentEditingTileId = id;
+            document.getElementById('editor-placeholder').classList.add('hidden');
+            document.getElementById('teacher-editor').classList.replace('hidden', 'flex');
+            
+            const baseTile = DEFAULT_TILES.find(t => t.id === id);
+            const savedQuiz = customQuizzes[id] || {};
+            const qType = savedQuiz.quizType || baseTile.quizType;
+            
+            document.getElementById('editor-title').innerText = `${baseTile.flag} ${baseTile.name} 출제하기`;
+            document.getElementById('edit-quiz-type').value = qType;
+            document.getElementById('edit-q').value = savedQuiz.q || baseTile.q;
+            document.getElementById('edit-a').value = savedQuiz.a || baseTile.a;
+            
+            const optionsGroup = document.getElementById('choice-options-group');
+            if (qType === 'choice') {
+                optionsGroup.classList.remove('hidden');
+                let opts = savedQuiz.options || baseTile.options;
+                let wrongOpts = opts.filter(o => o.toLowerCase() !== (savedQuiz.a || baseTile.a).toLowerCase());
+                document.getElementById('edit-wrong1').value = wrongOpts[0] || '';
+                document.getElementById('edit-wrong2').value = wrongOpts[1] || '';
+            } else { optionsGroup.classList.add('hidden'); }
+        }
+
+        document.getElementById('edit-quiz-type').addEventListener('change', (e) => {
+            if(e.target.value === 'choice') document.getElementById('choice-options-group').classList.remove('hidden');
+            else document.getElementById('choice-options-group').classList.add('hidden');
+        });
+
+        document.getElementById('btn-save-quiz').addEventListener('click', async () => {
+            if (currentEditingTileId === null) return;
+            const qType = document.getElementById('edit-quiz-type').value;
+            const q = document.getElementById('edit-q').value.trim();
+            const a = document.getElementById('edit-a').value.trim();
+            
+            if(!q || !a) { showToast("경고", "질문과 정답을 모두 입력하세요.", "⚠️"); return; }
+            let dataToSave = { quizType: qType, q: q, a: a };
+            
+            if (qType === 'choice') {
+                const w1 = document.getElementById('edit-wrong1').value.trim();
+                const w2 = document.getElementById('edit-wrong2').value.trim();
+                if(!w1 || !w2) { showToast("경고", "오답 2개를 모두 입력하세요.", "⚠️"); return; }
+                dataToSave.options = [a, w1, w2];
+            }
+
+            customQuizzes[currentEditingTileId] = dataToSave;
+            await setDoc(doc(db, 'settings', 'quizzes'), { data: customQuizzes }, { merge: true });
+            showToast("저장 완료", "해당 국가의 문제가 업데이트 되었습니다.", "✅");
+        });
+
+        // ------------------ 멀티플레이 및 로비 동기화 ------------------ //
         function listenToRoom() {
             if(!currentRoomId) return;
             if(unsubscribeRoom) unsubscribeRoom();
@@ -699,7 +798,6 @@
                 if (localGameState.state === 'lobby') {
                     renderLobby();
                 } else if (localGameState.state === 'playing') {
-                    // ★ 중요: game-view가 숨겨져 있다면 비행기 모달 등 전체 보드 세팅을 다시 초기화합니다! (새로고침 방어)
                     if (document.getElementById('game-view').classList.contains('hidden')) {
                         document.getElementById('lobby-view').classList.add('hidden');
                         document.getElementById('game-view').classList.remove('hidden');
@@ -717,12 +815,14 @@
         function renderLobby() {
             const list = document.getElementById('player-list');
             list.innerHTML = '';
+            const players = localGameState.players;
             const uids = localGameState.turnOrder;
             document.getElementById('player-count').innerText = uids.length;
 
             uids.forEach((uid, index) => {
-                const p = localGameState.players[uid];
-                list.innerHTML += `<li class="flex items-center gap-3 p-2 rounded-lg ${uid === myPlayerId ? 'bg-blue-100 font-bold' : ''}"><span class="text-2xl">${p.avatar}</span><span style="color:${p.color}">${p.name}</span>${index === 0 ? '<span class="text-xs bg-yellow-400 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}</li>`;
+                const p = players[uid];
+                const isMe = uid === myPlayerId;
+                list.innerHTML += `<li class="flex items-center gap-3 p-2 rounded-lg ${isMe ? 'bg-blue-100 font-bold' : ''}"><span class="text-2xl">${p.avatar}</span><span style="color:${p.color}">${p.name} ${isMe ? '(나)' : ''}</span>${index === 0 ? '<span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}</li>`;
             });
 
             if (uids[0] === myPlayerId) {
@@ -766,7 +866,6 @@
             });
         }
 
-        // 비행기 이동 모달 옵션 생성
         function renderTravelModalOptions() {
             const grid = document.getElementById('travel-tile-grid');
             grid.innerHTML = '';
@@ -789,7 +888,6 @@
             const isBotTurn = currentUid.startsWith('bot_');
             const isHost = turnOrder[0] === myPlayerId;
             
-            // 1. 상태 카드 렌더링
             const slots = ['left', 'right', 'bottom', 'top'];
             slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
             let myIndex = turnOrder.indexOf(myPlayerId);
@@ -817,7 +915,7 @@
             });
             slots.forEach(s => { if(document.getElementById(`status-${s}`).innerHTML === '') document.getElementById(`status-${s}`).classList.add('hidden'); });
 
-            // 2. 투표 UI 핸들링
+            // 투표 UI
             if (voteState && voteState.active) {
                 document.getElementById('vote-modal').classList.remove('hidden');
                 document.getElementById('vote-title').innerText = voteState.title;
@@ -869,55 +967,45 @@
                                     await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
                                 }
                                 showToast("투표 결과", rMsg, "📢");
-                                // 결과를 4초간 넉넉하게 띄워줌
                                 setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 4000);
-                            } catch(err) {
-                                console.error(err);
-                                window.voteResolving = false;
-                                nextTurn(false);
-                            }
+                            } catch(err) { console.error(err); window.voteResolving = false; nextTurn(false); }
                         }, 1000);
                     }
                 }
-                return; // 투표 진행 중에는 아래 턴 UI 업데이트 중지
+                return;
             } else { document.getElementById('vote-modal').classList.add('hidden'); }
 
-            // 3. 턴 제어 UI
+            // 턴 제어 UI
             const currentP = players[currentUid];
             const turnBox = document.getElementById('turn-indicator');
             const turnText = document.getElementById('current-turn-text');
             const diceBtn = document.getElementById('roll-dice-btn');
             const waitMsg = document.getElementById('not-my-turn-msg');
 
+            // 클래스 완전 초기화 후 세팅
+            turnBox.className = 'border-4 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]';
+
             if (isMyTurn) {
-                turnBox.classList.replace('bg-yellow-100', 'bg-blue-100');
-                turnBox.classList.replace('border-yellow-400', 'border-blue-400');
-                diceBtn.classList.remove('hidden');
-                waitMsg.classList.add('hidden');
-                
                 if (currentP.canTravel) {
                     turnText.innerText = "비행기를 타고 원하는 곳으로 가세요!";
                     diceBtn.innerText = "목적지 선택하기 ✈️";
-                    diceBtn.classList.replace('bg-blue-500', 'bg-purple-500');
-                    diceBtn.classList.replace('hover:bg-blue-400', 'hover:bg-purple-400');
-                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(59,130,246)]', 'shadow-[0_4px_0_rgb(168,85,247)]');
+                    diceBtn.className = "w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(168,85,247)] transition-all active-press";
                 } else if (currentP.islandTurns > 0) {
                     turnText.innerText = `무인도 탈출 도전! (더블이 나오면 탈출)`;
                     diceBtn.innerText = "주사위 굴리기 (탈출시도)";
-                    diceBtn.classList.replace('bg-purple-500', 'bg-blue-500'); // Reset from travel
-                    diceBtn.classList.replace('hover:bg-purple-400', 'hover:bg-blue-400');
-                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(168,85,247)]', 'shadow-[0_4px_0_rgb(59,130,246)]');
+                    diceBtn.className = "w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press";
                 } else {
                     turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
                     diceBtn.innerText = "주사위 굴리기! 🎲";
-                    diceBtn.classList.replace('bg-purple-500', 'bg-blue-500');
-                    diceBtn.classList.replace('hover:bg-purple-400', 'hover:bg-blue-400');
-                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(168,85,247)]', 'shadow-[0_4px_0_rgb(59,130,246)]');
+                    diceBtn.className = "w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press";
                 }
+                turnBox.classList.add('bg-blue-100', 'border-blue-400');
+                diceBtn.classList.remove('hidden');
+                diceBtn.disabled = false; // ★ 내 턴일 때만 안전하게 버튼 활성화 (따닥 방지)
+                waitMsg.classList.add('hidden');
             } else if (isBotTurn) {
                 turnText.innerText = "컴퓨터(AI)의 턴입니다... 🤖";
-                turnBox.classList.replace('bg-blue-100', 'bg-gray-100');
-                turnBox.classList.replace('border-blue-400', 'border-gray-400');
+                turnBox.classList.add('bg-gray-100', 'border-gray-400');
                 diceBtn.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
@@ -928,14 +1016,12 @@
                 }
             } else {
                 turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
-                turnBox.classList.replace('bg-blue-100', 'bg-yellow-100');
-                turnBox.classList.replace('border-blue-400', 'border-yellow-400');
+                turnBox.classList.add('bg-yellow-100', 'border-yellow-400');
                 diceBtn.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            // 토큰 & 소유 마커 렌더링
             document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
             const posMap = {};
             turnOrder.forEach(uid => {
@@ -980,7 +1066,6 @@
             }
         };
 
-        // 비행기 이동 처리 함수
         window.executeTravel = async function(targetPos, isBot=false, botUid=null) {
             try {
                 document.getElementById('travel-modal').classList.add('hidden');
@@ -997,27 +1082,27 @@
                 }
                 await updateDoc(doc(db, 'rooms', currentRoomId), updatePayload);
                 setTimeout(() => { handleTileAction(targetPos, uid, isBot, false); }, 800);
-            } catch (err) {
-                console.error(err);
-                nextTurn(false); // 오류 복구
-            }
+            } catch (err) { console.error(err); nextTurn(false); }
         };
+
+        // ★ 플레이어 주사위 굴리기 (이중클릭 완벽 차단)
+        let isRollingOrActing = false; // 중복 실행 방지 플래그
 
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
             const btn = document.getElementById('roll-dice-btn');
             if (localGameState.turnOrder[localGameState.currentTurnIndex] !== myPlayerId) return;
-            if (btn.disabled) return; // 이중 클릭 완벽 방지
+            if (btn.disabled || isRollingOrActing) return; 
             
             try {
-                btn.disabled = true; // 통신 전 즉시 잠금
+                btn.disabled = true; 
+                isRollingOrActing = true;
+                
                 const p = localGameState.players[myPlayerId];
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 
-                // 비행기 칸인 경우 주사위 굴리지 않고 모달 열기
                 if (p.canTravel) {
                     document.getElementById('travel-modal').classList.remove('hidden');
-                    btn.disabled = false; // 모달이 행동을 대신하므로 다시 활성화
-                    return;
+                    return; // 모달이 행동하므로 여기서 끝냄
                 }
 
                 const diceDiv1 = document.getElementById('dice-display-1');
@@ -1036,7 +1121,6 @@
                     if (isDouble) {
                         showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎲🎲", "🏝️");
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
-                        // 더블 탈출 성공 시 아래 코드 이어서 실행 (이동)
                     } else {
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
                         showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
@@ -1056,12 +1140,11 @@
                 }
                 await updateDoc(roomRef, updatePayload);
                 
-                // 타일 액션 실행
                 setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
                 
             } catch (err) {
                 console.error("Roll dice error:", err);
-                btn.disabled = false; // 에러 시 복구
+                isRollingOrActing = false; // 복구
                 showToast("네트워크 오류", "서버 연결이 원활하지 않습니다. 다시 시도해주세요.", "❌");
             }
         });
@@ -1072,7 +1155,7 @@
                 const roomRef = doc(db, 'rooms', currentRoomId);
 
                 if (p.canTravel) {
-                    let randomTile = Math.floor(Math.random() * 31) + 1; // 1~31
+                    let randomTile = Math.floor(Math.random() * 31) + 1;
                     executeTravel(randomTile, true, botUid);
                     return;
                 }
@@ -1112,10 +1195,7 @@
                 
                 await updateDoc(roomRef, updatePayload);
                 setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
-            } catch (err) { 
-                console.error("Bot turn error:", err); 
-                nextTurn(false); 
-            }
+            } catch (err) { console.error("Bot turn error:", err); nextTurn(false); }
         }
 
         async function handleTileAction(pos, uid, isBot, isDouble) {
@@ -1188,7 +1268,6 @@
                             else if (card.pos === 8) { updatePayload[`players.${uid}.islandTurns`] = 3; isDouble = false; }
                             else if (card.pos === 24) { updatePayload[`players.${uid}.canTravel`] = true; isDouble = false; }
                         }
-                        // 5초 연장하여 아이들이 충분히 읽을 수 있게 처리
                         showToast("찬스 카드 🗝️", `[${card.title}]\n${card.msg}\n\n(5초 후 자동으로 진행됩니다)`, "✨");
                         await updateDoc(roomRef, updatePayload);
                         const ended = await checkWinConditions();
@@ -1209,19 +1288,14 @@
                 
                 const ended = await checkWinConditions();
                 if(!ended) nextTurn(isDouble);
-            } catch (err) { 
-                console.error("Action error:", err); 
-                nextTurn(false); // 오류 시 무조건 다음 턴으로
-            }
+            } catch (err) { console.error("Action error:", err); nextTurn(false); }
         }
 
         async function nextTurn(isDouble = false) {
             try {
                 if(localGameState.state !== 'playing') return;
                 
-                // 버튼 즉각 복구 (자신의 브라우저에서 실행될 때 방어막)
-                const btn = document.getElementById('roll-dice-btn');
-                btn.disabled = false; 
+                isRollingOrActing = false; // ★ 내 턴 액션 완전히 종료됨
                 window.botTurnInProgress = false; 
                 
                 const roomRef = doc(db, 'rooms', currentRoomId);
@@ -1234,7 +1308,7 @@
                 }
             } catch (err) {
                 console.error("nextTurn Error:", err);
-                document.getElementById('roll-dice-btn').disabled = false; // 최후의 방어막
+                isRollingOrActing = false;
             }
         }
 
@@ -1249,9 +1323,6 @@
             
             if (tile.quizType === 'short') {
                 choiceContainer.classList.add('hidden'); shortContainer.classList.remove('hidden'); shortInput.value = '';
-                
-                // 이중 클릭 방지 및 리스너 재할당
-                shortSubmitBtn.onclick = null;
                 shortSubmitBtn.onclick = () => {
                     const ans = shortInput.value.trim().toLowerCase();
                     if(!ans) return; 
@@ -1287,7 +1358,7 @@
         async function checkWinConditions() {
             if (localGameState.turnOrder[0] !== myPlayerId) return false; 
             const rule = localGameState.rule;
-            if(!rule) return false; // 예외 처리 강화
+            if(!rule) return false;
 
             for (let uid of localGameState.turnOrder) {
                 const p = localGameState.players[uid];
