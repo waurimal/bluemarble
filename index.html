@@ -78,6 +78,7 @@
             box-shadow: 0 3px 0 #e0f2fe;
             border: 2px solid transparent;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .tile-name { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 2px; word-break: keep-all; line-height: 1.1; z-index: 2; }
@@ -165,7 +166,6 @@
         <button id="btn-show-teacher-auth" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors text-sm font-bold flex items-center gap-1">
             <span>⚙️</span>선생님 전용
         </button>
-        
         <div class="text-center mb-6 mt-4">
             <div class="text-5xl mb-2">🌍</div>
             <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
@@ -188,149 +188,46 @@
                     </select>
                 </div>
             </div>
-            
             <div class="flex space-x-2">
                 <div class="w-1/3">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-num">번호</label>
-                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-center text-lg" id="student-num" type="number" min="1" max="99" placeholder="15">
+                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl text-center text-lg" id="student-num" type="number" min="1" max="99" placeholder="15">
                 </div>
                 <div class="w-2/3">
                     <label class="block text-gray-700 text-sm font-bold mb-1" for="student-name">이름</label>
-                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-center text-lg" id="student-name" type="text" placeholder="홍길동" autocomplete="off" maxlength="8">
+                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl text-center text-lg" id="student-name" type="text" placeholder="홍길동" autocomplete="off" maxlength="8">
                 </div>
             </div>
-
             <div>
                 <label class="block text-gray-700 text-sm font-bold mb-1">내 캐릭터 선택</label>
-                <div class="flex justify-between items-center bg-blue-50 p-3 rounded-xl border-2 border-blue-200" id="avatar-container">
-                    <!-- JS Rendering -->
-                </div>
+                <div class="flex justify-between items-center bg-blue-50 p-3 rounded-xl border-2 border-blue-200" id="avatar-container"></div>
             </div>
-            
             <div id="join-code-container" class="hidden mt-4 pt-4 border-t-2 border-dashed border-gray-200">
                 <label class="block text-gray-700 text-sm font-bold mb-1" for="room-code">입장 코드 (숫자 4자리)</label>
-                <input class="block w-full bg-green-50 border-2 border-green-200 text-gray-700 py-3 px-4 rounded-xl focus:outline-none focus:bg-white focus:border-green-500 text-center text-3xl font-bold tracking-widest" id="room-code" type="number" placeholder="1234" maxlength="4" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);">
+                <input class="block w-full bg-green-50 border-2 border-green-200 text-gray-700 py-3 px-4 rounded-xl text-center text-3xl font-bold tracking-widest" id="room-code" type="number" placeholder="1234" maxlength="4" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);">
             </div>
-
             <div class="pt-4 grid grid-cols-2 gap-2" id="btn-group-main">
-                <button type="button" id="btn-create-room" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press bounce-hover">
-                    방 만들기
-                </button>
-                <button type="button" id="btn-show-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
-                    코드 입장
-                </button>
+                <button type="button" id="btn-create-room" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press bounce-hover">방 만들기</button>
+                <button type="button" id="btn-show-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press bounce-hover">코드 입장</button>
             </div>
-            
             <div class="hidden pt-2 grid-cols-2 gap-2" id="btn-group-join">
-                <button type="button" id="btn-cancel-join" class="w-full bg-gray-400 hover:bg-gray-300 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(156,163,175)] transition-all active-press">
-                    뒤로가기
-                </button>
-                <button type="button" id="btn-submit-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press">
-                    게임 입장하기
-                </button>
+                <button type="button" id="btn-cancel-join" class="w-full bg-gray-400 hover:bg-gray-300 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(156,163,175)] active-press">뒤로가기</button>
+                <button type="button" id="btn-submit-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press">게임 입장하기</button>
             </div>
-
             <div class="pt-2">
-                <button type="button" id="btn-single-play" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(168,85,247)] transition-all active-press bounce-hover">
-                    혼자 하기 (vs 컴퓨터)
-                </button>
+                <button type="button" id="btn-single-play" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(168,85,247)] active-press bounce-hover">혼자 하기 (vs 컴퓨터)</button>
             </div>
         </form>
-    </div>
-
-    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-gray-700">
-            <h3 class="text-2xl font-bold mb-2">선생님 인증</h3>
-            <p class="text-gray-500 mb-4 text-sm">비밀번호를 입력하세요. (초기: 1234)</p>
-            <input type="password" id="teacher-pw-input" class="block w-full bg-gray-50 border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl text-center text-xl mb-4" placeholder="****">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('teacher-auth-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
-                <button id="btn-submit-teacher-auth" class="w-1/2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl">인증</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
-            <h3 class="text-xl font-bold mb-4">비밀번호 변경</h3>
-            <input type="password" id="new-pw-input" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-4 rounded-xl text-center text-lg mb-4" placeholder="새 비밀번호 입력">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('pw-change-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
-                <button id="btn-save-new-pw" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl">변경 저장</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="teacher-view" class="hidden w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-gray-700 mt-4">
-        <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
-            <h2 class="text-3xl font-bold text-gray-800">🧑‍🏫 교사 모드 - 문제 출제</h2>
-            <div class="flex gap-2">
-                <button id="btn-change-pw" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-sm">비번 변경</button>
-                <button id="btn-close-teacher" class="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg">돌아가기</button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-1 border-r-2 border-gray-100 pr-4">
-                <h3 class="font-bold text-lg mb-2 text-gray-600">국가(타일) 선택</h3>
-                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2" id="teacher-tile-list">
-                </div>
-            </div>
-            
-            <div class="md:col-span-2 pl-2">
-                <div id="teacher-editor" class="hidden flex-col gap-4">
-                    <h3 class="text-2xl font-bold text-blue-600" id="editor-title">국가명</h3>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">문제 유형</label>
-                        <select id="edit-quiz-type" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl">
-                            <option value="choice">선택형 (객관식)</option>
-                            <option value="short">서답형 (주관식)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">질문 (문제)</label>
-                        <input type="text" id="edit-q" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl text-lg" placeholder="예: 대한민국">
-                    </div>
-                    <div>
-                        <label class="block text-blue-700 text-sm font-bold mb-1">정답 (영어)</label>
-                        <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-3 rounded-xl text-xl font-bold" placeholder="예: Korea">
-                    </div>
-                    <div id="choice-options-group" class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-red-700 text-sm font-bold mb-1">오답 1</label>
-                            <input type="text" id="edit-wrong1" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: Japan">
-                        </div>
-                        <div>
-                            <label class="block text-red-700 text-sm font-bold mb-1">오답 2</label>
-                            <input type="text" id="edit-wrong2" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: China">
-                        </div>
-                        <p class="col-span-2 text-sm text-gray-500 mt-1">* 선택형일 경우, 정답과 오답 2개가 섞여서 출제됩니다.</p>
-                    </div>
-                    <div class="mt-4 pt-4 border-t-2 border-gray-100 flex justify-end">
-                        <button id="btn-save-quiz" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press text-lg">
-                            이 문제 저장하기
-                        </button>
-                    </div>
-                </div>
-                <div id="editor-placeholder" class="h-full flex items-center justify-center text-gray-400 font-bold text-lg">
-                    왼쪽에서 문제를 출제할 국가를 선택하세요.
-                </div>
-            </div>
-        </div>
     </div>
 
     <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
         <div class="text-6xl mb-4">⛺</div>
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
-        
         <div id="room-code-display" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 inline-block mb-4">
             <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드 (친구에게 알려주세요)</span>
             <span class="text-5xl text-yellow-900 font-black tracking-widest" id="display-code">----</span>
         </div>
         
-        <p class="text-gray-600 mb-4">친구들이 모일 때까지 기다려주세요!</p>
-
-        <!-- 방장 전용: 게임 종료 조건 설정 패널 -->
         <div id="host-settings-panel" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-4 text-left">
             <h3 class="font-bold text-lg text-blue-800 mb-2 flex items-center gap-1"><span>⚙️</span>게임 규칙 설정 (방장 전용)</h3>
             <div class="flex flex-col gap-2">
@@ -340,22 +237,15 @@
                     <option value="asset">💰 목표 자산 달성 모드</option>
                     <option value="bankrupt">💀 파산 서바이벌 모드</option>
                 </select>
-                <select id="rule-param" class="w-full bg-white border border-blue-300 text-gray-700 py-2 px-3 rounded-xl focus:outline-none focus:border-blue-500 font-bold">
-                    <!-- JS로 동적 생성됨 -->
-                </select>
+                <select id="rule-param" class="w-full bg-white border border-blue-300 text-gray-700 py-2 px-3 rounded-xl focus:outline-none focus:border-blue-500 font-bold"></select>
             </div>
-            <p class="text-xs text-blue-600 mt-2">* 방장이 [게임 시작]을 누르면 이 규칙으로 게임이 시작됩니다.</p>
         </div>
         
         <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
             <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">접속한 여행자들 (<span id="player-count">0</span>/4명)</h3>
-            <ul id="player-list" class="space-y-2 text-left text-lg">
-            </ul>
+            <ul id="player-list" class="space-y-2 text-left text-lg"></ul>
         </div>
-
-        <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">
-            게임 시작하기 🎮
-        </button>
+        <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">게임 시작하기 🎮</button>
         <p id="waiting-msg" class="text-gray-400 text-sm mt-4 font-bold">인원 대기 중... (2명 이상 필요)</p>
     </div>
 
@@ -365,16 +255,13 @@
         <div id="status-right" class="hidden"></div>
         <div id="status-bottom" class="hidden"></div>
 
-        <div id="center-area" class="flex flex-col items-center">
-            
+        <div id="center-area" class="flex flex-col items-center relative">
             <div id="game-info-bar" class="w-full max-w-[600px] bg-indigo-600 text-white rounded-2xl p-3 mb-2 flex justify-between items-center shadow-md border-4 border-indigo-400">
                 <div class="font-bold text-lg flex items-center gap-2">
                     <span id="rule-icon-display">⏳</span>
                     <span id="rule-text-display">시간 제한 모드</span>
                 </div>
-                <div class="font-black text-2xl text-yellow-300 drop-shadow-sm tracking-wider" id="rule-status-display">
-                    --:--
-                </div>
+                <div class="font-black text-2xl text-yellow-300 drop-shadow-sm tracking-wider" id="rule-status-display">--:--</div>
             </div>
 
             <div id="board" class="board-container relative">
@@ -382,9 +269,7 @@
                     <div id="turn-indicator" class="bg-yellow-100 border-4 border-yellow-400 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
                         <span class="text-lg sm:text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
                     </div>
-
                     <div class="bg-blue-50 rounded-2xl p-3 sm:p-4 text-center border-4 border-blue-200 shadow-inner w-full max-w-[280px]">
-                        <!-- 주사위 2개 컨테이너 -->
                         <div class="flex justify-center gap-2 mb-2 sm:mb-3">
                             <div id="dice-display-1" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                             <div id="dice-display-2" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
@@ -400,20 +285,16 @@
     </div>
 
     <!-- 퀴즈 모달 -->
-    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400 transform transition-all scale-100">
+    <div id="quiz-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-lg text-center shadow-2xl border-4 border-yellow-400">
             <div class="text-5xl mb-2">📝</div>
             <h2 id="quiz-title" class="text-2xl font-bold text-blue-600 mb-1">영어 퀴즈 타임!</h2>
             <p id="quiz-subtitle" class="text-gray-500 mb-6 text-sm">정답을 맞혀야 혜택을 얻을 수 있어요!</p>
-            
             <div class="bg-blue-50 rounded-xl p-6 mb-6 border-2 border-blue-100">
                 <p class="text-xl text-gray-700 font-bold mb-2">다음 단어는 영어로 무엇일까요?</p>
                 <p id="quiz-question" class="text-4xl font-black text-blue-600 drop-shadow-sm">사과</p>
             </div>
-
-            <div id="quiz-options-container" class="grid grid-cols-1 gap-3 hidden">
-            </div>
-
+            <div id="quiz-options-container" class="grid grid-cols-1 gap-3 hidden"></div>
             <div id="quiz-short-container" class="flex flex-col gap-3 hidden">
                 <input type="text" id="quiz-short-input" class="w-full bg-gray-50 border-2 border-gray-300 p-4 rounded-xl text-center text-2xl font-bold" placeholder="정답을 영어로 입력하세요" autocomplete="off">
                 <button id="quiz-short-submit" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press">정답 제출하기</button>
@@ -421,28 +302,62 @@
         </div>
     </div>
 
+    <!-- 비행기 (여행) 모달 -->
+    <div id="travel-modal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-70 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-2xl text-center shadow-2xl border-4 border-blue-400">
+            <div class="text-5xl mb-2">✈️</div>
+            <h2 class="text-2xl font-bold text-blue-600 mb-4">어디로 여행갈까요?</h2>
+            <p class="text-gray-500 mb-4 font-bold">가고 싶은 나라(칸)를 클릭하세요!</p>
+            <div id="travel-tile-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-4 max-h-[50vh] overflow-y-auto p-2">
+                <!-- JS Generated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 오프라인 투표 (장기자랑 등) 모달 -->
+    <div id="vote-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-70 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-md text-center shadow-2xl border-4 border-purple-500">
+            <div class="text-6xl mb-2 animate-bounce">🎤</div>
+            <h2 id="vote-title" class="text-3xl font-black text-purple-600 mb-2">장기자랑 타임!</h2>
+            <p id="vote-msg" class="text-gray-700 font-bold mb-6 text-lg bg-purple-50 p-4 rounded-xl">미션 내용</p>
+
+            <div id="vote-target-ui" class="hidden">
+                <div class="text-5xl mb-4">👀</div>
+                <p class="text-gray-500 font-bold text-xl">오프라인에서 미션을 수행하세요!<br>친구들의 투표를 기다립니다...</p>
+            </div>
+
+            <div id="vote-voter-ui" class="hidden flex gap-4">
+                <button onclick="castVote(false)" class="w-1/2 bg-red-500 hover:bg-red-400 text-white font-bold py-4 rounded-2xl text-xl shadow-[0_4px_0_rgb(239,68,68)] active-press transition-all">실패 👎</button>
+                <button onclick="castVote(true)" class="w-1/2 bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 rounded-2xl text-xl shadow-[0_4px_0_rgb(59,130,246)] active-press transition-all">성공 👍</button>
+            </div>
+
+            <div id="vote-done-ui" class="hidden">
+                <p class="text-blue-500 font-bold text-xl mb-2">투표 완료! ✅</p>
+                <p class="text-gray-500">다른 친구들의 결정을 기다립니다...</p>
+            </div>
+            
+            <div class="mt-6 text-sm font-bold text-gray-400 border-t pt-4">투표 현황: <span id="vote-count" class="text-purple-600 text-lg">0</span> / <span id="vote-total">0</span> 명 완료</div>
+        </div>
+    </div>
+
+    <!-- 게임 종료 모달 -->
     <div id="game-over-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-70 hidden backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 max-w-md text-center shadow-2xl border-4 border-purple-500 transform transition-all scale-100">
             <div class="text-6xl mb-2 animate-bounce">🏆</div>
             <h2 class="text-3xl font-black text-purple-600 mb-2">게임 종료!</h2>
-            <p id="game-over-reason" class="text-gray-500 font-bold mb-6 text-sm">시간이 종료되었습니다.</p>
-            
+            <p id="game-over-reason" class="text-gray-500 font-bold mb-6 text-sm"></p>
             <div class="bg-purple-50 rounded-2xl p-4 mb-6 border-2 border-purple-200 shadow-inner">
                 <h3 class="font-bold text-lg text-purple-800 mb-3 border-b-2 border-purple-200 pb-2">최종 자산 순위</h3>
-                <ul id="ranking-list" class="space-y-3 text-left">
-                </ul>
+                <ul id="ranking-list" class="space-y-3 text-left"></ul>
             </div>
-
-            <button onclick="location.reload()" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_4px_0_rgb(168,85,247)] active-press transition-colors">
-                처음으로 돌아가기
-            </button>
+            <button onclick="location.reload()" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_4px_0_rgb(168,85,247)] active-press">처음으로 돌아가기</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD6YK02DdhaSVN9mx3Acd5amiiphxcobG8",
@@ -496,18 +411,44 @@
             { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', quizType: 'choice', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
+        // 찬스 카드 30종 (투표 연동 오프라인 미션 포함)
         const CHANCE_CARDS = [
             { title: "황금 열쇠 발견", msg: "숨겨진 보물을 찾았습니다! +$200", type: "money", val: 200 },
             { title: "지갑 분실", msg: "길을 잃고 지갑을 잃어버렸습니다. -$100", type: "money", val: -100 },
             { title: "퀴즈 대회 우승", msg: "영어 퀴즈 대회 1등 상금! +$300", type: "money", val: 300 },
             { title: "여권 재발급", msg: "여권을 잃어버려 재발급 비용이 듭니다. -$50", type: "money", val: -50 },
             { title: "출발지로 이동", msg: "비행기를 타고 출발지로 돌아갑니다! (월급 $200 획득)", type: "move", pos: 0 },
-            { title: "무인도 표류", msg: "태풍을 만나 무인도로 떠내려갔습니다! (3턴 휴식)", type: "move", pos: 8 }
+            { title: "무인도 표류", msg: "태풍을 만나 무인도로 떠내려갔습니다! (3턴 휴식)", type: "move", pos: 8 },
+            { title: "우주 여행 당첨", msg: "이벤트에 당첨되어 비행기 칸으로 이동합니다!", type: "move", pos: 24 },
+            { title: "장기자랑 타임!", msg: "친구들 앞에서 멋진 춤이나 노래를 보여주면 $300 획득! (투표 진행)", type: "vote", reward: 300 },
+            { title: "동물 성대모사", msg: "재미있는 동물 성대모사를 하면 $200 획득! (투표 진행)", type: "vote", reward: 200 },
+            { title: "엉덩이로 이름 쓰기", msg: "엉덩이로 영어 이름을 쓰면 $400 획득! (투표 진행)", type: "vote", reward: 400 },
+            { title: "친구 칭찬하기", msg: "친구 한 명을 영어로 칭찬하면 $200 획득! (투표 진행)", type: "vote", reward: 200 },
+            { title: "코끼리 코 10바퀴", msg: "코끼리 코를 하고 10바퀴 돌면 $300 획득! (투표 진행)", type: "vote", reward: 300 },
+            { title: "로또 1등 당첨", msg: "축하합니다! 엄청난 행운! +$500", type: "money", val: 500 },
+            { title: "과속 딱지", msg: "여행 중 과속 단속에 걸렸습니다. -$200", type: "money", val: -200 },
+            { title: "할머니의 용돈", msg: "친척집에 들러 용돈을 받았습니다. +$150", type: "money", val: 150 },
+            { title: "스마트폰 수리", msg: "여행 중 액정이 깨졌습니다. -$150", type: "money", val: -150 },
+            { title: "말하기 대회 우승", msg: "국제 영어 대회 상금을 받았습니다! +$300", type: "money", val: 300 },
+            { title: "치과 진료비", msg: "외국에서 충치를 치료했습니다. -$100", type: "money", val: -100 },
+            { title: "벼룩시장 판매", msg: "안 쓰는 물건을 벼룩시장에서 팔았습니다. +$200", type: "money", val: 200 },
+            { title: "비행기 지각", msg: "비행기를 놓쳐 다시 예매했습니다. -$200", type: "money", val: -200 },
+            { title: "강제 휴식", msg: "너무 피곤해서 가장 가까운 휴게소로 이동합니다.", type: "move", pos: 16 },
+            { title: "길에서 돈 줍기", msg: "길을 걷다 우연히 돈을 주웠습니다. +$100", type: "money", val: 100 },
+            { title: "재산세 납부", msg: "보유한 건물과 땅에 대한 세금을 냅니다. -$300", type: "money", val: -300 },
+            { title: "보물 상자 발견", msg: "오래된 유적에서 보물을 찾았습니다! +$400", type: "money", val: 400 },
+            { title: "영어 단어 5개", msg: "10초 안에 아무 영어 단어나 5개 말하기! (투표 진행)", type: "vote", reward: 200 },
+            { title: "선생님 성대모사", msg: "선생님 성대모사를 재미있게 하면 $300 획득! (투표 진행)", type: "vote", reward: 300 },
+            { title: "막춤 배틀", msg: "음악 없이 10초 동안 막춤 추기! (투표 진행)", type: "vote", reward: 300 },
+            { title: "우수 학생 장학금", msg: "학교 성적이 크게 올라 장학금을 받습니다. +$250", type: "money", val: 250 },
+            { title: "기부 천사", msg: "어려운 이웃을 위해 기부합니다. 좋은 일! -$100", type: "money", val: -100 },
+            { title: "생일 축하금", msg: "오늘은 내 생일! 친구들에게 축하금을 받습니다. +$200", type: "money", val: 200 }
         ];
 
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
+        // 고유 플레이어 세션
         let myPlayerId = sessionStorage.getItem('myPlayerId');
         if (!myPlayerId) {
             myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
@@ -515,22 +456,15 @@
         }
 
         let currentRoomId = null; 
-        let currentUser = null;
+        let currentUser = null; 
         let localGameState = null;
         let unsubscribeRoom = null;
         window.botTurnInProgress = false; 
+        window.voteResolving = false;
         let gameTimerInterval = null;
 
         let customQuizzes = {};
         let sysTeacherPw = "1234";
-
-        window.showToast = function(title, message, icon = '🔔') {
-            document.getElementById('toast-title').innerText = title;
-            document.getElementById('toast-message').innerText = message;
-            document.getElementById('toast-icon').innerText = icon;
-            document.getElementById('toast-modal').classList.remove('hidden');
-        }
-        window.closeToast = function() { document.getElementById('toast-modal').classList.add('hidden'); }
 
         let selectedAvatar = AVATARS[0];
         const avatarContainer = document.getElementById('avatar-container');
@@ -550,19 +484,13 @@
                 await signInAnonymously(auth); 
                 const adminRef = doc(db, 'settings', 'admin');
                 const adminSnap = await getDoc(adminRef);
-                if (adminSnap.exists()) {
-                    sysTeacherPw = adminSnap.data().teacherPassword || "1234";
-                } else {
-                    await setDoc(adminRef, { teacherPassword: "1234" });
-                }
+                if (adminSnap.exists()) sysTeacherPw = adminSnap.data().teacherPassword || "1234";
+                else await setDoc(adminRef, { teacherPassword: "1234" });
 
                 const quizRef = doc(db, 'settings', 'quizzes');
                 const quizSnap = await getDoc(quizRef);
-                if (quizSnap.exists()) {
-                    customQuizzes = quizSnap.data().data || {};
-                }
-            } 
-            catch (error) { console.error(error); showToast("오류", "서버 인증에 실패했습니다.", "❌"); }
+                if (quizSnap.exists()) customQuizzes = quizSnap.data().data || {};
+            } catch (error) { console.error(error); showToast("오류", "서버 인증에 실패했습니다.", "❌"); }
         }
 
         onAuthStateChanged(auth, (user) => {
@@ -573,40 +501,7 @@
             }
         });
 
-        window.updateRuleParamsUI = function() {
-            const type = document.getElementById('rule-type').value;
-            const paramSelect = document.getElementById('rule-param');
-            paramSelect.innerHTML = '';
-            
-            if(type === 'time') {
-                paramSelect.innerHTML = `
-                    <option value="5">5분 (스피드 게임)</option>
-                    <option value="10" selected>10분 (보통)</option>
-                    <option value="15">15분 (약간 김)</option>
-                    <option value="20">20분 (정규 게임)</option>
-                `;
-                paramSelect.disabled = false;
-            } else if(type === 'turn') {
-                paramSelect.innerHTML = `
-                    <option value="5">모두 5바퀴 돌면 종료</option>
-                    <option value="10" selected>모두 10바퀴 돌면 종료</option>
-                    <option value="15">모두 15바퀴 돌면 종료</option>
-                `;
-                paramSelect.disabled = false;
-            } else if(type === 'asset') {
-                paramSelect.innerHTML = `
-                    <option value="3000">$3,000 먼저 모으기</option>
-                    <option value="5000" selected>$5,000 먼저 모으기</option>
-                    <option value="10000">$10,000 먼저 모으기</option>
-                `;
-                paramSelect.disabled = false;
-            } else if(type === 'bankrupt') {
-                paramSelect.innerHTML = `<option value="0">한 명이라도 파산하면 즉시 종료</option>`;
-                paramSelect.disabled = true;
-            }
-        }
-        updateRuleParamsUI();
-
+        // UI Event Listeners
         document.getElementById('btn-show-join').addEventListener('click', () => {
             document.getElementById('btn-group-main').classList.add('hidden');
             document.getElementById('btn-single-play').classList.add('hidden');
@@ -627,33 +522,41 @@
             const num = document.getElementById('student-num').value;
             const name = document.getElementById('student-name').value.trim();
             if(!g || !c || !num || !name) {
-                showToast("알림", "학년, 반, 번호, 이름을 모두 입력해주세요!", "⚠️");
-                return null;
+                showToast("알림", "학년, 반, 번호, 이름을 모두 입력해주세요!", "⚠️"); return null;
             }
             return name;
         }
 
-        function generateRoomCode() {
-            return String(Math.floor(1000 + Math.random() * 9000));
+        window.updateRuleParamsUI = function() {
+            const type = document.getElementById('rule-type').value;
+            const paramSelect = document.getElementById('rule-param');
+            paramSelect.innerHTML = '';
+            if(type === 'time') {
+                paramSelect.innerHTML = `<option value="5">5분</option><option value="10" selected>10분</option><option value="15">15분</option><option value="20">20분</option>`;
+                paramSelect.disabled = false;
+            } else if(type === 'turn') {
+                paramSelect.innerHTML = `<option value="5">모두 5바퀴 돌면 종료</option><option value="10" selected>모두 10바퀴 돌면 종료</option>`;
+                paramSelect.disabled = false;
+            } else if(type === 'asset') {
+                paramSelect.innerHTML = `<option value="3000">$3,000 모으기</option><option value="5000" selected>$5,000 모으기</option><option value="10000">$10,000 모으기</option>`;
+                paramSelect.disabled = false;
+            } else if(type === 'bankrupt') {
+                paramSelect.innerHTML = `<option value="0">한 명이라도 파산하면 종료</option>`;
+                paramSelect.disabled = true;
+            }
         }
+        updateRuleParamsUI();
 
         document.getElementById('btn-create-room').addEventListener('click', async () => {
             const name = validateForm();
             if(!name || !currentUser) return;
-            
-            currentRoomId = generateRoomCode();
+            currentRoomId = String(Math.floor(1000 + Math.random() * 9000));
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1 };
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
             
-            await setDoc(roomRef, {
-                state: 'lobby', 
-                players: players, 
-                turnOrder: [myPlayerId], 
-                currentTurnIndex: 0, 
-                tilesInfo: {}
-            });
+            await setDoc(roomRef, { state: 'lobby', players: players, turnOrder: [myPlayerId], currentTurnIndex: 0, tilesInfo: {}, voteState: null });
             
             document.getElementById('login-view').classList.add('hidden');
             document.getElementById('lobby-view').classList.remove('hidden');
@@ -664,7 +567,6 @@
         document.getElementById('btn-submit-join').addEventListener('click', async () => {
             const name = validateForm();
             if(!name || !currentUser) return;
-
             const code = document.getElementById('room-code').value.trim();
             if(code.length !== 4) { showToast("오류", "4자리 숫자 코드를 정확히 입력하세요.", "❌"); return; }
             currentRoomId = code;
@@ -672,17 +574,13 @@
             
             try {
                 const snap = await getDoc(roomRef);
-                if(!snap.exists() || snap.data().state !== 'lobby') {
-                    showToast("입장 불가", "방이 없거나 이미 게임이 시작되었습니다.", "🚫"); return;
-                }
+                if(!snap.exists() || snap.data().state !== 'lobby') { showToast("입장 불가", "방이 없거나 진행 중입니다.", "🚫"); return; }
                 let roomData = snap.data();
                 if(roomData.turnOrder.length >= 4) { showToast("입장 불가", "방이 꽉 찼습니다.", "🚫"); return; }
 
                 if (!roomData.players[myPlayerId]) {
                     const pCount = roomData.turnOrder.length;
-                    roomData.players[myPlayerId] = {
-                        name: name, avatar: selectedAvatar, color: COLORS[pCount % COLORS.length], pos: 0, balance: 1000, islandTurns: 0, round: 1
-                    };
+                    roomData.players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[pCount % COLORS.length], pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
                     roomData.turnOrder.push(myPlayerId);
                     await updateDoc(roomRef, { players: roomData.players, turnOrder: roomData.turnOrder });
                 }
@@ -691,142 +589,25 @@
                 document.getElementById('lobby-view').classList.remove('hidden');
                 document.getElementById('display-code').innerText = currentRoomId;
                 listenToRoom();
-            } catch (err) { console.error(err); showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌"); }
+            } catch (err) { showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌"); }
         });
 
         document.getElementById('btn-single-play').addEventListener('click', async () => {
             const name = validateForm();
             if(!name || !currentUser) return;
-
-            currentRoomId = generateRoomCode();
+            currentRoomId = String(Math.floor(1000 + Math.random() * 9000));
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
-            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1 };
-            players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0, round: 1 };
+            players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
+            players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
             
-            await setDoc(roomRef, {
-                state: 'lobby', 
-                players: players, 
-                turnOrder: [myPlayerId, 'bot_1'], 
-                currentTurnIndex: 0, 
-                tilesInfo: {}
-            });
-            
+            await setDoc(roomRef, { state: 'lobby', players: players, turnOrder: [myPlayerId, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}, voteState: null });
             document.getElementById('login-view').classList.add('hidden');
             document.getElementById('lobby-view').classList.remove('hidden');
             document.getElementById('display-code').innerText = currentRoomId;
             listenToRoom();
         });
-
-        document.getElementById('btn-show-teacher-auth').addEventListener('click', () => {
-            document.getElementById('teacher-auth-modal').classList.remove('hidden');
-            document.getElementById('teacher-pw-input').value = '';
-        });
-
-        document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => {
-            const pw = document.getElementById('teacher-pw-input').value;
-            if (pw === sysTeacherPw) {
-                document.getElementById('teacher-auth-modal').classList.add('hidden');
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('teacher-view').classList.remove('hidden');
-                renderTeacherTileList();
-            } else {
-                showToast("인증 실패", "비밀번호가 틀렸습니다.", "❌");
-            }
-        });
-
-        document.getElementById('btn-close-teacher').addEventListener('click', () => {
-            document.getElementById('teacher-view').classList.add('hidden');
-            document.getElementById('login-view').classList.remove('hidden');
-        });
-
-        document.getElementById('btn-change-pw').addEventListener('click', () => {
-            document.getElementById('pw-change-modal').classList.remove('hidden');
-            document.getElementById('new-pw-input').value = '';
-        });
-
-        document.getElementById('btn-save-new-pw').addEventListener('click', async () => {
-            const newPw = document.getElementById('new-pw-input').value.trim();
-            if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; }
-            
-            await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw });
-            sysTeacherPw = newPw;
-            document.getElementById('pw-change-modal').classList.add('hidden');
-            showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅");
-        });
-
-        let currentEditingTileId = null;
-
-        function renderTeacherTileList() {
-            const list = document.getElementById('teacher-tile-list');
-            list.innerHTML = '';
-            DEFAULT_TILES.filter(t => t.type === 'quiz').forEach(t => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left p-3 rounded-lg border-2 border-gray-200 hover:bg-blue-50 focus:bg-blue-100 focus:border-blue-400 font-bold text-gray-700 transition-colors";
-                btn.innerHTML = `${t.flag} ${t.name}`;
-                btn.onclick = () => loadTileToEditor(t.id);
-                list.appendChild(btn);
-            });
-        }
-
-        function loadTileToEditor(id) {
-            currentEditingTileId = id;
-            document.getElementById('editor-placeholder').classList.add('hidden');
-            document.getElementById('teacher-editor').classList.replace('hidden', 'flex');
-            
-            const baseTile = DEFAULT_TILES.find(t => t.id === id);
-            const savedQuiz = customQuizzes[id] || {};
-            const qType = savedQuiz.quizType || baseTile.quizType;
-            
-            document.getElementById('editor-title').innerText = `${baseTile.flag} ${baseTile.name} 출제하기`;
-            document.getElementById('edit-quiz-type').value = qType;
-            document.getElementById('edit-q').value = savedQuiz.q || baseTile.q;
-            document.getElementById('edit-a').value = savedQuiz.a || baseTile.a;
-            
-            const optionsGroup = document.getElementById('choice-options-group');
-            if (qType === 'choice') {
-                optionsGroup.classList.remove('hidden');
-                let opts = savedQuiz.options || baseTile.options;
-                let wrongOpts = opts.filter(o => o.toLowerCase() !== (savedQuiz.a || baseTile.a).toLowerCase());
-                document.getElementById('edit-wrong1').value = wrongOpts[0] || '';
-                document.getElementById('edit-wrong2').value = wrongOpts[1] || '';
-            } else {
-                optionsGroup.classList.add('hidden');
-            }
-        }
-
-        document.getElementById('edit-quiz-type').addEventListener('change', (e) => {
-            if(e.target.value === 'choice') document.getElementById('choice-options-group').classList.remove('hidden');
-            else document.getElementById('choice-options-group').classList.add('hidden');
-        });
-
-        document.getElementById('btn-save-quiz').addEventListener('click', async () => {
-            if (currentEditingTileId === null) return;
-            const qType = document.getElementById('edit-quiz-type').value;
-            const q = document.getElementById('edit-q').value.trim();
-            const a = document.getElementById('edit-a').value.trim();
-            
-            if(!q || !a) { showToast("경고", "질문과 정답을 모두 입력하세요.", "⚠️"); return; }
-            
-            let dataToSave = { quizType: qType, q: q, a: a };
-            
-            if (qType === 'choice') {
-                const w1 = document.getElementById('edit-wrong1').value.trim();
-                const w2 = document.getElementById('edit-wrong2').value.trim();
-                if(!w1 || !w2) { showToast("경고", "오답 2개를 모두 입력하세요.", "⚠️"); return; }
-                dataToSave.options = [a, w1, w2];
-            }
-
-            customQuizzes[currentEditingTileId] = dataToSave;
-            await setDoc(doc(db, 'settings', 'quizzes'), { data: customQuizzes }, { merge: true });
-            showToast("저장 완료", "해당 국가의 문제가 업데이트 되었습니다.", "✅");
-        });
-
-        function getMergedTile(baseTile) {
-            if (baseTile.type !== 'quiz') return baseTile;
-            return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
-        }
 
         function listenToRoom() {
             if(!currentRoomId) return;
@@ -840,11 +621,12 @@
                 if (localGameState.state === 'lobby') {
                     renderLobby();
                 } else if (localGameState.state === 'playing') {
-                    if (document.getElementById('lobby-view').classList.contains('hidden') === false || document.getElementById('game-view').classList.contains('hidden')) {
+                    if (!document.getElementById('lobby-view').classList.contains('hidden')) {
                         document.getElementById('lobby-view').classList.add('hidden');
                         document.getElementById('game-view').classList.remove('hidden');
                         initBoard();
                         startClientTimer();
+                        renderTravelModalOptions();
                     }
                     updateGameUI();
                 } else if (localGameState.state === 'finished') {
@@ -856,22 +638,12 @@
         function renderLobby() {
             const list = document.getElementById('player-list');
             list.innerHTML = '';
-            const players = localGameState.players;
             const uids = localGameState.turnOrder;
-            
             document.getElementById('player-count').innerText = uids.length;
 
             uids.forEach((uid, index) => {
-                const p = players[uid];
-                const isMe = uid === myPlayerId;
-                const isHost = index === 0;
-                list.innerHTML += `
-                    <li class="flex items-center gap-3 p-2 rounded-lg ${isMe ? 'bg-blue-100 font-bold' : ''}">
-                        <span class="text-2xl">${p.avatar}</span>
-                        <span style="color:${p.color}">${p.name} ${isMe ? '(나)' : ''}</span>
-                        ${isHost ? '<span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}
-                    </li>
-                `;
+                const p = localGameState.players[uid];
+                list.innerHTML += `<li class="flex items-center gap-3 p-2 rounded-lg ${uid === myPlayerId ? 'bg-blue-100 font-bold' : ''}"><span class="text-2xl">${p.avatar}</span><span style="color:${p.color}">${p.name}</span>${index === 0 ? '<span class="text-xs bg-yellow-400 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}</li>`;
             });
 
             if (uids[0] === myPlayerId) {
@@ -883,29 +655,26 @@
                     document.getElementById('start-game-btn').classList.add('hidden');
                     document.getElementById('waiting-msg').classList.remove('hidden');
                 }
-            } else {
-                document.getElementById('host-settings-panel').classList.add('hidden');
-            }
+            } else { document.getElementById('host-settings-panel').classList.add('hidden'); }
         }
 
         document.getElementById('start-game-btn').addEventListener('click', async () => {
             const ruleType = document.getElementById('rule-type').value;
             const ruleParam = parseInt(document.getElementById('rule-param').value) || 0;
             const now = Date.now();
-            
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            await updateDoc(roomRef, { 
-                state: 'playing',
-                rule: { type: ruleType, value: ruleParam },
-                startTime: now,
-                endTime: ruleType === 'time' ? now + (ruleParam * 60 * 1000) : null
+            await updateDoc(doc(db, 'rooms', currentRoomId), { 
+                state: 'playing', rule: { type: ruleType, value: ruleParam }, startTime: now, endTime: ruleType === 'time' ? now + (ruleParam * 60 * 1000) : null
             });
         });
+
+        function getMergedTile(baseTile) {
+            if (baseTile.type !== 'quiz') return baseTile;
+            return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
+        }
 
         function initBoard() {
             const board = document.getElementById('board');
             document.querySelectorAll('.tile').forEach(e => e.remove());
-            
             DEFAULT_TILES.forEach(t => {
                 const mergedTile = getMergedTile(t); 
                 const div = document.createElement('div');
@@ -913,179 +682,115 @@
                 div.id = `tile-${mergedTile.id}`;
                 div.style.gridColumn = mergedTile.col;
                 div.style.gridRow = mergedTile.row;
-                
-                let content = `<div class="tile-name">${mergedTile.name}</div>`;
-                if(mergedTile.flag) content += `<div class="tile-flag">${mergedTile.flag}</div>`;
-                if(mergedTile.price) content += `<div class="tile-price">$${mergedTile.price}</div>`;
-                
-                content += `<div class="token-container" id="token-container-${mergedTile.id}"></div>`;
-                div.innerHTML = content;
+                div.innerHTML = `<div class="tile-name">${mergedTile.name}</div>${mergedTile.flag ? `<div class="tile-flag">${mergedTile.flag}</div>` : ''}${mergedTile.price ? `<div class="tile-price">$${mergedTile.price}</div>` : ''}<div class="token-container" id="token-container-${mergedTile.id}"></div>`;
                 board.appendChild(div);
             });
-            renderTokens();
         }
 
-        function getPlayerCardHTML(p, isCurrentTurn, isMe) {
-            return `
-                <div class="bg-white rounded-3xl p-3 shadow-xl border-4 transition-all duration-300 ${isCurrentTurn ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
-                    <div class="flex items-center justify-between mb-2 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
-                        <div class="flex items-center gap-2">
-                            <div class="text-3xl bg-gray-50 rounded-full w-12 h-12 flex items-center justify-center shadow-inner border border-gray-200">${p.avatar}</div>
-                            <div class="font-black text-gray-800 text-lg">${p.name}</div>
-                        </div>
-                        ${isMe ? '<span class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-bold shadow-sm">나</span>' : ''}
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-2 border border-gray-200 text-center shadow-inner">
-                        <div class="text-xs text-gray-500 font-bold mb-1">자산</div>
-                        <div class="text-2xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
-                        ${(p.islandTurns && p.islandTurns > 0) ? `<div class="text-xs text-red-500 font-bold mt-1">무인도 (${p.islandTurns}턴)</div>` : ''}
-                        ${localGameState.rule.type === 'turn' ? `<div class="text-xs text-blue-500 font-bold mt-1">진행: ${p.round}바퀴</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateRuleInfoBar() {
-            if(!localGameState || !localGameState.rule) return;
-            const rule = localGameState.rule;
-            const icon = document.getElementById('rule-icon-display');
-            const text = document.getElementById('rule-text-display');
-            const status = document.getElementById('rule-status-display');
-            
-            if(rule.type === 'time') {
-                icon.innerText = '⏳';
-                text.innerText = '시간 제한 모드';
-            } else if(rule.type === 'turn') {
-                icon.innerText = '🏁';
-                text.innerText = '바퀴 수 제한 모드';
-                let maxRound = 1;
-                Object.values(localGameState.players).forEach(p => { if(p.round > maxRound) maxRound = p.round; });
-                status.innerText = `최고 ${maxRound} / ${rule.value} 바퀴`;
-            } else if(rule.type === 'asset') {
-                icon.innerText = '💰';
-                text.innerText = '목표 자산 모드';
-                status.innerText = `목표: $${rule.value}`;
-            } else if(rule.type === 'bankrupt') {
-                icon.innerText = '💀';
-                text.innerText = '파산 서바이벌 모드';
-                status.innerText = `생존 경쟁 중`;
-            }
-        }
-
-        function startClientTimer() {
-            if(gameTimerInterval) clearInterval(gameTimerInterval);
-            gameTimerInterval = setInterval(() => {
-                if(!localGameState || localGameState.state !== 'playing' || !localGameState.rule) return;
-                
-                if(localGameState.rule.type === 'time') {
-                    const timeLeft = Math.max(0, localGameState.endTime - Date.now());
-                    const m = Math.floor(timeLeft / 60000).toString().padStart(2, '0');
-                    const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
-                    document.getElementById('rule-status-display').innerText = `${m}:${s}`;
-                    
-                    if(timeLeft === 0 && localGameState.turnOrder[0] === myPlayerId) {
-                        endGame("약속된 시간이 모두 종료되었습니다!");
-                    }
-                }
-            }, 1000);
-        }
-
-        function calculateTotalAssets(uid) {
-            let p = localGameState.players[uid];
-            let total = p.balance;
+        function renderTravelModalOptions() {
+            const grid = document.getElementById('travel-tile-grid');
+            grid.innerHTML = '';
             DEFAULT_TILES.forEach(t => {
-                if (localGameState.tilesInfo[t.id]?.owner === uid) {
-                    total += (t.price || 0);
+                if(t.type !== 'start' && t.type !== 'travel' && t.type !== 'chance' && t.type !== 'island' && t.type !== 'rest') {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-gray-100 hover:bg-blue-100 border-2 border-gray-200 hover:border-blue-400 p-2 rounded-xl text-center transition-colors active-press";
+                    btn.innerHTML = `<div class="text-2xl">${t.flag}</div><div class="font-bold text-sm truncate">${t.name}</div>`;
+                    btn.onclick = () => window.executeTravel(t.id);
+                    grid.appendChild(btn);
                 }
             });
-            return total;
-        }
-
-        async function endGame(reasonMsg) {
-            if (localGameState.turnOrder[0] !== myPlayerId) return; 
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            await updateDoc(roomRef, { state: 'finished', endReason: reasonMsg });
-        }
-
-        function renderGameOver(reasonMsg) {
-            document.getElementById('game-over-reason').innerText = reasonMsg;
-            const list = document.getElementById('ranking-list');
-            list.innerHTML = '';
-
-            const ranking = localGameState.turnOrder.map(uid => {
-                return {
-                    uid: uid,
-                    name: localGameState.players[uid].name,
-                    avatar: localGameState.players[uid].avatar,
-                    totalAsset: calculateTotalAssets(uid)
-                };
-            }).sort((a, b) => b.totalAsset - a.totalAsset);
-
-            ranking.forEach((p, idx) => {
-                let badge = '';
-                if(idx === 0) badge = '🥇 1등';
-                else if(idx === 1) badge = '🥈 2등';
-                else if(idx === 2) badge = '🥉 3등';
-                else badge = `${idx+1}등`;
-
-                const isMe = p.uid === myPlayerId;
-                list.innerHTML += `
-                    <li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}">
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span>
-                            <span class="text-3xl">${p.avatar}</span>
-                            <span class="font-bold text-lg text-gray-800">${p.name} ${isMe ? '(나)' : ''}</span>
-                        </div>
-                        <div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset}</div>
-                    </li>
-                `;
-            });
-
-            document.getElementById('game-over-modal').classList.remove('hidden');
         }
 
         function updateGameUI() {
             if(localGameState.state !== 'playing') return;
-
-            updateRuleInfoBar();
-
-            const { players, turnOrder, currentTurnIndex, tilesInfo } = localGameState;
+            const { players, turnOrder, currentTurnIndex, tilesInfo, voteState } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
             const isMyTurn = currentUid === myPlayerId;
             const isBotTurn = currentUid.startsWith('bot_');
             const isHost = turnOrder[0] === myPlayerId;
             
+            // 1. 상태 카드 렌더링
             const slots = ['left', 'right', 'bottom', 'top'];
             slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
-
             let myIndex = turnOrder.indexOf(myPlayerId);
             if(myIndex === -1) myIndex = 0;
 
             turnOrder.forEach((uid, idx) => {
                 const p = players[uid];
-                const isTurn = uid === currentUid;
-                let targetSlot = '';
-                
-                if (idx === myIndex) { targetSlot = 'left'; } 
-                else {
-                    const relativeIdx = (idx - myIndex + turnOrder.length) % turnOrder.length;
-                    if (relativeIdx === 1) targetSlot = 'right';
-                    else if (relativeIdx === 2) targetSlot = 'bottom';
-                    else if (relativeIdx === 3) targetSlot = 'top';
-                }
-
+                let targetSlot = idx === myIndex ? 'left' : slots[(idx - myIndex + turnOrder.length) % turnOrder.length];
                 const container = document.getElementById(`status-${targetSlot}`);
                 if(container) {
-                    container.innerHTML = getPlayerCardHTML(p, isTurn, idx === myIndex);
+                    container.innerHTML = `
+                        <div class="bg-white rounded-3xl p-3 shadow-xl border-4 transition-all duration-300 ${uid === currentUid ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
+                            <div class="flex items-center justify-between mb-2 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
+                                <div class="flex items-center gap-2"><div class="text-3xl bg-gray-50 rounded-full w-12 h-12 flex items-center justify-center border border-gray-200">${p.avatar}</div><div class="font-black text-gray-800 text-lg">${p.name}</div></div>
+                                ${uid === myPlayerId ? '<span class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-bold shadow-sm">나</span>' : ''}
+                            </div>
+                            <div class="bg-gray-50 rounded-2xl p-2 border border-gray-200 text-center shadow-inner">
+                                <div class="text-xs text-gray-500 font-bold mb-1">자산</div><div class="text-2xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
+                                ${(p.islandTurns && p.islandTurns > 0) ? `<div class="text-xs text-red-500 font-bold mt-1">무인도 (${p.islandTurns}턴)</div>` : ''}
+                                ${p.canTravel ? `<div class="text-xs text-blue-500 font-bold mt-1">✈️ 비행기 대기중</div>` : ''}
+                            </div>
+                        </div>`;
                     container.classList.remove('hidden');
                 }
             });
+            slots.forEach(s => { if(document.getElementById(`status-${s}`).innerHTML === '') document.getElementById(`status-${s}`).classList.add('hidden'); });
 
-            slots.forEach(s => {
-                const container = document.getElementById(`status-${s}`);
-                if(container.innerHTML === '') container.classList.add('hidden');
-            });
+            // 2. 투표 UI 핸들링
+            if (voteState && voteState.active) {
+                document.getElementById('vote-modal').classList.remove('hidden');
+                document.getElementById('vote-title').innerText = voteState.title;
+                document.getElementById('vote-msg').innerText = voteState.msg;
+                const expectedVoters = turnOrder.length - 1;
+                document.getElementById('vote-count').innerText = voteState.voters.length;
+                document.getElementById('vote-total').innerText = expectedVoters;
 
+                if (voteState.target === myPlayerId) {
+                    document.getElementById('vote-target-ui').classList.remove('hidden');
+                    document.getElementById('vote-voter-ui').classList.add('hidden');
+                    document.getElementById('vote-done-ui').classList.add('hidden');
+                } else {
+                    document.getElementById('vote-target-ui').classList.add('hidden');
+                    if (voteState.voters.includes(myPlayerId)) {
+                        document.getElementById('vote-voter-ui').classList.add('hidden');
+                        document.getElementById('vote-done-ui').classList.remove('hidden');
+                    } else {
+                        document.getElementById('vote-voter-ui').classList.remove('hidden');
+                        document.getElementById('vote-done-ui').classList.add('hidden');
+                    }
+                }
+
+                // 봇 자동 투표 및 결과 집계 (방장이 처리)
+                if (isHost && !window.voteResolving) {
+                    turnOrder.forEach(async (uid) => {
+                        if (uid.startsWith('bot_') && !voteState.voters.includes(uid) && voteState.target !== uid) {
+                            voteState.voters.push(uid);
+                            if (Math.random() < 0.8) voteState.yes++; else voteState.no++;
+                            await updateDoc(doc(db, 'rooms', currentRoomId), { voteState: voteState });
+                        }
+                    });
+
+                    if (voteState.voters.length >= expectedVoters) {
+                        window.voteResolving = true;
+                        setTimeout(async () => {
+                            let rMsg = "";
+                            if (voteState.yes >= voteState.no && expectedVoters > 0) {
+                                rMsg = `찬성 ${voteState.yes}표! 미션 성공! 상금 $${voteState.reward} 획득! 🎉`;
+                                await updateDoc(doc(db, 'rooms', currentRoomId), { [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward, 'voteState.active': false });
+                            } else {
+                                rMsg = `반대 ${voteState.no}표... 미션 실패로 상금을 받지 못했습니다. 😢`;
+                                await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
+                            }
+                            showToast("투표 결과", rMsg, "📢");
+                            setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 2500);
+                        }, 1000);
+                    }
+                }
+                return; // 투표 중이면 다른 UI 업데이트 중지
+            } else { document.getElementById('vote-modal').classList.add('hidden'); }
+
+            // 3. 턴 제어 UI
             const currentP = players[currentUid];
             const turnBox = document.getElementById('turn-indicator');
             const turnText = document.getElementById('current-turn-text');
@@ -1093,23 +798,30 @@
             const waitMsg = document.getElementById('not-my-turn-msg');
 
             if (isMyTurn) {
-                if (currentP.islandTurns && currentP.islandTurns > 0) {
-                    turnText.innerText = `무인도에서 쉬고 있습니다. (${currentP.islandTurns}턴 남음)`;
-                    diceBtn.innerText = "턴 넘기기 (휴식)";
-                    diceBtn.classList.replace('bg-blue-500', 'bg-gray-500');
-                    diceBtn.classList.replace('hover:bg-blue-400', 'hover:bg-gray-400');
-                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(59,130,246)]', 'shadow-[0_4px_0_rgb(107,114,128)]');
-                } else {
-                    turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
-                    diceBtn.innerText = "주사위 굴리기!";
-                    diceBtn.classList.replace('bg-gray-500', 'bg-blue-500');
-                    diceBtn.classList.replace('hover:bg-gray-400', 'hover:bg-blue-400');
-                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(107,114,128)]', 'shadow-[0_4px_0_rgb(59,130,246)]');
-                }
                 turnBox.classList.replace('bg-yellow-100', 'bg-blue-100');
                 turnBox.classList.replace('border-yellow-400', 'border-blue-400');
                 diceBtn.classList.remove('hidden');
                 waitMsg.classList.add('hidden');
+                
+                if (currentP.canTravel) {
+                    turnText.innerText = "비행기를 타고 원하는 곳으로 가세요!";
+                    diceBtn.innerText = "목적지 선택하기 ✈️";
+                    diceBtn.classList.replace('bg-blue-500', 'bg-purple-500');
+                    diceBtn.classList.replace('hover:bg-blue-400', 'hover:bg-purple-400');
+                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(59,130,246)]', 'shadow-[0_4px_0_rgb(168,85,247)]');
+                } else if (currentP.islandTurns > 0) {
+                    turnText.innerText = `무인도 탈출 도전! (더블이 나오면 탈출)`;
+                    diceBtn.innerText = "주사위 굴리기 (탈출시도)";
+                    diceBtn.classList.replace('bg-purple-500', 'bg-blue-500'); // Reset from travel
+                    diceBtn.classList.replace('hover:bg-purple-400', 'hover:bg-blue-400');
+                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(168,85,247)]', 'shadow-[0_4px_0_rgb(59,130,246)]');
+                } else {
+                    turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
+                    diceBtn.innerText = "주사위 굴리기! 🎲";
+                    diceBtn.classList.replace('bg-purple-500', 'bg-blue-500');
+                    diceBtn.classList.replace('hover:bg-purple-400', 'hover:bg-blue-400');
+                    diceBtn.classList.replace('shadow-[0_4px_0_rgb(168,85,247)]', 'shadow-[0_4px_0_rgb(59,130,246)]');
+                }
             } else if (isBotTurn) {
                 turnText.innerText = "컴퓨터(AI)의 턴입니다... 🤖";
                 turnBox.classList.replace('bg-blue-100', 'bg-gray-100');
@@ -1131,106 +843,114 @@
                 waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            DEFAULT_TILES.forEach(t => {
-                const tileDiv = document.getElementById(`tile-${t.id}`);
-                const ownerUid = tilesInfo[t.id]?.owner;
-                
-                const oldMarker = tileDiv?.querySelector('.owner-marker');
-                if (oldMarker) oldMarker.remove();
-
-                if(ownerUid && tileDiv) {
-                    const ownerColor = players[ownerUid].color;
-                    const ownerAvatar = players[ownerUid].avatar;
-                    
-                    const marker = document.createElement('div');
-                    marker.className = 'owner-marker';
-                    marker.style.borderColor = ownerColor;
-                    marker.innerHTML = ownerAvatar;
-                    tileDiv.appendChild(marker);
-
-                    tileDiv.style.borderColor = ownerColor;
-                    tileDiv.style.borderWidth = '3px';
-                    tileDiv.style.backgroundColor = ownerColor + '15'; 
-                } else if(tileDiv && t.type !== 'start' && t.type !== 'island' && t.type !== 'chance' && t.type !== 'rest' && t.type !== 'travel') {
-                    tileDiv.style.borderColor = 'transparent';
-                    tileDiv.style.backgroundColor = 'white';
-                }
-            });
-            renderTokens();
-        }
-
-        function renderTokens() {
+            // 토큰 & 소유 마커 렌더링
             document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
-            const players = localGameState.players;
             const posMap = {};
-            
-            localGameState.turnOrder.forEach(uid => {
+            turnOrder.forEach(uid => {
                 const pos = players[uid].pos;
                 if(!posMap[pos]) posMap[pos] = [];
                 posMap[pos].push(players[uid].avatar);
             });
-
             Object.keys(posMap).forEach(pos => {
-                const container = document.getElementById(`token-container-${pos}`);
-                if (container) {
-                    container.innerHTML = posMap[pos].map(a => `<div class="player-token">${a}</div>`).join('');
+                const c = document.getElementById(`token-container-${pos}`);
+                if (c) c.innerHTML = posMap[pos].map(a => `<div class="player-token">${a}</div>`).join('');
+            });
+
+            DEFAULT_TILES.forEach(t => {
+                const tileDiv = document.getElementById(`tile-${t.id}`);
+                const ownerUid = tilesInfo[t.id]?.owner;
+                const oldMarker = tileDiv?.querySelector('.owner-marker');
+                if (oldMarker) oldMarker.remove();
+                if(ownerUid && tileDiv) {
+                    const marker = document.createElement('div');
+                    marker.className = 'owner-marker';
+                    marker.style.borderColor = players[ownerUid].color;
+                    marker.innerHTML = players[ownerUid].avatar;
+                    tileDiv.appendChild(marker);
+                    tileDiv.style.borderColor = players[ownerUid].color;
+                    tileDiv.style.borderWidth = '3px';
+                    tileDiv.style.backgroundColor = players[ownerUid].color + '15'; 
+                } else if(tileDiv && !['start','island','chance','rest','travel'].includes(t.type)) {
+                    tileDiv.style.borderColor = 'transparent'; tileDiv.style.backgroundColor = 'white';
                 }
             });
+            updateRuleInfoBar();
         }
+
+        window.castVote = async function(isYes) {
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            const snap = await getDoc(roomRef);
+            let vs = snap.data().voteState;
+            if (vs && !vs.voters.includes(myPlayerId)) {
+                vs.voters.push(myPlayerId);
+                if(isYes) vs.yes++; else vs.no++;
+                await updateDoc(roomRef, { voteState: vs });
+            }
+        };
+
+        window.executeTravel = async function(targetPos, isBot=false, botUid=null) {
+            document.getElementById('travel-modal').classList.add('hidden');
+            const uid = isBot ? botUid : myPlayerId;
+            let p = localGameState.players[uid];
+            let passGo = false;
+            if (targetPos < p.pos && targetPos !== 0) passGo = true;
+            
+            let updatePayload = { [`players.${uid}.pos`]: targetPos, [`players.${uid}.canTravel`]: false };
+            if(passGo) {
+                updatePayload[`players.${uid}.balance`] = p.balance + 200;
+                updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
+                if(!isBot) showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+            }
+            await updateDoc(doc(db, 'rooms', currentRoomId), updatePayload);
+            setTimeout(() => { handleTileAction(targetPos, uid, isBot, false); }, 800);
+        };
 
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
             if (localGameState.turnOrder[localGameState.currentTurnIndex] !== myPlayerId) return;
-            const btn = document.getElementById('roll-dice-btn');
-            btn.disabled = true;
-
-            let p = localGameState.players[myPlayerId];
-            const roomRef = doc(db, 'rooms', currentRoomId);
+            const p = localGameState.players[myPlayerId];
             
-            if (p.islandTurns && p.islandTurns > 0) {
-                await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
-                showToast("무인도", `휴식 중입니다. ${p.islandTurns - 1}턴 남았습니다.`, "🏝️");
-                setTimeout(() => nextTurn(false), 1500);
+            if (p.canTravel) {
+                document.getElementById('travel-modal').classList.remove('hidden');
                 return;
             }
-            
+
+            document.getElementById('roll-dice-btn').disabled = true;
             const diceDiv1 = document.getElementById('dice-display-1');
             const diceDiv2 = document.getElementById('dice-display-2');
-            diceDiv1.classList.add('rolling');
-            diceDiv2.classList.add('rolling');
+            diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
             await new Promise(r => setTimeout(r, 600));
-            diceDiv1.classList.remove('rolling');
-            diceDiv2.classList.remove('rolling');
+            diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
             
             const diceNum1 = Math.floor(Math.random() * 6) + 1;
             const diceNum2 = Math.floor(Math.random() * 6) + 1;
             const isDouble = (diceNum1 === diceNum2);
-            
             const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-            diceDiv1.innerText = diceFaces[diceNum1];
-            diceDiv2.innerText = diceFaces[diceNum2];
+            diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
 
-            const diceSum = diceNum1 + diceNum2;
-            let newPos = p.pos + diceSum;
-            let passGo = false;
-            let newRound = p.round;
-            
-            if (newPos >= 32) {
-                newPos = newPos % 32;
-                passGo = true;
-                newRound++;
+            const roomRef = doc(db, 'rooms', currentRoomId);
+
+            if (p.islandTurns && p.islandTurns > 0) {
+                if (isDouble) {
+                    showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎲🎲", "🏝️");
+                    await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
+                } else {
+                    await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
+                    showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
+                    setTimeout(() => nextTurn(false), 1500);
+                    return;
+                }
             }
-
-            let updatePayload = { 
-                [`players.${myPlayerId}.pos`]: newPos,
-                [`players.${myPlayerId}.round`]: newRound
-            };
             
+            let newPos = (p.pos + diceNum1 + diceNum2) % 32;
+            let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
+
+            let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
             if(passGo) {
                 updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200;
+                updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
                 showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
             }
             await updateDoc(roomRef, updatePayload);
-
             setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
         });
 
@@ -1239,119 +959,74 @@
                 let p = localGameState.players[botUid];
                 const roomRef = doc(db, 'rooms', currentRoomId);
 
-                if (p.islandTurns && p.islandTurns > 0) {
-                    await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
-                    showToast("컴퓨터 무인도", `컴퓨터가 무인도에서 쉬고 있습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
-                    setTimeout(() => nextTurn(false), 2000);
+                if (p.canTravel) {
+                    let randomTile = Math.floor(Math.random() * 31) + 1; // 1~31
+                    executeTravel(randomTile, true, botUid);
                     return;
                 }
 
                 const diceDiv1 = document.getElementById('dice-display-1');
                 const diceDiv2 = document.getElementById('dice-display-2');
-                diceDiv1.classList.add('rolling');
-                diceDiv2.classList.add('rolling');
+                diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
                 await new Promise(r => setTimeout(r, 600));
-                diceDiv1.classList.remove('rolling');
-                diceDiv2.classList.remove('rolling');
+                diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
                 
                 const diceNum1 = Math.floor(Math.random() * 6) + 1;
                 const diceNum2 = Math.floor(Math.random() * 6) + 1;
                 const isDouble = (diceNum1 === diceNum2);
-                
                 const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-                diceDiv1.innerText = diceFaces[diceNum1];
-                diceDiv2.innerText = diceFaces[diceNum2];
+                diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
 
-                const diceSum = diceNum1 + diceNum2;
-                let newPos = p.pos + diceSum;
-                let passGo = false;
-                let newRound = p.round;
-                
-                if (newPos >= 32) {
-                    newPos = newPos % 32;
-                    passGo = true;
-                    newRound++;
+                if (p.islandTurns && p.islandTurns > 0) {
+                    if (isDouble) {
+                        showToast("컴퓨터 탈출!", "컴퓨터가 더블로 무인도를 탈출합니다! 🤖🎲", "🏝️");
+                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
+                    } else {
+                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                        showToast("컴퓨터 휴식", `컴퓨터가 무인도에 갇혀있습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
+                        setTimeout(() => nextTurn(false), 2000);
+                        return;
+                    }
                 }
 
-                let updatePayload = { 
-                    [`players.${botUid}.pos`]: newPos,
-                    [`players.${botUid}.round`]: newRound
-                };
-                if(passGo) updatePayload[`players.${botUid}.balance`] = p.balance + 200;
+                let newPos = (p.pos + diceNum1 + diceNum2) % 32;
+                let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
+
+                let updatePayload = { [`players.${botUid}.pos`]: newPos };
+                if(passGo) {
+                    updatePayload[`players.${botUid}.balance`] = p.balance + 200;
+                    updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
+                }
                 
                 await updateDoc(roomRef, updatePayload);
                 setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
-            } catch (err) {
-                console.error("Bot turn error:", err);
-                nextTurn(false); 
-            }
-        }
-
-        async function checkWinConditions(uid) {
-            if (localGameState.turnOrder[0] !== myPlayerId) return false; 
-            
-            const p = localGameState.players[uid];
-            const rule = localGameState.rule;
-            
-            if (rule.type === 'asset' && calculateTotalAssets(uid) >= rule.value) {
-                await endGame(`${p.name} 님이 목표 자산($${rule.value})을 가장 먼저 달성했습니다!`);
-                return true;
-            }
-            if (rule.type === 'bankrupt' && p.balance < 0) {
-                await endGame(`${p.name} 님이 통행료를 내지 못해 파산했습니다!`);
-                return true;
-            }
-            if (rule.type === 'turn') {
-                let allFinished = true;
-                Object.values(localGameState.players).forEach(player => {
-                    if (player.round <= rule.value) allFinished = false; 
-                });
-                if (allFinished) {
-                    await endGame(`모든 플레이어가 ${rule.value} 바퀴를 완주했습니다!`);
-                    return true;
-                }
-            }
-            return false;
+            } catch (err) { console.error("Bot turn error:", err); nextTurn(false); }
         }
 
         async function handleTileAction(pos, uid, isBot, isDouble) {
             try {
                 const baseTile = DEFAULT_TILES[pos];
                 const tile = getMergedTile(baseTile);
-                
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 const { players, tilesInfo } = localGameState;
                 
                 if (tile.type === 'quiz') {
                     const owner = tilesInfo[pos]?.owner;
-                    
                     if (isBot) {
                         const isCorrect = Math.random() < 0.7; 
                         if (!owner) {
                             if (isCorrect && players[uid].balance >= tile.price) {
-                                await updateDoc(roomRef, {
-                                    [`players.${uid}.balance`]: players[uid].balance - tile.price,
-                                    [`tilesInfo.${pos}.owner`]: uid
-                                });
+                                await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
                                 showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 샀습니다!`, "🤖");
-                            } else {
-                                showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖");
-                            }
+                            } else showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖");
                         } else if (owner !== uid) {
                             const toll = Math.floor(tile.price / 2);
                             const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                            const msg = isCorrect ? `컴퓨터 정답! 통행료를 반값($${finalToll})만 냈습니다.` : `컴퓨터 오답! 통행료 $${finalToll}을 냈습니다.`;
-                            await updateDoc(roomRef, {
-                                [`players.${uid}.balance`]: players[uid].balance - finalToll,
-                                [`players.${owner}.balance`]: players[owner].balance + finalToll
-                            });
-                            showToast("컴퓨터 통행료 지불", msg, "💸");
+                            await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
+                            showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 반값($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸");
                         }
-                        
-                        setTimeout(async () => {
-                            const ended = await checkWinConditions(uid);
-                            if(!ended) nextTurn(isDouble);
-                        }, 3000);
+                        const ended = await checkWinConditions();
+                        if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
                         return;
                     } 
                     else {
@@ -1359,15 +1034,11 @@
                             triggerQuiz(tile, async (isCorrect) => {
                                 if (isCorrect) {
                                     if (players[uid].balance >= tile.price) {
-                                        await updateDoc(roomRef, {
-                                            [`players.${uid}.balance`]: players[uid].balance - tile.price,
-                                            [`tilesInfo.${pos}.owner`]: uid
-                                        });
+                                        await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
                                         showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰");
-                                    } else { showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢"); }
-                                } else { showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌"); }
-                                
-                                const ended = await checkWinConditions(uid);
+                                    } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢");
+                                } else showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌");
+                                const ended = await checkWinConditions();
                                 if(!ended) nextTurn(isDouble);
                             }, "새로운 나라 발견! 퀴즈를 맞히면 구매할 수 있어요.");
                             return; 
@@ -1375,14 +1046,9 @@
                             const toll = Math.floor(tile.price / 2);
                             triggerQuiz(tile, async (isCorrect) => {
                                 const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                                const msg = isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`;
-                                await updateDoc(roomRef, {
-                                    [`players.${uid}.balance`]: players[uid].balance - finalToll,
-                                    [`players.${owner}.balance`]: players[owner].balance + finalToll
-                                });
-                                showToast("통행료 지불", msg, "💸");
-                                
-                                const ended = await checkWinConditions(uid);
+                                await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
+                                showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸");
+                                const ended = await checkWinConditions();
                                 if(!ended) nextTurn(isDouble);
                             }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
                             return;
@@ -1391,107 +1057,152 @@
                 } 
                 else if (tile.type === 'chance') {
                     const card = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
-                    let updatePayload = {};
-                    
-                    if (card.type === "money") {
-                        updatePayload[`players.${uid}.balance`] = players[uid].balance + card.val;
-                    } else if (card.type === "move") {
-                        updatePayload[`players.${uid}.pos`] = card.pos;
-                        if (card.pos === 0) { 
-                            updatePayload[`players.${uid}.balance`] = players[uid].balance + 200;
-                            updatePayload[`players.${uid}.round`] = players[uid].round + 1;
-                        } else if (card.pos === 8) { 
-                            updatePayload[`players.${uid}.islandTurns`] = 3;
-                            isDouble = false; // 무인도에 가면 더블 규칙 취소
+                    if (card.type === 'vote') {
+                        await updateDoc(roomRef, { voteState: { active: true, target: uid, title: card.title, msg: card.msg, yes: 0, no: 0, voters: [], reward: card.reward } });
+                        return; // Vote resolution handles nextTurn
+                    } else {
+                        let updatePayload = {};
+                        if (card.type === "money") updatePayload[`players.${uid}.balance`] = players[uid].balance + card.val;
+                        else if (card.type === "move") {
+                            updatePayload[`players.${uid}.pos`] = card.pos;
+                            if (card.pos === 0) { updatePayload[`players.${uid}.balance`] = players[uid].balance + 200; updatePayload[`players.${uid}.round`] = (players[uid].round || 1) + 1; }
+                            else if (card.pos === 8) { updatePayload[`players.${uid}.islandTurns`] = 3; isDouble = false; }
+                            else if (card.pos === 24) { updatePayload[`players.${uid}.canTravel`] = true; isDouble = false; }
                         }
+                        showToast("찬스 카드 🗝️", `[${card.title}]\n${card.msg}`, "✨");
+                        await updateDoc(roomRef, updatePayload);
+                        const ended = await checkWinConditions();
+                        if(!ended) setTimeout(() => nextTurn(isDouble), 3000);
+                        return;
                     }
-                    
-                    showToast("황금열쇠 🗝️", `[${card.title}]\n${card.msg}`, "✨");
-                    await updateDoc(roomRef, updatePayload);
-                    
-                    setTimeout(async () => {
-                        const ended = await checkWinConditions(uid);
-                        if(!ended) nextTurn(isDouble);
-                    }, 3000);
-                    return;
                 }
                 else if (tile.type === 'island') {
-                    showToast(isBot ? "컴퓨터 무인도!" : "무인도!", "무인도에 도착했습니다! (3턴 쉬기)", "🏝️");
+                    showToast(isBot ? "컴퓨터 무인도!" : "무인도!", "무인도에 갇혔습니다! (최대 3턴 휴식, 더블 탈출 가능)", "🏝️");
                     await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3 });
-                    isDouble = false; // 무인도에 도착하면 더블 규칙 취소
+                    isDouble = false;
+                }
+                else if (tile.type === 'travel') {
+                    showToast(isBot ? "컴퓨터 비행기!" : "비행기 탑승!", "다음 턴에 원하는 곳으로 이동할 수 있습니다! ✈️", "✈️");
+                    await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true });
+                    isDouble = false; // Stop double rolling so they travel on NEXT turn
                 }
                 
-                const ended = await checkWinConditions(uid);
+                const ended = await checkWinConditions();
                 if(!ended) nextTurn(isDouble);
-            } catch (err) {
-                console.error("Action error:", err);
-                nextTurn(false);
-            }
+            } catch (err) { console.error("Action error:", err); nextTurn(false); }
         }
 
         async function nextTurn(isDouble = false) {
             try {
                 if(localGameState.state !== 'playing') return;
-                
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
                 window.botTurnInProgress = false; 
-                
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 
                 if (isDouble) {
-                    showToast("더블! 🎲🎲", "주사위가 같은 숫자가 나왔어요! 한 번 더 굴립니다.", "🎉");
-                    // 턴을 넘기지 않고 DB 업데이트만 발생시켜 로컬 UI 갱신 (봇 포함)
+                    showToast("더블! 🎲🎲", "한 번 더 굴립니다!", "🎉");
                     await updateDoc(roomRef, { lastActionTime: Date.now() }); 
                 } else {
                     const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
                 }
-            } catch (err) {
-                console.error("nextTurn Error:", err);
-            }
+            } catch (err) {}
         }
 
         function triggerQuiz(tile, callback, subtitle) {
             const modal = document.getElementById('quiz-modal');
             document.getElementById('quiz-subtitle').innerText = subtitle;
             document.getElementById('quiz-question').innerText = tile.q;
-            
             const choiceContainer = document.getElementById('quiz-options-container');
             const shortContainer = document.getElementById('quiz-short-container');
             const shortInput = document.getElementById('quiz-short-input');
             const shortSubmitBtn = document.getElementById('quiz-short-submit');
             
             if (tile.quizType === 'short') {
-                choiceContainer.classList.add('hidden');
-                shortContainer.classList.remove('hidden');
-                shortInput.value = '';
-                
+                choiceContainer.classList.add('hidden'); shortContainer.classList.remove('hidden'); shortInput.value = '';
                 shortSubmitBtn.onclick = () => {
                     const ans = shortInput.value.trim().toLowerCase();
-                    if(!ans) return;
-                    modal.classList.add('hidden');
-                    callback(ans === tile.a.toLowerCase());
+                    if(!ans) return; modal.classList.add('hidden'); callback(ans === tile.a.toLowerCase());
                 };
             } else {
-                shortContainer.classList.add('hidden');
-                choiceContainer.classList.remove('hidden');
-                choiceContainer.innerHTML = '';
-                
+                shortContainer.classList.add('hidden'); choiceContainer.classList.remove('hidden'); choiceContainer.innerHTML = '';
                 let shuffled = [...tile.options].sort(() => Math.random() - 0.5);
                 shuffled.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-2xl transition-colors shadow-sm active-press";
                     btn.innerText = opt;
-                    btn.onclick = () => {
-                        modal.classList.add('hidden');
-                        callback(opt === tile.a);
-                    };
+                    btn.onclick = () => { modal.classList.add('hidden'); callback(opt === tile.a); };
                     choiceContainer.appendChild(btn);
                 });
             }
-
             modal.classList.remove('hidden');
+        }
+
+        function calculateTotalAssets(uid) {
+            let p = localGameState.players[uid];
+            let total = p.balance;
+            DEFAULT_TILES.forEach(t => { if (localGameState.tilesInfo[t.id]?.owner === uid) total += (t.price || 0); });
+            return total;
+        }
+
+        async function checkWinConditions() {
+            if (localGameState.turnOrder[0] !== myPlayerId) return false; 
+            const rule = localGameState.rule;
+            for (let uid of localGameState.turnOrder) {
+                const p = localGameState.players[uid];
+                if (rule.type === 'asset' && calculateTotalAssets(uid) >= rule.value) { await endGame(`${p.name} 님이 목표 자산($${rule.value})을 달성했습니다!`); return true; }
+                if (rule.type === 'bankrupt' && p.balance < 0) { await endGame(`${p.name} 님이 파산했습니다!`); return true; }
+            }
+            if (rule.type === 'turn') {
+                let allFinished = true;
+                localGameState.turnOrder.forEach(uid => { if ((localGameState.players[uid].round||1) <= rule.value) allFinished = false; });
+                if (allFinished) { await endGame(`모든 플레이어가 ${rule.value} 바퀴를 완주했습니다!`); return true; }
+            }
+            return false;
+        }
+
+        async function endGame(reasonMsg) {
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            await updateDoc(roomRef, { state: 'finished', endReason: reasonMsg });
+        }
+
+        function renderGameOver(reasonMsg) {
+            document.getElementById('game-over-reason').innerText = reasonMsg;
+            const list = document.getElementById('ranking-list'); list.innerHTML = '';
+            const ranking = localGameState.turnOrder.map(uid => {
+                return { uid: uid, name: localGameState.players[uid].name, avatar: localGameState.players[uid].avatar, totalAsset: calculateTotalAssets(uid) };
+            }).sort((a, b) => b.totalAsset - a.totalAsset);
+
+            ranking.forEach((p, idx) => {
+                let badge = idx === 0 ? '🥇 1등' : idx === 1 ? '🥈 2등' : idx === 2 ? '🥉 3등' : `${idx+1}등`;
+                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${p.avatar}</span><span class="font-bold text-lg text-gray-800">${p.name}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset}</div></li>`;
+            });
+            document.getElementById('game-over-modal').classList.remove('hidden');
+        }
+
+        function updateRuleInfoBar() {
+            if(!localGameState || !localGameState.rule) return;
+            const rule = localGameState.rule;
+            const icon = document.getElementById('rule-icon-display'), text = document.getElementById('rule-text-display'), status = document.getElementById('rule-status-display');
+            if(rule.type === 'time') { icon.innerText = '⏳'; text.innerText = '시간 제한'; }
+            else if(rule.type === 'turn') { icon.innerText = '🏁'; text.innerText = '바퀴 수 제한'; let maxR = 1; Object.values(localGameState.players).forEach(p => { if((p.round||1) > maxR) maxR = p.round; }); status.innerText = `${maxR} / ${rule.value} 바퀴`; }
+            else if(rule.type === 'asset') { icon.innerText = '💰'; text.innerText = '목표 자산'; status.innerText = `목표: $${rule.value}`; }
+            else if(rule.type === 'bankrupt') { icon.innerText = '💀'; text.innerText = '파산 서바이벌'; status.innerText = `생존 경쟁`; }
+        }
+
+        function startClientTimer() {
+            if(gameTimerInterval) clearInterval(gameTimerInterval);
+            gameTimerInterval = setInterval(() => {
+                if(!localGameState || localGameState.state !== 'playing' || !localGameState.rule) return;
+                if(localGameState.rule.type === 'time') {
+                    const timeLeft = Math.max(0, localGameState.endTime - Date.now());
+                    const m = Math.floor(timeLeft / 60000).toString().padStart(2, '0');
+                    const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                    document.getElementById('rule-status-display').innerText = `${m}:${s}`;
+                    if(timeLeft === 0 && localGameState.turnOrder[0] === myPlayerId) endGame("약속된 시간이 모두 종료되었습니다!");
+                }
+            }, 1000);
         }
 
         initApp();
