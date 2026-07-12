@@ -220,6 +220,85 @@
         </form>
     </div>
 
+    <!-- 교사 모드 인증 모달 -->
+    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-gray-700">
+            <h3 class="text-2xl font-bold mb-2">선생님 인증</h3>
+            <p class="text-gray-500 mb-4 text-sm">비밀번호를 입력하세요. (초기: 1234)</p>
+            <input type="password" id="teacher-pw-input" class="block w-full bg-gray-50 border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl text-center text-xl mb-4" placeholder="****">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('teacher-auth-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
+                <button id="btn-submit-teacher-auth" class="w-1/2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl">인증</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 교사 모드 비번 변경 모달 -->
+    <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
+            <h3 class="text-xl font-bold mb-4">비밀번호 변경</h3>
+            <input type="password" id="new-pw-input" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-4 rounded-xl text-center text-lg mb-4" placeholder="새 비밀번호 입력">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('pw-change-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
+                <button id="btn-save-new-pw" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl">변경 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 교사 모드 대시보드 -->
+    <div id="teacher-view" class="hidden w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-gray-700 mt-4">
+        <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">🧑‍🏫 교사 모드 - 문제 출제</h2>
+            <div class="flex gap-2">
+                <button id="btn-change-pw" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-sm">비번 변경</button>
+                <button id="btn-close-teacher" class="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg">돌아가기</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 border-r-2 border-gray-100 pr-4">
+                <h3 class="font-bold text-lg mb-2 text-gray-600">국가(타일) 선택</h3>
+                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2" id="teacher-tile-list"></div>
+            </div>
+            
+            <div class="md:col-span-2 pl-2">
+                <div id="teacher-editor" class="hidden flex-col gap-4">
+                    <h3 class="text-2xl font-bold text-blue-600" id="editor-title">국가명</h3>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">문제 유형</label>
+                        <select id="edit-quiz-type" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl">
+                            <option value="choice">선택형 (객관식)</option>
+                            <option value="short">서답형 (주관식)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">질문 (문제)</label>
+                        <input type="text" id="edit-q" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl text-lg" placeholder="예: 대한민국">
+                    </div>
+                    <div>
+                        <label class="block text-blue-700 text-sm font-bold mb-1">정답 (영어)</label>
+                        <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-3 rounded-xl text-xl font-bold" placeholder="예: Korea">
+                    </div>
+                    <div id="choice-options-group" class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-red-700 text-sm font-bold mb-1">오답 1</label>
+                            <input type="text" id="edit-wrong1" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: Japan">
+                        </div>
+                        <div>
+                            <label class="block text-red-700 text-sm font-bold mb-1">오답 2</label>
+                            <input type="text" id="edit-wrong2" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: China">
+                        </div>
+                        <p class="col-span-2 text-sm text-gray-500 mt-1">* 선택형일 경우, 정답과 오답 2개가 섞여서 출제됩니다.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t-2 border-gray-100 flex justify-end">
+                        <button id="btn-save-quiz" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press text-lg">이 문제 저장하기</button>
+                    </div>
+                </div>
+                <div id="editor-placeholder" class="h-full flex items-center justify-center text-gray-400 font-bold text-lg">왼쪽에서 문제를 출제할 국가를 선택하세요.</div>
+            </div>
+        </div>
+    </div>
+
     <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
         <div class="text-6xl mb-4">⛺</div>
         <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
@@ -411,7 +490,6 @@
             { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', quizType: 'choice', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
-        // 찬스 카드 30종 (투표 연동 오프라인 미션 포함)
         const CHANCE_CARDS = [
             { title: "황금 열쇠 발견", msg: "숨겨진 보물을 찾았습니다! +$200", type: "money", val: 200 },
             { title: "지갑 분실", msg: "길을 잃고 지갑을 잃어버렸습니다. -$100", type: "money", val: -100 },
@@ -448,7 +526,6 @@
         const AVATARS = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐯'];
         const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         
-        // 고유 플레이어 세션
         let myPlayerId = sessionStorage.getItem('myPlayerId');
         if (!myPlayerId) {
             myPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
@@ -501,7 +578,6 @@
             }
         });
 
-        // UI Event Listeners
         document.getElementById('btn-show-join').addEventListener('click', () => {
             document.getElementById('btn-group-main').classList.add('hidden');
             document.getElementById('btn-single-play').classList.add('hidden');
@@ -737,7 +813,7 @@
             });
             slots.forEach(s => { if(document.getElementById(`status-${s}`).innerHTML === '') document.getElementById(`status-${s}`).classList.add('hidden'); });
 
-            // 2. 투표 UI 핸들링
+            // 2. 투표 UI 핸들링 (Race Condition 방지 처리 완료)
             if (voteState && voteState.active) {
                 document.getElementById('vote-modal').classList.remove('hidden');
                 document.getElementById('vote-title').innerText = voteState.title;
@@ -761,33 +837,45 @@
                     }
                 }
 
-                // 봇 자동 투표 및 결과 집계 (방장이 처리)
                 if (isHost && !window.voteResolving) {
-                    turnOrder.forEach(async (uid) => {
+                    let botVoted = false;
+                    turnOrder.forEach((uid) => {
                         if (uid.startsWith('bot_') && !voteState.voters.includes(uid) && voteState.target !== uid) {
                             voteState.voters.push(uid);
                             if (Math.random() < 0.8) voteState.yes++; else voteState.no++;
-                            await updateDoc(doc(db, 'rooms', currentRoomId), { voteState: voteState });
+                            botVoted = true;
                         }
                     });
+
+                    // 봇 투표를 동기적으로 처리 후 한 번만 DB에 보냄 (루프 방지)
+                    if (botVoted) {
+                        updateDoc(doc(db, 'rooms', currentRoomId), { voteState: voteState });
+                        return; // 반영 완료 후 다음 Snapshot에서 집계하도록 여기서 중단
+                    }
 
                     if (voteState.voters.length >= expectedVoters) {
                         window.voteResolving = true;
                         setTimeout(async () => {
-                            let rMsg = "";
-                            if (voteState.yes >= voteState.no && expectedVoters > 0) {
-                                rMsg = `찬성 ${voteState.yes}표! 미션 성공! 상금 $${voteState.reward} 획득! 🎉`;
-                                await updateDoc(doc(db, 'rooms', currentRoomId), { [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward, 'voteState.active': false });
-                            } else {
-                                rMsg = `반대 ${voteState.no}표... 미션 실패로 상금을 받지 못했습니다. 😢`;
-                                await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
+                            try {
+                                let rMsg = "";
+                                if (voteState.yes >= voteState.no && expectedVoters > 0) {
+                                    rMsg = `찬성 ${voteState.yes}표! 미션 성공! 상금 $${voteState.reward} 획득! 🎉`;
+                                    await updateDoc(doc(db, 'rooms', currentRoomId), { [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward, 'voteState.active': false });
+                                } else {
+                                    rMsg = `반대 ${voteState.no}표... 미션 실패로 상금을 받지 못했습니다. 😢`;
+                                    await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
+                                }
+                                showToast("투표 결과", rMsg, "📢");
+                                setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 2500);
+                            } catch(err) {
+                                console.error(err);
+                                window.voteResolving = false;
+                                nextTurn(false);
                             }
-                            showToast("투표 결과", rMsg, "📢");
-                            setTimeout(() => { window.voteResolving = false; document.getElementById('vote-modal').classList.add('hidden'); nextTurn(false); }, 2500);
                         }, 1000);
                     }
                 }
-                return; // 투표 중이면 다른 UI 업데이트 중지
+                return; // 투표 진행 중에는 아래 턴 UI 업데이트 중지
             } else { document.getElementById('vote-modal').classList.add('hidden'); }
 
             // 3. 턴 제어 UI
@@ -889,69 +977,87 @@
         };
 
         window.executeTravel = async function(targetPos, isBot=false, botUid=null) {
-            document.getElementById('travel-modal').classList.add('hidden');
-            const uid = isBot ? botUid : myPlayerId;
-            let p = localGameState.players[uid];
-            let passGo = false;
-            if (targetPos < p.pos && targetPos !== 0) passGo = true;
-            
-            let updatePayload = { [`players.${uid}.pos`]: targetPos, [`players.${uid}.canTravel`]: false };
-            if(passGo) {
-                updatePayload[`players.${uid}.balance`] = p.balance + 200;
-                updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
-                if(!isBot) showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+            try {
+                document.getElementById('travel-modal').classList.add('hidden');
+                const uid = isBot ? botUid : myPlayerId;
+                let p = localGameState.players[uid];
+                let passGo = false;
+                if (targetPos < p.pos && targetPos !== 0) passGo = true;
+                
+                let updatePayload = { [`players.${uid}.pos`]: targetPos, [`players.${uid}.canTravel`]: false };
+                if(passGo) {
+                    updatePayload[`players.${uid}.balance`] = p.balance + 200;
+                    updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
+                    if(!isBot) showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+                }
+                await updateDoc(doc(db, 'rooms', currentRoomId), updatePayload);
+                setTimeout(() => { handleTileAction(targetPos, uid, isBot, false); }, 800);
+            } catch (err) {
+                console.error(err);
+                nextTurn(false); // 오류 복구
             }
-            await updateDoc(doc(db, 'rooms', currentRoomId), updatePayload);
-            setTimeout(() => { handleTileAction(targetPos, uid, isBot, false); }, 800);
         };
 
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('roll-dice-btn');
             if (localGameState.turnOrder[localGameState.currentTurnIndex] !== myPlayerId) return;
-            const p = localGameState.players[myPlayerId];
+            if (btn.disabled) return; // 이중 클릭 완벽 방지
             
-            if (p.canTravel) {
-                document.getElementById('travel-modal').classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('roll-dice-btn').disabled = true;
-            const diceDiv1 = document.getElementById('dice-display-1');
-            const diceDiv2 = document.getElementById('dice-display-2');
-            diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
-            await new Promise(r => setTimeout(r, 600));
-            diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
-            
-            const diceNum1 = Math.floor(Math.random() * 6) + 1;
-            const diceNum2 = Math.floor(Math.random() * 6) + 1;
-            const isDouble = (diceNum1 === diceNum2);
-            const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-            diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
-
-            const roomRef = doc(db, 'rooms', currentRoomId);
-
-            if (p.islandTurns && p.islandTurns > 0) {
-                if (isDouble) {
-                    showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎲🎲", "🏝️");
-                    await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
-                } else {
-                    await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
-                    showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
-                    setTimeout(() => nextTurn(false), 1500);
+            try {
+                btn.disabled = true; // 통신 전 즉시 잠금
+                const p = localGameState.players[myPlayerId];
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                
+                if (p.canTravel) {
+                    document.getElementById('travel-modal').classList.remove('hidden');
+                    btn.disabled = false; // 모달이 행동을 대신하므로 다시 활성화
                     return;
                 }
-            }
-            
-            let newPos = (p.pos + diceNum1 + diceNum2) % 32;
-            let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
 
-            let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
-            if(passGo) {
-                updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200;
-                updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
-                showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+                const diceDiv1 = document.getElementById('dice-display-1');
+                const diceDiv2 = document.getElementById('dice-display-2');
+                diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
+                await new Promise(r => setTimeout(r, 600));
+                diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
+                
+                const diceNum1 = Math.floor(Math.random() * 6) + 1;
+                const diceNum2 = Math.floor(Math.random() * 6) + 1;
+                const isDouble = (diceNum1 === diceNum2);
+                const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
+                diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
+
+                if (p.islandTurns && p.islandTurns > 0) {
+                    if (isDouble) {
+                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎲🎲", "🏝️");
+                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
+                        // 더블 탈출 성공 시 아래 코드 이어서 실행 (이동)
+                    } else {
+                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
+                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️");
+                        setTimeout(() => nextTurn(false), 1500);
+                        return;
+                    }
+                }
+                
+                let newPos = (p.pos + diceNum1 + diceNum2) % 32;
+                let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
+
+                let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
+                if(passGo) {
+                    updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200;
+                    updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
+                    showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉");
+                }
+                await updateDoc(roomRef, updatePayload);
+                
+                // 타일 액션 실행
+                setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
+                
+            } catch (err) {
+                console.error("Roll dice error:", err);
+                btn.disabled = false; // 에러 시 복구
+                showToast("네트워크 오류", "서버 연결이 원활하지 않습니다. 다시 시도해주세요.", "❌");
             }
-            await updateDoc(roomRef, updatePayload);
-            setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
         });
 
         async function runBotTurn(botUid) {
@@ -971,6 +1077,7 @@
                 await new Promise(r => setTimeout(r, 600));
                 diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
                 
+                // 봇도 주사위 2개로 수정 완료
                 const diceNum1 = Math.floor(Math.random() * 6) + 1;
                 const diceNum2 = Math.floor(Math.random() * 6) + 1;
                 const isDouble = (diceNum1 === diceNum2);
@@ -1000,7 +1107,10 @@
                 
                 await updateDoc(roomRef, updatePayload);
                 setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
-            } catch (err) { console.error("Bot turn error:", err); nextTurn(false); }
+            } catch (err) { 
+                console.error("Bot turn error:", err); 
+                nextTurn(false); // 봇 에러 발생 시에도 턴은 확실히 넘김
+            }
         }
 
         async function handleTileAction(pos, uid, isBot, isDouble) {
@@ -1032,24 +1142,28 @@
                     else {
                         if (!owner) {
                             triggerQuiz(tile, async (isCorrect) => {
-                                if (isCorrect) {
-                                    if (players[uid].balance >= tile.price) {
-                                        await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
-                                        showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰");
-                                    } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢");
-                                } else showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌");
-                                const ended = await checkWinConditions();
-                                if(!ended) nextTurn(isDouble);
+                                try {
+                                    if (isCorrect) {
+                                        if (players[uid].balance >= tile.price) {
+                                            await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
+                                            showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰");
+                                        } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢");
+                                    } else showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌");
+                                    const ended = await checkWinConditions();
+                                    if(!ended) nextTurn(isDouble);
+                                } catch(e) { console.error(e); nextTurn(isDouble); }
                             }, "새로운 나라 발견! 퀴즈를 맞히면 구매할 수 있어요.");
                             return; 
                         } else if (owner !== uid) {
                             const toll = Math.floor(tile.price / 2);
                             triggerQuiz(tile, async (isCorrect) => {
-                                const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                                await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
-                                showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸");
-                                const ended = await checkWinConditions();
-                                if(!ended) nextTurn(isDouble);
+                                try {
+                                    const finalToll = isCorrect ? Math.floor(toll/2) : toll;
+                                    await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
+                                    showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸");
+                                    const ended = await checkWinConditions();
+                                    if(!ended) nextTurn(isDouble);
+                                } catch(e) { console.error(e); nextTurn(isDouble); }
                             }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
                             return;
                         }
@@ -1084,22 +1198,27 @@
                 else if (tile.type === 'travel') {
                     showToast(isBot ? "컴퓨터 비행기!" : "비행기 탑승!", "다음 턴에 원하는 곳으로 이동할 수 있습니다! ✈️", "✈️");
                     await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true });
-                    isDouble = false; // Stop double rolling so they travel on NEXT turn
+                    isDouble = false; 
                 }
                 
                 const ended = await checkWinConditions();
                 if(!ended) nextTurn(isDouble);
-            } catch (err) { console.error("Action error:", err); nextTurn(false); }
+            } catch (err) { 
+                console.error("Action error:", err); 
+                nextTurn(false); // 오류 시 무조건 다음 턴으로
+            }
         }
 
         async function nextTurn(isDouble = false) {
             try {
                 if(localGameState.state !== 'playing') return;
+                
+                // 버튼 즉각 복구 (자신의 브라우저에서 실행될 때 방어막)
                 const btn = document.getElementById('roll-dice-btn');
                 btn.disabled = false; 
                 window.botTurnInProgress = false; 
-                const roomRef = doc(db, 'rooms', currentRoomId);
                 
+                const roomRef = doc(db, 'rooms', currentRoomId);
                 if (isDouble) {
                     showToast("더블! 🎲🎲", "한 번 더 굴립니다!", "🎉");
                     await updateDoc(roomRef, { lastActionTime: Date.now() }); 
@@ -1107,7 +1226,10 @@
                     const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
                 }
-            } catch (err) {}
+            } catch (err) {
+                console.error("nextTurn Error:", err);
+                document.getElementById('roll-dice-btn').disabled = false; // 최후의 방어막
+            }
         }
 
         function triggerQuiz(tile, callback, subtitle) {
@@ -1121,9 +1243,15 @@
             
             if (tile.quizType === 'short') {
                 choiceContainer.classList.add('hidden'); shortContainer.classList.remove('hidden'); shortInput.value = '';
+                
+                // 이중 클릭 방지 및 리스너 재할당
+                shortSubmitBtn.onclick = null;
                 shortSubmitBtn.onclick = () => {
                     const ans = shortInput.value.trim().toLowerCase();
-                    if(!ans) return; modal.classList.add('hidden'); callback(ans === tile.a.toLowerCase());
+                    if(!ans) return; 
+                    shortSubmitBtn.onclick = null; // 제출 즉시 잠금
+                    modal.classList.add('hidden'); 
+                    callback(ans === tile.a.toLowerCase());
                 };
             } else {
                 shortContainer.classList.add('hidden'); choiceContainer.classList.remove('hidden'); choiceContainer.innerHTML = '';
@@ -1132,7 +1260,11 @@
                     const btn = document.createElement('button');
                     btn.className = "w-full bg-white border-2 border-blue-200 hover:bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-2xl transition-colors shadow-sm active-press";
                     btn.innerText = opt;
-                    btn.onclick = () => { modal.classList.add('hidden'); callback(opt === tile.a); };
+                    btn.onclick = () => { 
+                        choiceContainer.innerHTML = ''; // 누르는 즉시 다른 버튼 클릭 차단
+                        modal.classList.add('hidden'); 
+                        callback(opt === tile.a); 
+                    };
                     choiceContainer.appendChild(btn);
                 });
             }
@@ -1149,6 +1281,8 @@
         async function checkWinConditions() {
             if (localGameState.turnOrder[0] !== myPlayerId) return false; 
             const rule = localGameState.rule;
+            if(!rule) return false; // 예외 처리 강화
+
             for (let uid of localGameState.turnOrder) {
                 const p = localGameState.players[uid];
                 if (rule.type === 'asset' && calculateTotalAssets(uid) >= rule.value) { await endGame(`${p.name} 님이 목표 자산($${rule.value})을 달성했습니다!`); return true; }
