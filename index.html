@@ -3,23 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영어 에듀마블 - 월드 투어</title>
+    <title>영어 에듀마블 - 월드 투어 (Blue Marble - World Tour) - 와우리말 에듀테크</title>
+    <!-- Pretendard & Jua Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Waurimal Unified Ecosystem (Theme, GNB, Curriculum, Firebase) -->
+    <link rel="stylesheet" href="../common/waurimal-theme.css">
+    <script src="../common/waurimal-nav.js"></script>
+    <script src="../common/curriculum.js"></script>
+    <script src="../common/firebase-config.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-        
+        * {
+            box-sizing: border-box;
+            font-family: 'Pretendard', 'Jua', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
         body {
-            font-family: 'Jua', sans-serif;
-            background-color: #f0f9ff;
+            background-color: #F8FAFC;
             background-image: radial-gradient(#bae6fd 2px, transparent 2px);
             background-size: 30px 30px;
+            color: #1E293B;
+            min-height: 100vh;
             overflow-x: hidden;
             touch-action: manipulation;
+        }
+
+        .font-jua {
+            font-family: 'Jua', 'Pretendard', sans-serif !important;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         .bounce-hover:hover { transform: translateY(-2px); }
         .active-press:active { transform: scale(0.95); }
 
+        /* 50:50 대칭 분할 레이아웃 (단어타자연습 표준 규격) */
+        .home-split-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 1.5rem !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+
+        @media (max-width: 960px) {
+            .home-split-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.2rem !important;
+            }
+        }
+
+        .home-left, .home-right {
+            width: 100%;
+            min-width: 0;
+        }
+
+        /* 상단 타이틀 헤더 */
+        .hdr {
+            text-align: center;
+            padding: 0.2rem 0 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hdr h1 {
+            font-size: clamp(1.45rem, 3vw, 2.1rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .hdr-sub {
+            font-size: clamp(0.84rem, 1.8vw, 0.95rem);
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* 카드 컨테이너 */
+        .marble-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        /* 하단 교사 모드 진입 링크 */
+        .teacher-link-wrap {
+            margin-top: 1.4rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #E2E8F0;
+            text-align: center;
+        }
+
+        .btn-teacher-link {
+            background: none;
+            border: none;
+            color: #64748B;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-teacher-link:hover {
+            color: #2563EB;
+            background: #EFF6FF;
+        }
+
+        /* 명예의 전당 헤더 */
+        .hof-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .hof-title {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0F172A;
+        }
+
+        .hof-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: #EFF6FF;
+            color: #2563EB;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+            border: 1px solid #BFDBFE;
+            letter-spacing: 0.04em;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: #2563EB;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        .hof-subtitle {
+            font-size: 0.78rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* 에듀마블 인게임 보드 레이아웃 */
         .game-layout {
             display: grid;
             grid-template-areas: 
@@ -81,9 +244,9 @@
             cursor: pointer;
         }
 
-        .tile-name { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 2px; word-break: keep-all; line-height: 1.1; z-index: 2; }
+        .tile-name { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 2px; word-break: keep-all; line-height: 1.1; z-index: 2; font-family: 'Jua', sans-serif; }
         .tile-flag { font-size: 22px; margin-bottom: 2px; z-index: 2; line-height: 1; }
-        .tile-price { font-size: 10px; color: #ef4444; font-weight: bold; z-index: 2; }
+        .tile-price { font-size: 10px; color: #ef4444; font-weight: bold; z-index: 2; font-family: 'Jua', sans-serif; }
         
         .tile.start { background-color: #fef08a; box-shadow: 0 3px 0 #fde047; }
         .tile.island { background-color: #cbd5e1; box-shadow: 0 3px 0 #94a3b8; }
@@ -133,8 +296,11 @@
         .avatar-label { cursor: pointer; opacity: 0.5; transition: all 0.2s; filter: grayscale(100%); }
         .avatar-radio:checked + .avatar-label { opacity: 1; filter: grayscale(0%); transform: scale(1.2); box-shadow: 0 4px 0px #93c5fd; border-radius: 50%; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
+        /* 커스텀 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
         @keyframes diceRoll {
             0% { transform: rotate(0deg) scale(1); }
@@ -145,18 +311,10 @@
         }
         .rolling { animation: diceRoll 0.6s ease-in-out; }
     </style>
-
-    <!-- Waurimal Unified GNB Navigation Bar -->
-        <!-- Waurimal Unified Theme Stylesheet -->
-    <link rel="stylesheet" href="../common/waurimal-theme.css">
-    <!-- Waurimal Unified Ecosystem (GNB, Curriculum, Firebase) -->
-    <script src="../common/waurimal-nav.js"></script>
-    <script src="../common/curriculum.js"></script>
-    <script src="../common/firebase-config.js"></script>
 </head>
-<body class="min-h-screen p-2 md:p-4 flex flex-col items-center relative">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-    <!-- 토스트 알림창 (자동 닫힘 기능 추가) -->
+    <!-- 토스트 알림창 -->
     <div id="toast-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl transform transition-all scale-100">
             <div id="toast-icon" class="text-5xl mb-4">🔔</div>
@@ -166,196 +324,285 @@
         </div>
     </div>
 
-    <!-- 로딩 뷰 -->
-    <div id="loading-view" class="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto">
-        <div class="text-6xl mb-4 animate-bounce">🎲</div>
-        <h2 class="text-2xl font-bold text-blue-600">서버에 접속하는 중...</h2>
-    </div>
+    <!-- 상단 와우리말 통합 GNB 네비게이션이 waurimal-nav.js에 의해 자동 삽입됩니다 -->
 
-    <!-- 1. 로그인 뷰 -->
-    <div id="login-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-blue-400 mt-4 relative">
-        <button id="btn-show-teacher-auth" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors text-sm font-bold flex items-center gap-1">
-            <span>⚙️</span>선생님 전용
-        </button>
-        <div class="text-center mb-6 mt-4">
-            <div class="text-5xl mb-2">🌍</div>
-            <h1 class="text-4xl font-bold text-blue-600 drop-shadow-sm">영어 에듀마블</h1>
-            <p class="text-gray-500 mt-2">내 정보를 입력하고 세계 여행을 떠나요!</p>
-        </div>
-        <form id="entry-form" class="space-y-4" onsubmit="event.preventDefault(); return false;">
-            <div class="flex space-x-2">
-                <div class="w-1/2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-grade">학년</label>
-                    <select id="student-grade" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
-                        <option value="" disabled selected>선택</option>
-                        <option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option>
-                    </select>
-                </div>
-                <div class="w-1/2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-class">반 (1~10)</label>
-                    <select id="student-class" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 text-lg">
-                        <option value="" disabled selected>선택</option>
-                        <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}반</option>`);</script>
-                    </select>
-                </div>
-            </div>
-            <div class="flex space-x-2">
-                <div class="w-1/3">
-                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-num">번호</label>
-                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-2 rounded-xl text-center text-lg" id="student-num" type="number" min="1" max="99" placeholder="15">
-                </div>
-                <div class="w-2/3">
-                    <label class="block text-gray-700 text-sm font-bold mb-1" for="student-name">이름</label>
-                    <input class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-3 rounded-xl text-center text-lg" id="student-name" type="text" placeholder="홍길동" autocomplete="off" maxlength="8">
-                </div>
-            </div>
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-1">내 캐릭터 선택</label>
-                <div class="flex justify-between items-center bg-blue-50 p-3 rounded-xl border-2 border-blue-200" id="avatar-container"></div>
-            </div>
-            <div id="join-code-container" class="hidden mt-4 pt-4 border-t-2 border-dashed border-gray-200">
-                <label class="block text-gray-700 text-sm font-bold mb-1" for="room-code">입장 코드 (숫자 4자리)</label>
-                <input class="block w-full bg-green-50 border-2 border-green-200 text-gray-700 py-3 px-4 rounded-xl text-center text-3xl font-bold tracking-widest" id="room-code" type="number" placeholder="1234" maxlength="4" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);">
-            </div>
-            <div class="pt-4 grid grid-cols-2 gap-2" id="btn-group-main">
-                <button type="button" id="btn-create-room" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] active-press bounce-hover">방 만들기</button>
-                <button type="button" id="btn-show-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press bounce-hover">코드 입장</button>
-            </div>
-            <div class="hidden pt-2 grid-cols-2 gap-2" id="btn-group-join">
-                <button type="button" id="btn-cancel-join" class="w-full bg-gray-400 hover:bg-gray-300 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(156,163,175)] active-press">뒤로가기</button>
-                <button type="button" id="btn-submit-join" class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press">게임 입장하기</button>
-            </div>
-            <div class="pt-2">
-                <button type="button" id="btn-single-play" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_rgb(168,85,247)] active-press bounce-hover">혼자 하기 (vs 컴퓨터)</button>
-            </div>
-        </form>
-    </div>
+    <!-- 메인 컨텐츠 컨테이너 -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-4 md:py-6 flex flex-col">
 
-    <!-- 교사 모드 모달 및 대시보드 -->
-    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-gray-700">
-            <h3 class="text-2xl font-bold mb-2">선생님 인증</h3>
-            <p class="text-gray-500 mb-4 text-sm">비밀번호를 입력하세요. (초기: 1234)</p>
-            <input type="password" id="teacher-pw-input" class="block w-full bg-gray-50 border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl text-center text-xl mb-4" placeholder="****">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('teacher-auth-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
-                <button id="btn-submit-teacher-auth" class="w-1/2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl">인증</button>
-            </div>
+        <!-- 통일된 상단 타이틀 헤더 (단어타자연습 표준 동일 규격) -->
+        <div class="hdr">
+            <h1>영어 에듀마블 (Blue Marble - World Tour)</h1>
+            <p class="hdr-sub" id="hsub">주사위를 굴려 세계를 여행하고 영어 퀴즈를 풀며 나만의 랜드마크를 건설하세요! 실시간 대결 & 명예의 전당</p>
         </div>
-    </div>
-    <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
-        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
-            <h3 class="text-xl font-bold mb-4">비밀번호 변경</h3>
-            <input type="password" id="new-pw-input" class="block w-full bg-blue-50 border-2 border-blue-200 text-gray-700 py-3 px-4 rounded-xl text-center text-lg mb-4" placeholder="새 비밀번호 입력">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('pw-change-modal').classList.add('hidden')" class="w-1/2 bg-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">취소</button>
-                <button id="btn-save-new-pw" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl">변경 저장</button>
-            </div>
-        </div>
-    </div>
-    <div id="teacher-view" class="hidden w-full max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-gray-700 mt-4">
-        <div class="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6">
-            <h2 class="text-3xl font-bold text-gray-800">🧑‍🏫 교사 모드 - 문제 출제</h2>
-            <div class="flex gap-2">
-                <button id="btn-change-pw" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-sm">비번 변경</button>
-                <button id="btn-close-teacher" class="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg">돌아가기</button>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-1 border-r-2 border-gray-100 pr-4">
-                <h3 class="font-bold text-lg mb-2 text-gray-600">국가(타일) 선택</h3>
-                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2" id="teacher-tile-list"></div>
-            </div>
-            <div class="md:col-span-2 pl-2">
-                <div id="teacher-editor" class="hidden flex-col gap-4">
-                    <h3 class="text-2xl font-bold text-blue-600" id="editor-title">국가명</h3>
+
+        <!-- ─────────────────────────────────────────── -->
+        <!-- 1. 홈 화면 (screen-home: 50% vs 50% 대칭 분할) -->
+        <!-- ─────────────────────────────────────────── -->
+        <div id="screen-home" class="home-split-grid w-full">
+            <!-- [좌측 50%]: 게임 설정 / 캐릭터 / 단원 선택 / 게임 시작 -->
+            <div class="home-left flex flex-col gap-4">
+                <div class="marble-card space-y-4">
+                    <!-- 1. 학습 단원 선택 -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">문제 유형</label>
-                        <select id="edit-quiz-type" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl">
-                            <option value="choice">선택형 (객관식)</option>
-                            <option value="short">서답형 (주관식)</option>
+                        <label class="block text-xs font-black text-slate-700 mb-1.5 flex items-center justify-between">
+                            <span>📚 학습 단원 선택</span>
+                            <span class="text-[10px] text-blue-600 font-medium">(국가 타일 퀴즈 출제 범위)</span>
+                        </label>
+                        <select id="homeUnitSelect" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">단원을 선택해주세요</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">질문 (문제)</label>
-                        <input type="text" id="edit-q" class="w-full bg-gray-50 border-2 border-gray-300 p-3 rounded-xl text-lg" placeholder="예: 대한민국">
-                    </div>
-                    <div>
-                        <label class="block text-blue-700 text-sm font-bold mb-1">정답 (영어)</label>
-                        <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-3 rounded-xl text-xl font-bold" placeholder="예: Korea">
-                    </div>
-                    <div id="choice-options-group" class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-red-700 text-sm font-bold mb-1">오답 1</label>
-                            <input type="text" id="edit-wrong1" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: Japan">
+
+                    <!-- 2. 참가자 정보 (GNB 자동 연동) -->
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                                <span>👤 참가자 정보</span>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">GNB 연동</span>
+                            </span>
                         </div>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">학년</label>
+                                <select id="student-grade" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none">
+                                    <option value="3">3학년</option>
+                                    <option value="4">4학년</option>
+                                    <option value="5">5학년</option>
+                                    <option value="6" selected>6학년</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">반</label>
+                                <select id="student-class" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none">
+                                    <option value="1" selected>1반</option><option value="2">2반</option>
+                                    <option value="3">3반</option><option value="4">4반</option>
+                                    <option value="5">5반</option><option value="6">6반</option>
+                                    <option value="7">7반</option><option value="8">8반</option>
+                                    <option value="9">9반</option><option value="10">10반</option>
+                                    <option value="11">11반</option><option value="12">12반</option>
+                                    <option value="13">13반</option><option value="14">14반</option>
+                                    <option value="15">15반</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">번호</label>
+                                <input type="number" id="student-num" min="1" max="99" value="1" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">이름</label>
+                                <input type="text" id="student-name" placeholder="도전자" maxlength="8" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center text-slate-800 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- 캐릭터 선택 -->
                         <div>
-                            <label class="block text-red-700 text-sm font-bold mb-1">오답 2</label>
-                            <input type="text" id="edit-wrong2" class="w-full bg-red-50 border-2 border-red-200 p-3 rounded-xl" placeholder="예: China">
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1">내 캐릭터 선택</label>
+                            <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200" id="avatar-container"></div>
                         </div>
                     </div>
-                    <div class="mt-4 pt-4 border-t-2 border-gray-100 flex justify-end">
-                        <button id="btn-save-quiz" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_rgb(34,197,94)] active-press text-lg">이 문제 저장하기</button>
+
+                    <!-- 3. 1인 플레이 (vs 컴퓨터) -->
+                    <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                                <span>🎲 1인 플레이 (vs 컴퓨터 AI)</span>
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">즉시 시작</span>
+                            </span>
+                            <span class="text-[11px] text-emerald-600 font-bold">인공지능 대결</span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium leading-relaxed">
+                            대기 시간 없이 똑똑한 컴퓨터(AI)와 1:1 세계 여행 대결을 펼치고 명예의 전당에 도전하세요!
+                        </p>
+                        <button type="button" id="btn-single-play" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-between px-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xl">🤖</span>
+                                <div class="text-left">
+                                    <div class="text-sm font-black">1인 플레이 시작</div>
+                                    <div class="text-[11px] text-emerald-100 font-medium">컴퓨터와 1:1 세계 여행 바로 플레이</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-lg text-emerald-200"></i>
+                        </button>
+                    </div>
+
+                    <!-- 4. 실시간 친구와 대결 -->
+                    <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-blue-900 flex items-center gap-1.5">
+                                <span>🏟️ 실시간 친구와 대결</span>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">최대 4인</span>
+                            </span>
+                            <span class="text-[11px] text-blue-600 font-bold">실시간 멀티</span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium leading-relaxed">
+                            친구들과 같은 방에 모여 함께 주사위를 굴리고 영어 퀴즈를 풀며 최고의 부자에 도전하세요!
+                        </p>
+
+                        <button type="button" id="btn-create-room" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-xs shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle"></i> 새로운 방 만들기
+                        </button>
+
+                        <div class="relative flex py-1 items-center">
+                            <div class="flex-grow border-t border-blue-200"></div>
+                            <span class="flex-shrink mx-3 text-slate-400 text-xs font-bold">또는 참여 코드로 입장</span>
+                            <div class="flex-grow border-t border-blue-200"></div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input type="text" id="homeRoomInput" placeholder="참여 코드 4자리" maxlength="4" class="flex-1 p-3 bg-white border border-blue-300 rounded-xl text-center text-base font-black tracking-widest text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                            <button type="button" id="btn-join-room" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm rounded-xl shadow transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-door-open"></i>
+                                <span>입장</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="editor-placeholder" class="h-full flex items-center justify-center text-gray-400 font-bold text-lg">왼쪽에서 문제를 출제할 국가를 선택하세요.</div>
-            </div>
-        </div>
-    </div>
 
-    <!-- 로비 뷰 -->
-    <div id="lobby-view" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-10 text-center">
-        <div class="text-6xl mb-4">⛺</div>
-        <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
-        <div id="room-code-display" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 inline-block mb-4">
-            <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드 (친구에게 알려주세요)</span>
-            <span class="text-5xl text-yellow-900 font-black tracking-widest" id="display-code">----</span>
-        </div>
-        
-        <div id="host-settings-panel" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-4 text-left">
-            <h3 class="font-bold text-lg text-blue-800 mb-2">⚙️게임 규칙 설정 (방장 전용)</h3>
-            <div class="flex flex-col gap-2">
-                <select id="rule-type" class="w-full bg-white border border-blue-300 py-2 px-3 rounded-xl font-bold" onchange="updateRuleParamsUI()">
-                    <option value="time">⏳ 시간 제한 모드</option>
-                    <option value="turn">🏁 바퀴 수 제한 모드</option>
-                    <option value="asset">💰 목표 자산 달성 모드</option>
-                    <option value="bankrupt">💀 파산 서바이벌 모드</option>
-                </select>
-                <select id="rule-param" class="w-full bg-white border border-blue-300 py-2 px-3 rounded-xl font-bold"></select>
-            </div>
-        </div>
-        
-        <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
-            <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">접속한 여행자들 (<span id="player-count">0</span>/4명)</h3>
-            <ul id="player-list" class="space-y-2 text-left text-lg"></ul>
-        </div>
-        <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">게임 시작하기 🎮</button>
-        <p id="waiting-msg" class="text-gray-400 text-sm mt-4 font-bold">인원 대기 중... (2명 이상 필요)</p>
-    </div>
-
-    <!-- 5. 게임 뷰 -->
-    <div id="game-view" class="hidden game-layout mt-4">
-        <div id="status-top" class="hidden"></div>
-        <div id="status-left" class="hidden"></div>
-        <div id="status-right" class="hidden"></div>
-        <div id="status-bottom" class="hidden"></div>
-
-        <div id="center-area" class="flex flex-col items-center relative">
-            <div id="game-info-bar" class="w-full max-w-[600px] bg-indigo-600 text-white rounded-2xl p-3 mb-2 flex justify-between items-center shadow-md border-4 border-indigo-400">
-                <div class="font-bold text-lg flex items-center gap-2">
-                    <span id="rule-icon-display">⏳</span>
-                    <span id="rule-text-display">시간 제한 모드</span>
-                </div>
-                <div class="font-black text-2xl text-yellow-300 drop-shadow-sm tracking-wider" id="rule-status-display">--:--</div>
-            </div>
-
-            <div id="board" class="board-container relative">
-                <div id="board-inner-center" class="flex flex-col items-center justify-center p-2 sm:p-4 bg-white/70 backdrop-blur-sm rounded-2xl shadow-inner z-0" style="grid-column: 2 / 9; grid-row: 2 / 9;">
-                    <div id="turn-indicator" class="border-4 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]">
-                        <span class="text-lg sm:text-xl text-yellow-800 font-black" id="current-turn-text">누구의 턴일까요?</span>
+                <!-- 게임 규칙 안내 카드 -->
+                <div class="marble-card bg-gradient-to-br from-white to-blue-50/30 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">💡</span>
+                        <h3 class="font-black text-slate-800 text-sm">영어 에듀마블 게임 규칙</h3>
                     </div>
-                    <div class="bg-blue-50 rounded-2xl p-3 sm:p-4 text-center border-4 border-blue-200 shadow-inner w-full max-w-[280px]">
-                        <div class="flex justify-center gap-2 mb-2 sm:mb-3">
+                    <ul class="text-xs text-slate-600 space-y-1.5 leading-relaxed">
+                        <li>• <strong>주사위 이동</strong>: 내 턴에 주사위를 굴려 나온 수만큼 세계 각국 타일로 이동합니다. 더블이 나오면 한 번 더 굴릴 수 있습니다!</li>
+                        <li>• <strong>국가 퀴즈 & 땅 구매</strong>: 도착한 국가의 영어 퀴즈를 맞히면 땅을 구매할 수 있습니다. 이미 다른 친구의 땅이라면 퀴즈를 맞혀 통행료를 50% 할인받을 수 있습니다!</li>
+                        <li>• <strong>황금 열쇠 & 찬스</strong>: 숨겨진 보물 상금, 강제 이동, 장기자랑 오프라인 투표 등 흥미진진한 찬스 카드가 준비되어 있습니다.</li>
+                        <li>• <strong>명예의 전당</strong>: 게임 완주 후 달성한 최종 자산이 실시간 명예의 전당에 자동 등록되어 학교 랭킹에 도전합니다.</li>
+                    </ul>
+
+                    <div class="teacher-link-wrap">
+                        <button type="button" class="btn-teacher-link" onclick="openTeacherAuthModal()">
+                            <i class="fas fa-cog"></i> 교사 설정 모드 (단원 목록 및 문제 출제 관리)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [우측 50%]: 실시간 명예의 전당 (Top 30) -->
+            <div class="home-right">
+                <div class="marble-card flex flex-col h-full">
+                    <div class="hof-header">
+                        <div class="hof-title">
+                            <span style="font-size:1.3rem;">🏆</span>
+                            <span>명예의 전당</span>
+                            <span class="hof-live-badge"><span class="pulse-dot"></span> LIVE</span>
+                        </div>
+                        <div class="hof-subtitle">단원별·학급별 실시간 랭킹 순위표 (Top 30)</div>
+                    </div>
+
+                    <!-- 1. 기간 선택 탭 -->
+                    <div class="flex bg-slate-100 p-1 rounded-xl mb-3">
+                        <button type="button" class="hof-period-tab flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-white text-blue-700 shadow-2xs" id="hof-tab-all" onclick="setHofPeriod('all')">전체 기간</button>
+                        <button type="button" class="hof-period-tab flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800" id="hof-tab-month" onclick="setHofPeriod('month')">이번 달</button>
+                        <button type="button" class="hof-period-tab flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800" id="hof-tab-week" onclick="setHofPeriod('week')">이번 주</button>
+                    </div>
+
+                    <!-- 2. 세부 필터 (단원, 학년, 반 - 3단 규격) -->
+                    <div class="grid grid-cols-3 gap-1.5 mb-3">
+                        <div>
+                            <select id="hof-filter-unit" onchange="filterHofList()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="ALL">전체 단원</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="hof-filter-grade" onchange="filterHofList()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="ALL">전체 학년</option>
+                                <option value="3">3학년</option>
+                                <option value="4">4학년</option>
+                                <option value="5">5학년</option>
+                                <option value="6">6학년</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="hof-filter-class" onchange="filterHofList()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="ALL">전체 반</option>
+                                <option value="1">1반</option><option value="2">2반</option>
+                                <option value="3">3반</option><option value="4">4반</option>
+                                <option value="5">5반</option><option value="6">6반</option>
+                                <option value="7">7반</option><option value="8">8반</option>
+                                <option value="9">9반</option><option value="10">10반</option>
+                                <option value="11">11반</option><option value="12">12반</option>
+                                <option value="13">13반</option><option value="14">14반</option>
+                                <option value="15">15반</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 3. 실시간 랭킹 목록 컨테이너 -->
+                    <div id="hof-records-container" class="flex-1 overflow-y-auto custom-scrollbar max-h-[520px] space-y-2 pr-1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────── -->
+        <!-- 2. 대기실 화면 (screen-lobby) -->
+        <!-- ─────────────────────────────────────────── -->
+        <div id="screen-lobby" class="hidden w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-green-400 mt-6 text-center">
+            <div class="text-6xl mb-4">⛺</div>
+            <h2 class="text-3xl font-bold text-green-600 mb-2">대기실</h2>
+            <div id="room-code-display" class="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 inline-block mb-4">
+                <span class="text-sm text-yellow-800 font-bold block mb-1">초대 코드 (친구에게 알려주세요)</span>
+                <span class="text-5xl text-yellow-900 font-black tracking-widest" id="display-code">----</span>
+            </div>
+            
+            <div id="host-settings-panel" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-4 text-left">
+                <h3 class="font-bold text-lg text-blue-800 mb-2">⚙️ 게임 규칙 설정 (방장 전용)</h3>
+                <div class="flex flex-col gap-2">
+                    <select id="rule-type" class="w-full bg-white border border-blue-300 py-2 px-3 rounded-xl font-bold" onchange="updateRuleParamsUI()">
+                        <option value="time">⏳ 시간 제한 모드</option>
+                        <option value="turn">🏁 바퀴 수 제한 모드</option>
+                        <option value="asset">💰 목표 자산 달성 모드</option>
+                        <option value="bankrupt">💀 파산 서바이벌 모드</option>
+                    </select>
+                    <select id="rule-param" class="w-full bg-white border border-blue-300 py-2 px-3 rounded-xl font-bold"></select>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-2xl p-4 mb-6 border-2 border-gray-100 min-h-[150px]">
+                <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-2">접속한 여행자들 (<span id="player-count">0</span>/4명)</h3>
+                <ul id="player-list" class="space-y-2 text-left text-lg"></ul>
+            </div>
+            <button id="start-game-btn" class="hidden w-full bg-green-500 hover:bg-green-400 text-white font-bold text-2xl py-4 rounded-2xl shadow-[0_4px_0_rgb(34,197,94)] transition-all active-press bounce-hover">게임 시작하기 🎮</button>
+            <p id="waiting-msg" class="text-gray-400 text-sm mt-4 font-bold">인원 대기 중... (2명 이상 필요)</p>
+            
+            <div class="mt-4 pt-3 border-t border-gray-200">
+                <button type="button" onclick="confirmExitGame()" class="text-xs text-slate-400 hover:text-rose-600 font-bold">
+                    ← 대기실 나가기 (홈으로)
+                </button>
+            </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────── -->
+        <!-- 3. 인게임 화면 (screen-game) -->
+        <!-- ─────────────────────────────────────────── -->
+        <div id="screen-game" class="hidden game-layout mt-4">
+            <div id="status-top" class="hidden"></div>
+            <div id="status-left" class="hidden"></div>
+            <div id="status-right" class="hidden"></div>
+            <div id="status-bottom" class="hidden"></div>
+
+            <div id="center-area" class="flex flex-col items-center relative">
+                <div id="game-info-bar" class="w-full max-w-[600px] bg-indigo-600 text-white rounded-2xl p-3 mb-2 flex justify-between items-center shadow-md border-4 border-indigo-400">
+                    <div class="font-bold text-lg flex items-center gap-2">
+                        <span id="rule-icon-display">⏳</span>
+                        <span id="rule-text-display">시간 제한 모드</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="font-black text-2xl text-yellow-300 drop-shadow-sm tracking-wider" id="rule-status-display">--:--</div>
+                        <button type="button" onclick="confirmExitGame()" class="px-2.5 py-1 bg-indigo-800 hover:bg-indigo-900 rounded-lg text-xs font-bold text-indigo-200 transition">
+                            나가기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="board-container" id="board">
+                    <div class="absolute inset-[11.11%] bg-sky-100 rounded-2xl flex flex-col items-center justify-center p-4 border-4 border-dashed border-sky-300 pointer-events-auto">
+                        <div id="turn-indicator-box" class="bg-white px-6 py-2 rounded-2xl shadow-md border-2 border-blue-400 mb-2 text-center transition-all">
+                            <span id="current-turn-text" class="text-xl sm:text-2xl font-black text-blue-600">게임 준비 중...</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-3 my-2" id="dice-container">
                             <div id="dice-display-1" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                             <div id="dice-display-2" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                         </div>
@@ -365,6 +612,91 @@
                         <p id="not-my-turn-msg" class="text-gray-500 font-bold text-base sm:text-lg">친구의 턴을 기다리세요⏳</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────── -->
+        <!-- 4. 교사 모드 화면 (screen-teacher) -->
+        <!-- ─────────────────────────────────────────── -->
+        <div id="screen-teacher" class="hidden w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-slate-700 mt-4">
+            <div class="flex justify-between items-center border-b-2 border-slate-200 pb-4 mb-6">
+                <h2 class="text-2xl font-black text-slate-800 flex items-center gap-2">
+                    <span>🧑‍🏫</span> 교사 설정 모드 - 문제 출제 및 관리
+                </h2>
+                <div class="flex gap-2">
+                    <button id="btn-change-pw" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-xs">비밀번호 변경</button>
+                    <button onclick="window.backToHome()" class="bg-slate-500 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-xs">돌아가기</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1 border-r-2 border-slate-100 pr-4">
+                    <h3 class="font-bold text-sm mb-2 text-slate-600">국가(타일) 선택</h3>
+                    <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2 custom-scrollbar" id="teacher-tile-list"></div>
+                </div>
+                <div class="md:col-span-2 pl-2">
+                    <div id="teacher-editor" class="hidden flex-col gap-4">
+                        <h3 class="text-xl font-black text-blue-600" id="editor-title">국가명</h3>
+                        <div>
+                            <label class="block text-slate-700 text-xs font-bold mb-1">문제 유형</label>
+                            <select id="edit-quiz-type" class="w-full bg-slate-50 border-2 border-slate-300 p-2.5 rounded-xl text-xs font-bold">
+                                <option value="choice">선택형 (객관식)</option>
+                                <option value="short">서답형 (주관식)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-700 text-xs font-bold mb-1">질문 (문제)</label>
+                            <input type="text" id="edit-q" class="w-full bg-slate-50 border-2 border-slate-300 p-2.5 rounded-xl text-sm font-bold" placeholder="예: 대한민국">
+                        </div>
+                        <div>
+                            <label class="block text-blue-700 text-xs font-bold mb-1">정답 (영어)</label>
+                            <input type="text" id="edit-a" class="w-full bg-blue-50 border-2 border-blue-300 p-2.5 rounded-xl text-sm font-bold" placeholder="예: Korea">
+                        </div>
+                        <div id="choice-options-group" class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-red-700 text-xs font-bold mb-1">오답 1</label>
+                                <input type="text" id="edit-wrong1" class="w-full bg-red-50 border-2 border-red-200 p-2.5 rounded-xl text-xs" placeholder="예: Japan">
+                            </div>
+                            <div>
+                                <label class="block text-red-700 text-xs font-bold mb-1">오답 2</label>
+                                <input type="text" id="edit-wrong2" class="w-full bg-red-50 border-2 border-red-200 p-2.5 rounded-xl text-xs" placeholder="예: China">
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t-2 border-slate-100 flex justify-end">
+                            <button id="btn-save-quiz" class="bg-green-600 hover:bg-green-700 text-white font-black py-2.5 px-6 rounded-xl shadow-md active-press text-sm">이 문제 저장하기</button>
+                        </div>
+                    </div>
+                    <div id="editor-placeholder" class="h-full flex items-center justify-center text-slate-400 font-bold text-sm">왼쪽에서 문제를 출제할 국가를 선택하세요.</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- 모달 창 모음 -->
+    <!-- ─────────────────────────────────────────── -->
+
+    <!-- 교사 인증 모달 -->
+    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-slate-700">
+            <h3 class="text-xl font-bold mb-2">선생님 인증</h3>
+            <p class="text-slate-500 mb-4 text-xs">비밀번호를 입력하세요. (기본: 1234)</p>
+            <input type="password" id="teacher-pw-input" class="block w-full bg-slate-50 border-2 border-slate-300 text-slate-700 py-3 px-4 rounded-xl text-center text-xl mb-4 font-bold" placeholder="****">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('teacher-auth-modal').classList.add('hidden')" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl text-xs">취소</button>
+                <button id="btn-submit-teacher-auth" class="w-1/2 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-xs">인증</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 비밀번호 변경 모달 -->
+    <div id="pw-change-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-3xl p-6 w-11/12 max-w-sm text-center shadow-2xl border-4 border-blue-500">
+            <h3 class="text-lg font-bold mb-4">비밀번호 변경</h3>
+            <input type="password" id="new-pw-input" class="block w-full bg-blue-50 border-2 border-blue-200 text-slate-700 py-3 px-4 rounded-xl text-center text-sm mb-4" placeholder="새 비밀번호 입력">
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('pw-change-modal').classList.add('hidden')" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl text-xs">취소</button>
+                <button id="btn-save-new-pw" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs">변경 저장</button>
             </div>
         </div>
     </div>
@@ -446,14 +778,17 @@
                 <h3 class="font-bold text-lg text-purple-800 mb-3 border-b-2 border-purple-200 pb-2">최종 자산 순위</h3>
                 <ul id="ranking-list" class="space-y-3 text-left"></ul>
             </div>
-            <button onclick="location.reload()" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_4px_0_rgb(168,85,247)] active-press">처음으로 돌아가기</button>
+            <button onclick="window.backToHome()" class="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_4px_0_rgb(168,85,247)] active-press">처음으로 돌아가기 (홈 화면)</button>
         </div>
     </div>
 
+    <!-- ─────────────────────────────────────────── -->
+    <!-- 스크립트 모듈 (Firebase & Blue Marble Game Engine) -->
+    <!-- ─────────────────────────────────────────── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD6YK02DdhaSVN9mx3Acd5amiiphxcobG8",
@@ -464,10 +799,336 @@
             appId: "1:937487062003:web:2d98688bc5d0db5bfab886",
             measurementId: "G-GD4LMGR7VD"
         };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bluemarble-default';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // ════════════════════════════════════════════════════════════════════
+        // ── 0. 역대 단원 및 랭킹 데이터 (로컬 file:/// 즉시 로드용 기본 내장) ──
+        // ════════════════════════════════════════════════════════════════════
+        const LEGACY_DEFAULT_UNITS = [
+  {
+    "id": "BtncFIJTVDoq4gJm6yf9",
+    "title": "L01",
+    "targets": [
+      "first",
+      "second",
+      "third",
+      "fourth",
+      "fifth",
+      "sixth",
+      "grade",
+      "spell",
+      "join",
+      "club",
+      "dance",
+      "draw",
+      "play",
+      "listen",
+      "read",
+      "ride"
+    ],
+    "createdAt": 1779290369321
+  },
+  {
+    "id": "93o2tnrp0gkfG8uCHfjo",
+    "title": "L02",
+    "targets": [
+      "season",
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "beautiful",
+      "flower",
+      "cold",
+      "warm",
+      "delicious",
+      "also",
+      "colorful",
+      "swim",
+      "field trip",
+      "clear",
+      "bright"
+    ],
+    "createdAt": 1779290379548
+  },
+  {
+    "id": "XXT0gN7KTgvZuPlVv7C3",
+    "title": "L03",
+    "targets": [
+      "campaign",
+      "earth",
+      "paper",
+      "poster",
+      "save",
+      "shirt",
+      "turn off",
+      "when",
+      "world"
+    ],
+    "createdAt": 1779290390038
+  },
+  {
+    "id": "Oq4er2FMoobnYy1JFF7k",
+    "title": "L04",
+    "targets": [
+      "because",
+      "belt",
+      "birdhouse",
+      "break",
+      "congratulation",
+      "test",
+      "why",
+      "worry",
+      "wrong"
+    ],
+    "createdAt": 1779290397660
+  },
+  {
+    "id": "xV9eZlK28gJv55Z6L19X",
+    "title": "L05",
+    "targets": [
+      "bank",
+      "block",
+      "hospital",
+      "hungry",
+      "restaurant",
+      "left",
+      "restroom",
+      "stop",
+      "store",
+      "straight",
+      "town"
+    ],
+    "createdAt": 1779290406223
+  },
+  {
+    "id": "pt6TLKTaPprxJ9AN7XKQ",
+    "title": "L06",
+    "targets": [
+      "aunt",
+      "daughter",
+      "dress",
+      "eyes",
+      "hair",
+      "long",
+      "of",
+      "like",
+      "sand",
+      "short"
+    ],
+    "createdAt": 1779290422522
+  },
+  {
+    "id": "sWJcTfESmOY2MiN802T8",
+    "title": "L07",
+    "targets": [
+      "after",
+      "biscuit",
+      "laser",
+      "light",
+      "number",
+      "soft drink",
+      "tell"
+    ],
+    "createdAt": 1783382222394
+  },
+  {
+    "id": "TJDCc8vJP7can3R1wmOG",
+    "title": "L08",
+    "targets": [
+      "always",
+      "baby",
+      "catch",
+      "clock",
+      "dribble",
+      "fast",
+      "giraffe",
+      "give",
+      "goal",
+      "heavy",
+      "race",
+      "side",
+      "strong",
+      "than",
+      "tower",
+      "win"
+    ],
+    "createdAt": 1788315697460
+  },
+  {
+    "id": "DkaOobqdVHtChm9LOZeE",
+    "title": "L09",
+    "targets": [
+      "any",
+      "children",
+      "forest",
+      "hamburger",
+      "plan",
+      "program",
+      "room",
+      "stay",
+      "tent",
+      "village",
+      "zoo"
+    ],
+    "createdAt": 1789692302652
+  },
+  {
+    "id": "UtdrsTOSfVIfo3raLDvf",
+    "title": "L10",
+    "targets": [
+      "a lot of",
+      "almost",
+      "enough",
+      "exercise",
+      "habit",
+      "healthy",
+      "life",
+      "member",
+      "often",
+      "once",
+      "should",
+      "teeth",
+      "twice"
+    ],
+    "createdAt": 1789692389443
+  },
+  {
+    "id": "QeSQFOXG4Xu3pRyzFCbA",
+    "title": "L11",
+    "targets": [
+      "air",
+      "boomerang",
+      "clever",
+      "hit",
+      "into",
+      "sari"
+    ],
+    "createdAt": 1789692428001
+  },
+  {
+    "id": "fat7TNZycOSVph8L9Bkn",
+    "title": "L12",
+    "targets": [
+      "boy",
+      "forget",
+      "quiz",
+      "street",
+      "wall",
+      "wish"
+    ],
+    "createdAt": 1789692458901
+  },
+  {
+    "id": "MNdfNU4PQwgjJ8jryWl4",
+    "title": "3G L07",
+    "targets": [
+      "crayon",
+      "eraser",
+      "glue stick",
+      "notebook",
+      "pencil",
+      "pencil case",
+      "ruler",
+      "scissors"
+    ],
+    "createdAt": 1789689638055
+  }
+];
+
+const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","score":700,"grade":6,"classNum":4,"stuNum":16,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997613283},{"id":"0Lt1P5F5AzeOfgHuRI58","name":"조하준","score":920,"grade":6,"classNum":2,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335655563},{"id":"0OyqTVstw8KrzrCtxpdP","name":"홍라은","score":980,"grade":6,"classNum":6,"stuNum":24,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057507945},{"id":"0aB7nwhwhqP5YuSkKfd7","name":"김태이","score":760,"grade":6,"classNum":4,"stuNum":9,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765126413},{"id":"13DBHnuBIGsAWTKjoqvT","name":"✿➼➼✿김현중✿➼➼✿","score":1600,"grade":6,"classNum":5,"stuNum":9,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779376325527},{"id":"1PCCwSC0Yf2P6O3dAYd5","name":"이민유","score":810,"grade":6,"classNum":6,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057468001},{"id":"1dyPphphD4Df912R4vov","name":"이우진","score":620,"grade":6,"classNum":3,"stuNum":15,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412685680},{"id":"1hP9DW6PdsZxIE0Al7nP","name":"심현석","score":1580,"grade":6,"classNum":1,"stuNum":14,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779326093843},{"id":"1mHyPItHvTEgreQ4v96w","name":"정의현","score":680,"grade":6,"classNum":3,"stuNum":20,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783994917763},{"id":"1p6CIDx5e7l3rVsVYplz","name":"박서윤","score":1040,"grade":6,"classNum":5,"stuNum":10,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329978844},{"id":"2HfbQn65imzzGcF2EKB4","name":"심서현","score":660,"grade":6,"classNum":1,"stuNum":13,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506729772},{"id":"2P2iwCwbCjJq27Zg4zGl","name":"조하준","score":810,"grade":6,"classNum":2,"stuNum":21,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781233180119},{"id":"2V4Aar7hLeAlDsmxwmm0","name":"김지유","score":1080,"grade":6,"classNum":1,"stuNum":4,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325832051},{"id":"2iFiE2hepAThL3O2WpNz","name":"정예린","score":700,"grade":6,"classNum":6,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057557517},{"id":"2kqL45kcsz6R9MwNk5ak","name":"유지현","score":1010,"grade":6,"classNum":1,"stuNum":16,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325879667},{"id":"2mLOG5BrrfhrTK8m6t1d","name":"이은서","score":930,"grade":6,"classNum":6,"stuNum":25,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057498440},{"id":"2wBOHSufbEJHg54H5lsn","name":"오주호","score":900,"grade":6,"classNum":3,"stuNum":11,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412635290},{"id":"38z0XI5yFjMtX6heTA6I","name":"김유리","score":900,"grade":6,"classNum":3,"stuNum":5,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413225606},{"id":"3Gv3Vfwt9rEeOzzQA8yG","name":"이유건","score":560,"grade":6,"classNum":5,"stuNum":20,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779330004217},{"id":"3GwvwJe9wBmiJdLIckHG","name":"이로운","score":980,"grade":6,"classNum":5,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144163728},{"id":"3PULx3z7Tg8KpUyits5o","name":"성예준","score":600,"grade":6,"classNum":1,"stuNum":10,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506703458},{"id":"3ZyPUrQpn55l4vNyRUVT","name":"이준우","score":570,"grade":6,"classNum":3,"stuNum":17,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783994875007},{"id":"3uMbuM1R3JFXMv3NfeHy","name":"김의명","score":840,"grade":6,"classNum":2,"stuNum":4,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335656838},{"id":"3uQdCsOT5yjhHLGX2u9A","name":"rlatjdals","score":480,"grade":6,"classNum":1,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140735105},{"id":"3z9VXKk4LgZL1B5cSt0G","name":"김소중","score":700,"grade":6,"classNum":5,"stuNum":7,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164449927},{"id":"4GiDV7ccffmwtfosJ6Zm","name":"강채원","score":920,"grade":6,"classNum":3,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412633498},{"id":"4L23nQFejKNTAdeSXjc0","name":"한준이","score":900,"grade":6,"classNum":3,"stuNum":22,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226254240},{"id":"4bNGFFWJMtyQMvWp7xWW","name":"김가원","score":950,"grade":6,"classNum":3,"stuNum":2,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412667840},{"id":"4mmA8DVbTsi4lmDwJ9Eg","name":"박민준","score":880,"grade":6,"classNum":2,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232797271},{"id":"4wRlTm2gSOiwtwdbgoxI","name":"장준우","score":610,"grade":6,"classNum":1,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506752111},{"id":"4wk1THTiiPtGRxNFBdUL","name":"정유찬","score":910,"grade":6,"classNum":1,"stuNum":23,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325879472},{"id":"56UkEgZ5Uqeun1ssIaZv","name":"주은","score":680,"grade":6,"classNum":6,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784081078194},{"id":"5fekp4aSHiwcQt1XsQm8","name":"정의현","score":930,"grade":6,"classNum":3,"stuNum":20,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412635806},{"id":"5w98ZxWozBqdc2l21xz0","name":"최시윤","score":920,"grade":6,"classNum":6,"stuNum":20,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057498717},{"id":"62yPMtbzzSuT4ON7w2Ti","name":"전수현","score":960,"grade":6,"classNum":4,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146966844},{"id":"664id9kFZgTN5J4647X5","name":"김현중","score":1080,"grade":6,"classNum":5,"stuNum":9,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329301168},{"id":"6Bmj81BBvlbW0PHzGQIW","name":"함지희","score":800,"grade":6,"classNum":5,"stuNum":25,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329275587},{"id":"6H9izB9OHcaNgrNDLmpw","name":"chldmsgh","score":590,"grade":6,"classNum":6,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080779239},{"id":"6TtkTUxrKUxyIjhFDYSG","name":"김쥰우","score":510,"grade":6,"classNum":4,"stuNum":6,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765087343},{"id":"6a6SvkyV82W754oHkJak","name":"박시후","score":820,"grade":6,"classNum":6,"stuNum":11,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779330009407},{"id":"6pca9bEf9RjPx2KE7yQN","name":"정유찬","score":640,"grade":6,"classNum":1,"stuNum":23,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506695388},{"id":"6z2pfLxwGC9KrMA2HGen","name":"구현지","score":530,"grade":6,"classNum":4,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997719291},{"id":"73VoyP25hco1lLjNDkLj","name":"이도윤","score":840,"grade":6,"classNum":2,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232786144},{"id":"7DloDqwJsWRd6yH4VHAz","name":"양재현","score":570,"grade":6,"classNum":4,"stuNum":13,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765127275},{"id":"7PpgTFvwHRMe2CoRFhxD","name":"김서형","score":500,"grade":6,"classNum":5,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163970216},{"id":"7bDkS4IKsGsiYZH6y3hx","name":"김진영","score":730,"grade":6,"classNum":8,"stuNum":8,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329982517},{"id":"7jsTZpqXkhenopoks4mE","name":"윤정빈","score":870,"grade":6,"classNum":4,"stuNum":14,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781147068252},{"id":"838hJ9aMbJ5jcqjmQ19y","name":"조아라","score":930,"grade":6,"classNum":5,"stuNum":23,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143853609},{"id":"89naRGM4qVAOxTEudNr4","name":"이예원","score":930,"grade":6,"classNum":1,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140712530},{"id":"8B1fUEFZnckhMCRcDBON","name":"정수현","score":930,"grade":6,"classNum":6,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057503090},{"id":"8XWsXGXoZX6QMd9qEL4P","name":"김강호","score":890,"grade":6,"classNum":2,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335659232},{"id":"8YT7VWKEAThCuRbBh3l8","name":"이윤서","score":930,"grade":6,"classNum":2,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232759818},{"id":"8eXJFGz3SyvKDgZ3SbRp","name":"이준희","score":480,"grade":6,"classNum":1,"stuNum":20,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506800022},{"id":"8pqit3xjkV1O34VvLenb","name":"심은율","score":770,"grade":6,"classNum":2,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335673211},{"id":"8sGlerTT2p9YnCcpiLMy","name":"정시윤","score":570,"grade":6,"classNum":1,"stuNum":22,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784507303916},{"id":"8tPYKZnuXxqQVNbPjK2I","name":"성예준","score":950,"grade":6,"classNum":1,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140636901},{"id":"9FVd1xjfF0OQHJXOgXPN","name":"이가람","score":620,"grade":6,"classNum":4,"stuNum":15,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997695037},{"id":"9HgKfxQ8YJcBdwkpB2n0","name":"송수민","score":560,"grade":6,"classNum":1,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506747769},{"id":"9HyeT0D3WRiZpCd14RWe","name":"김민지","score":980,"grade":6,"classNum":5,"stuNum":3,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143881570},{"id":"9LeoiQlsW1SnmaRvqc6j","name":"최이서","score":710,"grade":1,"classNum":1,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325907305},{"id":"9N8Y9LzlH9SfdHwxdtPe","name":"이준후","score":880,"grade":6,"classNum":4,"stuNum":16,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765062851},{"id":"9fDNJNF0yUbEcoDbxXwJ","name":"박재준","score":910,"grade":6,"classNum":1,"stuNum":8,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325897050},{"id":"9j7x50uuhMEbTGSGWdgz","name":"이효인","score":1560,"grade":6,"classNum":3,"stuNum":18,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413347128},{"id":"9oHxgS6GO84Aq8KBDgtl","name":"심현석","score":630,"grade":6,"classNum":1,"stuNum":14,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506641332},{"id":"9wlOvk5lwkpbkrga3EFz","name":"김나윤","score":760,"grade":6,"classNum":4,"stuNum":3,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146929653},{"id":"A9ZLq6Jrabvk1ilkSz1Z","name":"홍재윤","score":980,"grade":6,"classNum":3,"stuNum":24,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226739570},{"id":"AP8GMnUCm9fQ6qWsGGAu","name":"김나윤","score":800,"grade":6,"classNum":4,"stuNum":3,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765063249},{"id":"AtlfvSZgLNR0oU5kyvv6","name":"김민채","score":980,"grade":6,"classNum":3,"stuNum":3,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226170876},{"id":"B3IJxraYsTi9o4DcFxp9","name":"유삐","score":680,"grade":6,"classNum":3,"stuNum":5,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995017232},{"id":"BA1AyAaWQquR753kFral","name":"하지우","score":790,"grade":6,"classNum":2,"stuNum":24,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335620472},{"id":"BEZkzlQniHXGTcet3LaU","name":"정하이","score":950,"grade":6,"classNum":5,"stuNum":22,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143855159},{"id":"BLKR53Y1JTW6xusW4654","name":"현승민","score":640,"grade":6,"classNum":6,"stuNum":23,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784081081580},{"id":"BW3oFtvCMckkO944AIYs","name":"김의명","score":900,"grade":6,"classNum":2,"stuNum":4,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232780007},{"id":"BajDcMZKMJKg77Bq95Wr","name":"김주원","score":500,"grade":6,"classNum":6,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784081086414},{"id":"BsucUeachbCM00fd3Tjj","name":"서예지","score":960,"grade":6,"classNum":1,"stuNum":9,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325868363},{"id":"Bt1LGDChGQ768vQnBaIS","name":"이우진","score":1420,"grade":6,"classNum":3,"stuNum":15,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413381596},{"id":"C7yv77IrSB3C5MMqrIcg","name":"하지우","score":960,"grade":6,"classNum":2,"stuNum":24,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232753137},{"id":"CL49r0HdCBhNIyCiLlkm","name":"주은","score":680,"grade":6,"classNum":6,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080759966},{"id":"CsXm0CuJxv8ApmxdcRnC","name":"이효인","score":1000,"grade":6,"classNum":3,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226219705},{"id":"D5tTDI5OdGTPyAQ9hvhl","name":"정다솜","score":870,"grade":6,"classNum":4,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146953879},{"id":"DKvN9dswZ9sawRo475Gh","name":"송민채","score":560,"grade":6,"classNum":4,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997712761},{"id":"DkWwkjTAUVlTGjr1SHV5","name":"이예원","score":510,"grade":6,"classNum":1,"stuNum":19,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506660247},{"id":"DsVEGs7mzconbO998eTF","name":"손슬아","score":960,"grade":6,"classNum":1,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781141110198},{"id":"E0Xs8BkxSHOSPlW7qh4D","name":"김민지","score":980,"grade":6,"classNum":5,"stuNum":3,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329959879},{"id":"E9dM82Il5Yc15VSa5QjQ","name":"정예담","score":540,"grade":6,"classNum":3,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412686931},{"id":"ESdmvH1gjQx2irW9cd36","name":"박서윤","score":950,"grade":6,"classNum":5,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143903054},{"id":"EusR6C5M8IG45LCWIBxn","name":"이도현","score":1000,"grade":6,"classNum":2,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232771778},{"id":"EzVtjze3OCbTeWg1syrg","name":"신민규","score":930,"grade":6,"classNum":5,"stuNum":14,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329257010},{"id":"FCX3XgHzaXvi25AqCL6R","name":"방시윤","score":780,"grade":6,"classNum":5,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329295484},{"id":"FFaT6SjZkpmktv4N7arQ","name":"김민재","score":880,"grade":6,"classNum":2,"stuNum":3,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335637316},{"id":"FOWzo1VZf2ThLxBQhx4S","name":"이유건","score":810,"grade":6,"classNum":5,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143870364},{"id":"FRYeqtoBGuDCrqKQhf5a","name":"김수현","score":680,"grade":6,"classNum":5,"stuNum":6,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164310992},{"id":"Fc7pvLGsPI10WzSQWjwS","name":"정예담","score":920,"grade":6,"classNum":3,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226292282},{"id":"Fdeu9ECD8Hzwlh4sFvcW","name":"문영준","score":900,"grade":6,"classNum":6,"stuNum":7,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057643769},{"id":"FmB2oWLXIVJEXm71IFC4","name":"김가원","score":1550,"grade":6,"classNum":3,"stuNum":2,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413384280},{"id":"Fv9Phu7Ez0lA46AtuTbe","name":"김수현","score":890,"grade":6,"classNum":5,"stuNum":6,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329258958},{"id":"GdyfAZvvgaLKFiZ999yL","name":"한준이","score":680,"grade":6,"classNum":3,"stuNum":22,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412655988},{"id":"GpVNIsEqLEWdIM91qTMX","name":"양재현","score":800,"grade":6,"classNum":4,"stuNum":13,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146942179},{"id":"Gy8plkukeaFSjnE60Fes","name":"방시윤","score":980,"grade":6,"classNum":5,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143897364},{"id":"H0weCUnnxG6338WC5n8v","name":"박재준","score":980,"grade":6,"classNum":1,"stuNum":8,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140658259},{"id":"HISJCYuEcneuzDd67Wkn","name":"정수현","score":700,"grade":6,"classNum":6,"stuNum":18,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080929459},{"id":"HWuZjhNRTbUuQhIBrDjk","name":"조하준","score":630,"grade":6,"classNum":2,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783988521125},{"id":"HcYO7j2J2CpEyOnPhqJ5","name":"김쥰우","score":550,"grade":6,"classNum":4,"stuNum":6,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997798906},{"id":"HxTfRfLWHyvja9Zeq8Rg","name":"조서연","score":760,"grade":6,"classNum":4,"stuNum":24,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765075463},{"id":"IU2dqqzPOqarFetrUR1t","name":"이주아","score":860,"grade":6,"classNum":2,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232807774},{"id":"Id8VGmmMe26aIdKec3RB","name":"유지현","score":510,"grade":6,"classNum":1,"stuNum":16,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506720092},{"id":"IuPWIuVRuwitoZWTh7da","name":"김이든","score":690,"grade":6,"classNum":5,"stuNum":7,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329948228},{"id":"IvOQYPIRo6Ssxn8olr4B","name":"윤서하","score":950,"grade":6,"classNum":1,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325834872},{"id":"Ivh619LEoNQRYHHZ01Jw","name":"조아라","score":820,"grade":6,"classNum":5,"stuNum":23,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329989848},{"id":"Iwqr1un7D4yBGp28upld","name":"주이든","score":880,"grade":6,"classNum":2,"stuNum":22,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335663880},{"id":"J8SmzqpLK2uczHrQeZDb","name":"이름을 입력하세요","score":130,"grade":6,"classNum":1,"stuNum":3,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784507013286},{"id":"JAqjtbw3xjAE3RrOIn81","name":"저앶윤","score":430,"grade":6,"classNum":4,"stuNum":22,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997548274},{"id":"JBUpOyf259Ut2IvshUuB","name":"류호재","score":730,"grade":6,"classNum":1,"stuNum":6,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140665405},{"id":"JCN3rpemtrxMiJVVylM3","name":"백윤오","score":500,"grade":6,"classNum":3,"stuNum":8,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783994989657},{"id":"JcuZIbPLscTssDWkOByE","name":"정시은","score":900,"grade":6,"classNum":4,"stuNum":20,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765072431},{"id":"JinYldBseBbAO1JODGkx","name":"김태이","score":890,"grade":6,"classNum":4,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146970868},{"id":"Js1jXEUfbBq1mvfYkToj","name":"김현중","score":700,"grade":6,"classNum":5,"stuNum":9,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163917046},{"id":"Ju8wDzfBfrFl3ZR8XVvz","name":"팽서아","score":930,"grade":6,"classNum":5,"stuNum":24,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143833509},{"id":"JztofTmacppYAoKhapsL","name":"김유리","score":770,"grade":6,"classNum":3,"stuNum":5,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412687686},{"id":"KLXXjxg1vSQPf8Qpic9r","name":"심재엽","score":1000,"grade":6,"classNum":2,"stuNum":13,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232841022},{"id":"KVyHxaPDhny5eODBnjli","name":"김팬더","score":630,"grade":6,"classNum":4,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997702503},{"id":"KeCo3jMZlf5PtErhKI8I","name":"정은채","score":850,"grade":6,"classNum":4,"stuNum":21,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765040770},{"id":"KkLXR2pJ8CHD3rhgCPAN","name":"류지윤","score":540,"grade":6,"classNum":6,"stuNum":6,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784081075131},{"id":"Ku1IYJiPX7inamptt5Qg","name":"윤서하","score":570,"grade":6,"classNum":1,"stuNum":17,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506634011},{"id":"L5lHXSWmw36lc6czFkgX","name":"박민준","score":950,"grade":6,"classNum":2,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335641428},{"id":"LT2199eo7TUDC3S3uLZs","name":"최온유","score":770,"grade":6,"classNum":1,"stuNum":25,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325929477},{"id":"LXD4O96f5BcFlxG0LIoM","name":"정의현","score":930,"grade":6,"classNum":3,"stuNum":20,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226222121},{"id":"LZ56vW6pT9Cklk1Zg7t6","name":"현승민","score":1000,"grade":6,"classNum":6,"stuNum":23,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057463394},{"id":"LoU7ghl9UlFdxBiYvBoZ","name":"이유건","score":440,"grade":6,"classNum":5,"stuNum":20,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164018993},{"id":"LyA6HCVh2It67dPcBDP8","name":"유재아","score":960,"grade":6,"classNum":5,"stuNum":16,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329967462},{"id":"M0Ylgp4MzoiMi0mwEeoD","name":"이로운","score":1080,"grade":6,"classNum":5,"stuNum":18,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329921859},{"id":"MU7FnwDtYyCWHYkKWULq","name":"이로운","score":1040,"grade":6,"classNum":5,"stuNum":18,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329195856},{"id":"MllsGV5PHzRBtx9KS9lL","name":"조서연","score":330,"grade":6,"classNum":4,"stuNum":24,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783998115320},{"id":"MneapjYK61Pa7GiGXjgm","name":"심서현","score":980,"grade":6,"classNum":1,"stuNum":13,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140625733},{"id":"MoHlk23UqWx0OwhfIHg1","name":"이지용","score":860,"grade":6,"classNum":4,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146942202},{"id":"NMErJyaBq1l4tNWfGnTd","name":"이은서","score":430,"grade":6,"classNum":6,"stuNum":25,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080797076},{"id":"NblLYfVAC8bR0UYxLJgS","name":"이하준","score":840,"grade":6,"classNum":6,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057494729},{"id":"NgnCJWjCZATULLo1mTZo","name":"유지현","score":930,"grade":6,"classNum":1,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140672992},{"id":"NhXUCDJiFMhc2Pliq61G","name":"신혜미","score":980,"grade":6,"classNum":2,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232829952},{"id":"NumQpRwhNKvi8wJI7Z7j","name":"윤서하","score":740,"grade":6,"classNum":1,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140643593},{"id":"NzxjLHzB8xxMUGe6WRpj","name":"한태희","score":810,"grade":6,"classNum":3,"stuNum":23,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412682631},{"id":"OFkxyTrmu2vzeqw3nhVG","name":"한태희","score":930,"grade":6,"classNum":3,"stuNum":23,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226186978},{"id":"OOYbwshn9TbShWDBqNLe","name":"김수현","score":960,"grade":6,"classNum":5,"stuNum":6,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143825754},{"id":"OOtHrY3hHSK0nJpRxMaF","name":"권성운","score":660,"grade":6,"classNum":6,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080881640},{"id":"Oliuiw7xDVDxHwRrDDGr","name":"이준우","score":840,"grade":6,"classNum":3,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412643745},{"id":"OoAcxoG9ux6wr24NLgV1","name":"홍재윤","score":680,"grade":6,"classNum":3,"stuNum":24,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412666624},{"id":"Oubg5gOWC33KU2kvSm0H","name":"정여민","score":860,"grade":6,"classNum":5,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329958055},{"id":"PC9TC06cZz6lXpqG6MUe","name":"김수현","score":980,"grade":6,"classNum":5,"stuNum":6,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144240356},{"id":"PCEs1ZA3f4AElDy2YjTc","name":"이규원","score":880,"grade":6,"classNum":3,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412724995},{"id":"PLElBlXqENoQWqtiUgMj","name":"성민준","score":950,"grade":6,"classNum":6,"stuNum":13,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057509177},{"id":"PP1PNdalKpWYWAr34bnG","name":"김주원","score":1000,"grade":6,"classNum":6,"stuNum":4,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057499097},{"id":"PXRlb8a2spi9pbLp3aNg","name":"이세인","score":910,"grade":6,"classNum":3,"stuNum":13,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412648820},{"id":"Pc60ZdhyndfURooAH9js","name":"윤예은","score":690,"grade":6,"classNum":2,"stuNum":14,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335654122},{"id":"PevpCMK3Q6AFMxGdekjm","name":"정다솜","score":790,"grade":6,"classNum":4,"stuNum":19,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765042399},{"id":"PifmWpOz5svoh9trd7Zb","name":"정시은","score":980,"grade":6,"classNum":4,"stuNum":20,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146925999},{"id":"PrCvYrAfzjpmckmaXykr","name":"안도연","score":500,"grade":6,"classNum":6,"stuNum":15,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080779562},{"id":"Q0yIrExNRlFG9ZjLiG00","name":"강다원","score":910,"grade":6,"classNum":5,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329941299},{"id":"Q1PlP3tBe8dvaCm9eziW","name":"조아��","score":890,"grade":6,"classNum":3,"stuNum":21,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226476402},{"id":"QJ8RhG1pJld1AyrpPvqq","name":"박주혁","score":490,"grade":6,"classNum":3,"stuNum":7,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412659790},{"id":"QSNV1On1Xk5TgL2PYTYb","name":"이하준","score":620,"grade":6,"classNum":6,"stuNum":17,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080776315},{"id":"QU5USPyIGFcVdUKYRLvM","name":"김나윤","score":630,"grade":6,"classNum":4,"stuNum":3,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997605100},{"id":"QVCOFhoVok2danqnpSk3","name":"김진영","score":390,"grade":6,"classNum":5,"stuNum":8,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164155023},{"id":"QeFoucwT8gPOrFCaY7sq","name":"성민준","score":280,"grade":6,"classNum":6,"stuNum":13,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080867835},{"id":"Qio6dYnonJZNbSYjtjyp","name":"김현민","score":750,"grade":6,"classNum":4,"stuNum":6,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1781579610280},{"id":"RUIwGU6RrBiE3KT6SnwF","name":"이규원","score":660,"grade":6,"classNum":3,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783994995352},{"id":"Rnh9ncJgWVgsZyZeHH5S","name":"홍일동","score":700,"grade":1,"classNum":1,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995527772},{"id":"RoD6ufQZSQwRRC1Knztz","name":"안도연","score":690,"grade":6,"classNum":6,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057501965},{"id":"S661YM2NZt6kR78DOpdA","name":"박소람","score":860,"grade":6,"classNum":2,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232815187},{"id":"SD3VRkm6bsJ8VpMRkF8g","name":"정여민","score":900,"grade":6,"classNum":5,"stuNum":21,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143816469},{"id":"SPDnBDsbp2iGCXtO2Gb9","name":"이도헌","score":630,"grade":6,"classNum":1,"stuNum":18,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140739568},{"id":"SowwPwXYTuJQ1rUFr04z","name":"박규원","score":860,"grade":6,"classNum":6,"stuNum":8,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1781057509489},{"id":"TFJ4nz1COcUTdSItwWu1","name":"황지원","score":620,"grade":6,"classNum":3,"stuNum":25,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226357485},{"id":"U64xgdqrbNqjDThR0E61","name":"정여민","score":680,"grade":6,"classNum":5,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164013565},{"id":"UBk4NOxECil7qaWkBN1v","name":"박서준","score":1040,"grade":6,"classNum":3,"stuNum":6,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412643091},{"id":"UIpiz9Rkfl6X9JLa3B5w","name":"임시후","score":510,"grade":3,"classNum":1,"stuNum":16,"unitId":"MNdfNU4PQwgjJ8jryWl4","unitTitle":"3G L07","createdAt":1789690386511},{"id":"UNpEe1uMRSggTv4aSohz","name":"이도윤","score":880,"grade":6,"classNum":2,"stuNum":16,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335645904},{"id":"UZwy7ZmpK6xgvSv1w6nT","name":"구현지","score":980,"grade":6,"classNum":4,"stuNum":1,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146892743},{"id":"UdgrQ9xzF412zctRwDLT","name":"최은호","score":640,"grade":6,"classNum":6,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784081086775},{"id":"UjTmppvbhJlLdR9GFyE5","name":"팽서아","score":550,"grade":6,"classNum":5,"stuNum":24,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163953373},{"id":"V0wf1s449R5q2lUBCkoW","name":"강다원","score":1000,"grade":6,"classNum":5,"stuNum":1,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143858723},{"id":"V84mrRh7NTdE4B6i40Ln","name":"이도헌","score":940,"grade":6,"classNum":1,"stuNum":18,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325844562},{"id":"V91vpUKrEQhSJGZE9a1R","name":"이강필","score":640,"grade":6,"classNum":2,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232864028},{"id":"VEoSv0D5BN58r2mgbmXM","name":"송제원","score":1480,"grade":6,"classNum":3,"stuNum":9,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413373982},{"id":"VMBXqIrSBEbTUbegKZSy","name":"박정율","score":860,"grade":6,"classNum":4,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146958506},{"id":"VMGO6veBxk5T0l4PmeEy","name":"강채원","score":960,"grade":6,"classNum":3,"stuNum":1,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226183183},{"id":"VQRWFqx1jodT8GTpN54x","name":"문영준","score":700,"grade":6,"classNum":6,"stuNum":7,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080939064},{"id":"VV3CkBlGsJtiDxTeh2d2","name":"정하이","score":940,"grade":6,"classNum":5,"stuNum":22,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329944845},{"id":"WABS3Ex5dGvzS2RhKwRs","name":"송민채","score":690,"grade":6,"classNum":4,"stuNum":12,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765086922},{"id":"WFtAHafU9vFQ7mGpgDhY","name":"이로운","score":660,"grade":6,"classNum":5,"stuNum":18,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164067885},{"id":"WKESrJqmStGhG15TKYFC","name":"류지윤","score":130,"grade":6,"classNum":6,"stuNum":6,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057568773},{"id":"WMgEliJakMlnqi9irVJM","name":"권성운","score":880,"grade":6,"classNum":6,"stuNum":1,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057470034},{"id":"WZqPPNnm0A4pEVyIkBbF","name":"김하율","score":820,"grade":6,"classNum":1,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140742467},{"id":"Wnvidaoar6s0gYStghgR","name":"석예준","score":690,"grade":6,"classNum":5,"stuNum":13,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329963423},{"id":"WxZwFneLtTLYc1m9GhSf","name":"유봄","score":730,"grade":6,"classNum":1,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781141087835},{"id":"Wxk9TOzsgean93wS9AzE","name":"방시윤","score":430,"grade":6,"classNum":5,"stuNum":12,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164354500},{"id":"XH562hW18m3w6YUx58lq","name":"ㅅ","score":660,"grade":1,"classNum":1,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783863931793},{"id":"XJPr2Y08rF7PiVh3mKK4","name":"이온유","score":820,"grade":6,"classNum":3,"stuNum":14,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412715286},{"id":"XSVjW8BbGgW9BOKKJVCL","name":"김현중","score":1000,"grade":6,"classNum":5,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144095369},{"id":"XdoGlwBpGezlXEo9y9uC","name":"정하이","score":870,"grade":6,"classNum":5,"stuNum":22,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329280817},{"id":"XiDts1KNL8meWxp8w1NV","name":"박소람","score":680,"grade":6,"classNum":2,"stuNum":10,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335662436},{"id":"XonXOfFKv508b45byZEV","name":"이시현","score":840,"grade":6,"classNum":5,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329939572},{"id":"XpgZDqbki9PY6tCjMeQH","name":"함지희","score":490,"grade":6,"classNum":5,"stuNum":25,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164058939},{"id":"Y5tc2YYsAemCiLeGQgAI","name":"오한울","score":930,"grade":6,"classNum":5,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144202397},{"id":"YUmGh3yoAA9D2r6PuIXy","name":"조아영","score":780,"grade":6,"classNum":3,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412688562},{"id":"YXOC9MDz86SyeJcc8EWg","name":"김가원","score":1000,"grade":6,"classNum":3,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226698380},{"id":"YsqMf410266riVvf8l0V","name":"강채원","score":640,"grade":6,"classNum":3,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995009605},{"id":"ZM0oyYNyfDXmMj7Z0wlC","name":"손슬아","score":810,"grade":6,"classNum":1,"stuNum":11,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325888441},{"id":"ZmFMYiLZFEzX1yZKNhyR","name":"이시현","score":1040,"grade":6,"classNum":1,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329219408},{"id":"ZoQ4ydF4YCmSnZ9Z87Rp","name":"김민성","score":590,"grade":6,"classNum":1,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506715238},{"id":"Zoo80npdIJcG3nB4h3bt","name":"이주아","score":930,"grade":6,"classNum":2,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335642022},{"id":"ZxbrO1oZRvEbfIigpZbR","name":"김소중","score":1040,"grade":6,"classNum":5,"stuNum":5,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329990863},{"id":"a4Tk6nDBT6Rtr024KVt5","name":"정예원","score":760,"grade":6,"classNum":2,"stuNum":20,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232802861},{"id":"a9d3AuBBahGAkMO9us4c","name":"이윤수","score":980,"grade":6,"classNum":3,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226247515},{"id":"aIJT5N2UxGjbCXqXJsnV","name":"박서준","score":1000,"grade":6,"classNum":3,"stuNum":6,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226313306},{"id":"aTDLtpeDaz9s5bmIHevD","name":"정시윤","score":540,"grade":6,"classNum":1,"stuNum":22,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506701086},{"id":"aVEpkmDodDq5XyXk9gAJ","name":"송제원","score":710,"grade":6,"classNum":3,"stuNum":9,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412664837},{"id":"azCmOxktTtO7ATDQCRZ6","name":"김가원","score":680,"grade":6,"classNum":3,"stuNum":2,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995055822},{"id":"b2bgBWwzgEXZ7X3LwBkV","name":"이준후","score":1000,"grade":6,"classNum":4,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146967624},{"id":"bEFRunuyjZGD0OoW4Kwb","name":"정시윤","score":840,"grade":6,"classNum":1,"stuNum":22,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140763857},{"id":"bI3e8gbn4vUFBXBSltZk","name":"권범","score":670,"grade":6,"classNum":5,"stuNum":2,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329973273},{"id":"bMLoEEmWsA2S0r1XZi58","name":"김채윤","score":990,"grade":6,"classNum":2,"stuNum":7,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335646657},{"id":"bjZeTArVIMMfmB4G9ULm","name":"정다솜","score":610,"grade":6,"classNum":4,"stuNum":19,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997709489},{"id":"brILtbkGkvsGA20G3JXx","name":"이윤수","score":1010,"grade":6,"classNum":3,"stuNum":16,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412626927},{"id":"bs2CywUpCdI3rjAAT6mQ","name":"박서준","score":1580,"grade":6,"classNum":3,"stuNum":6,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413388724},{"id":"cFztRGkFHkN2NFFQBPLG","name":"서예지","score":530,"grade":6,"classNum":1,"stuNum":9,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506756052},{"id":"cSvMss7teoHeNtOPHFQR","name":"김재민","score":540,"grade":6,"classNum":2,"stuNum":5,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783988517821},{"id":"cWfFpaWMDInAbZuNsGIH","name":"오주호","score":950,"grade":6,"classNum":3,"stuNum":11,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413205144},{"id":"cmlfzl6XysgDa6MGccsd","name":"신리윤","score":990,"grade":6,"classNum":3,"stuNum":10,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412651241},{"id":"d49KZAuLL6xGPoWResuL","name":"김민지","score":830,"grade":6,"classNum":5,"stuNum":3,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329257676},{"id":"dNY7ra7ggGB3L2DEu766","name":"오한울","score":830,"grade":6,"classNum":5,"stuNum":15,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329912691},{"id":"dQAMk38YgeoM8sHRL3qv","name":"신민규","score":460,"grade":6,"classNum":5,"stuNum":14,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164206365},{"id":"dSbaLY8rczYNDRHwRnSf","name":"박재준","score":530,"grade":6,"classNum":1,"stuNum":8,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506681356},{"id":"deush6uWCsx0jEbdwNy7","name":"김수현","score":840,"grade":6,"classNum":1,"stuNum":3,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325892903},{"id":"driH3KNnsf5SChWJR7Xp","name":"이효인","score":890,"grade":6,"classNum":3,"stuNum":18,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412693179},{"id":"e4TuOqIKr7xivRFiWNuH","name":"박서준","score":740,"grade":6,"classNum":6,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057497052},{"id":"eBMRbUYmz5vgpGX8DQFX","name":"권범","score":790,"grade":6,"classNum":5,"stuNum":2,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329209612},{"id":"eGtceRYd2BHU5zxTgm05","name":"이온유","score":900,"grade":6,"classNum":3,"stuNum":14,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226367317},{"id":"ea4fezmwwzmuDCJoIRhO","name":"박소현","score":530,"grade":6,"classNum":1,"stuNum":7,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506851460},{"id":"ebY8GZ8aSFWGADu8FJqu","name":"박푸름","score":580,"grade":6,"classNum":6,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057465501},{"id":"evBDMxMVRGYeWWPDSeGL","name":"조아라","score":800,"grade":6,"classNum":5,"stuNum":23,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329356676},{"id":"fA29h2FMXAJ2IYH36iCi","name":"박서윤","score":640,"grade":6,"classNum":5,"stuNum":10,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164123044},{"id":"fMjvW2R3xxLujEUBsapG","name":"김현중","score":940,"grade":6,"classNum":5,"stuNum":9,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329937036},{"id":"fWRRIikludVDZ1JCJxke","name":"심재엽","score":1010,"grade":6,"classNum":2,"stuNum":13,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335629245},{"id":"fekr1suRTojSLr75bsMh","name":"김수현","score":790,"grade":6,"classNum":5,"stuNum":6,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329945510},{"id":"ffZpqjC7aujG4CNG725E","name":"송민채","score":880,"grade":6,"classNum":4,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146968226},{"id":"fpB6gGsszwyedvxWrio3","name":"심현석","score":1100,"grade":6,"classNum":1,"stuNum":14,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325857015},{"id":"fpkAXdtPRMhWRFygHY6z","name":"심은율","score":860,"grade":6,"classNum":2,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781233079413},{"id":"fqEx11gUfNZXSXyj8FIv","name":"김태양","score":850,"grade":6,"classNum":4,"stuNum":8,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146942084},{"id":"g8xjPIqvhvh0FrHdff52","name":"손슬아","score":610,"grade":6,"classNum":1,"stuNum":11,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506728290},{"id":"g9w6nToUWlFaJQ5OiUyH","name":"장준우","score":700,"grade":6,"classNum":1,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325877414},{"id":"gJc445QrdmlpZUG3E3qj","name":"이준우","score":1030,"grade":6,"classNum":3,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413149013},{"id":"gQWc5aCGDgMH2ncKFyEU","name":"이준희","score":960,"grade":6,"classNum":1,"stuNum":20,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325892936},{"id":"gVbKVFpXNQ8PzFgF0YsI","name":"김유리","score":950,"grade":6,"classNum":3,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226329022},{"id":"gY8rh4siNtRcZrjsqWiI","name":"오한울","score":630,"grade":6,"classNum":5,"stuNum":15,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163905309},{"id":"gdHXCP44AjbVpRploBuS","name":"김시현","score":680,"grade":6,"classNum":3,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783994972274},{"id":"gheSyTlO44joDPqAExBe","name":"김성민","score":830,"grade":6,"classNum":1,"stuNum":2,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325870590},{"id":"gwJWz4mrHZNhjaaHtUqg","name":"신리윤","score":1000,"grade":6,"classNum":3,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226460778},{"id":"h5vy6PylZuUx0pVbYStX","name":"홍재윤","score":660,"grade":6,"classNum":3,"stuNum":24,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995228815},{"id":"hPby63UUAnwSc66AmcoV","name":"황지원","score":840,"grade":6,"classNum":3,"stuNum":25,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412704792},{"id":"hSy0q3ue5KV9d910chpU","name":"석예준","score":850,"grade":6,"classNum":5,"stuNum":13,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329462816},{"id":"hfeWBUTvoL4YI2M73fby","name":"김소중","score":980,"grade":6,"classNum":5,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144067683},{"id":"hmyyGR7nGF0GF2aM0tnU","name":"정은채","score":680,"grade":6,"classNum":4,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997645134},{"id":"hnlEN5TuGtr68B8WL3mW","name":"전수현","score":480,"grade":6,"classNum":4,"stuNum":18,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997798617},{"id":"hr4oBBXO7MIYJdI5bUWr","name":"김민채","score":700,"grade":6,"classNum":3,"stuNum":3,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412677631},{"id":"i0WdjHkg5wwvouDSFWix","name":"홍라은","score":590,"grade":6,"classNum":6,"stuNum":24,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080875875},{"id":"i991tq6mWidvGLbarJwV","name":"이예원","score":910,"grade":6,"classNum":1,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325862560},{"id":"iFR73cXtjg3dyzEYXVXU","name":"신민규","score":850,"grade":6,"classNum":5,"stuNum":14,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329974608},{"id":"iPbhSAc7eRGlgEo5Wgyh","name":"김지원","score":780,"grade":6,"classNum":2,"stuNum":6,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335630751},{"id":"iSk7ODL73o5DAk4N4WA2","name":"윤예은","score":760,"grade":6,"classNum":2,"stuNum":14,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232964427},{"id":"ihWplyyeg6wPVGkENNbB","name":"차민엽","score":560,"grade":6,"classNum":1,"stuNum":24,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506705002},{"id":"ivtlxrJlAQTVuO4vEqKC","name":"김소중","score":1080,"grade":6,"classNum":5,"stuNum":5,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329339986},{"id":"j5IlC5xwE6vJRMM6gBxH","name":"조아영","score":630,"grade":6,"classNum":3,"stuNum":21,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995058547},{"id":"jV1J4mEwkWSN70LMw7mw","name":"김민성","score":960,"grade":6,"classNum":1,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325882121},{"id":"jm7ZgTXqkGhDzUUZQUig","name":"이도현","score":1040,"grade":6,"classNum":2,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335666425},{"id":"jsjSFM0AnCCzzkJJ3SNt","name":"송제원","score":690,"grade":6,"classNum":3,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226384011},{"id":"jyGOgB0i3np70BDHgNyY","name":"박소람","score":940,"grade":6,"classNum":2,"stuNum":10,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781837905064},{"id":"jzmruinm06e9hatVZAec","name":"신혜미","score":820,"grade":6,"classNum":2,"stuNum":11,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335663837},{"id":"k2kYgF44UvqNKDvl3acP","name":"이온유","score":1450,"grade":6,"classNum":3,"stuNum":14,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413389434},{"id":"kA7fGMnGSuow7cc1yq22","name":"이규민","score":910,"grade":6,"classNum":5,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329989376},{"id":"kHlTZVwe7fhrsM8j7TFg","name":"김시현","score":930,"grade":6,"classNum":3,"stuNum":4,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226191399},{"id":"kZBh1SHiRIlSwhJ3kaGh","name":"lian","score":860,"grade":6,"classNum":6,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057488765},{"id":"kbQszOFfg4KS5UnkUSkV","name":"고우영(무꼬끼)","score":560,"grade":6,"classNum":2,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335632888},{"id":"kdLbrdDz8mLtKv5UgVrE","name":"팽서아","score":860,"grade":6,"classNum":5,"stuNum":24,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329194580},{"id":"kwvO34UklmDPp1ttE6jB","name":"김서형","score":730,"grade":6,"classNum":5,"stuNum":4,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329970477},{"id":"lAVt4G8K8M3q5CQ6D58r","name":"정의현","score":1580,"grade":6,"classNum":3,"stuNum":201,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413377069},{"id":"lBt4rs2v5VxQ7O8TWQQX","name":"★☆✡김현중✡☆★","score":1600,"grade":6,"classNum":5,"stuNum":9,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779375577878},{"id":"lN0PDpe90mwUxdCMb7jM","name":"유재아","score":700,"grade":6,"classNum":6,"stuNum":16,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163902069},{"id":"lVXZAJ9vM4DMoASBf4Vs","name":"김주원","score":650,"grade":6,"classNum":6,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080759039},{"id":"lgLdWU1qdoF1lCIfi2qA","name":"정예린","score":330,"grade":6,"classNum":6,"stuNum":19,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080809756},{"id":"liTYDrvOx03j718JTaxW","name":"성예준","score":1080,"grade":6,"classNum":1,"stuNum":10,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325873512},{"id":"ljo9m2vfDXt6D8xe1QQA","name":"이윤서","score":840,"grade":6,"classNum":2,"stuNum":18,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335626783},{"id":"lmywft6nX5StVKKaQTmO","name":"이강필 gangpil","score":810,"grade":6,"classNum":2,"stuNum":15,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335643232},{"id":"lxd0OWGEvbp2DSntegKq","name":"팽서아","score":960,"grade":6,"classNum":5,"stuNum":24,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329930923},{"id":"m2zbwccW3R9P8wxmStym","name":"이도헌","score":460,"grade":6,"classNum":1,"stuNum":18,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506741134},{"id":"m7Nzxpks5OgFLKDUnHkh","name":"최은호","score":900,"grade":6,"classNum":6,"stuNum":21,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057514134},{"id":"mFLj2WPq7UoS1Q6eaZrZ","name":"이우진","score":890,"grade":6,"classNum":3,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226404688},{"id":"mIEGTT2i57O5stTUKCdx","name":"정시윤","score":740,"grade":6,"classNum":1,"stuNum":22,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325890599},{"id":"mO3bW78ny1iOMjYAPLu6","name":"백윤재","score":890,"grade":6,"classNum":6,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057504196},{"id":"mP6Z9npbUMTdCrwfwSYD","name":"김리안","score":680,"grade":6,"classNum":6,"stuNum":2,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080897634},{"id":"mQ5IO6ALond0dUkntFM1","name":"김채윤","score":920,"grade":6,"classNum":2,"stuNum":7,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232797912},{"id":"mQaeq08bumI6Mynf0pjP","name":"최시윤","score":560,"grade":6,"classNum":6,"stuNum":20,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080772710},{"id":"meReYyDgnvi96YcjlHur","name":"정여민","score":900,"grade":6,"classNum":5,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329366489},{"id":"mgofxfQtRFVBLmLkfKJO","name":"김의명","score":700,"grade":6,"classNum":2,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783988507078},{"id":"mid3EdPJfvUqYERc1czk","name":"김민채","score":1400,"grade":6,"classNum":3,"stuNum":3,"unitId":"BtncFIJTVDoq4gJm6yf9","unitTitle":"L01","createdAt":1779413332305},{"id":"mihQSUam3IyKNXegVmIa","name":"이세인","score":610,"grade":6,"classNum":3,"stuNum":13,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995073180},{"id":"mj8NISHKyeykoqZXoFfv","name":"유봄","score":770,"grade":6,"classNum":1,"stuNum":15,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140656998},{"id":"mlj57ycIzMBpOtkBvE1f","name":"신민규","score":690,"grade":6,"classNum":5,"stuNum":14,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144206699},{"id":"msE8NWcVj2qkXv4cLpbX","name":"이유건","score":810,"grade":6,"classNum":5,"stuNum":19,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329277218},{"id":"n3adDksWvdOcY83Yiuz2","name":"최온유","score":590,"grade":6,"classNum":1,"stuNum":25,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506744029},{"id":"n6ka2oRJIe1R7mDam7JP","name":"포비곰젤리","score":640,"grade":6,"classNum":2,"stuNum":16,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783988532496},{"id":"nD2rHopeDR8bs1blReDb","name":"박정율","score":840,"grade":6,"classNum":4,"stuNum":11,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765033308},{"id":"nGW3BZldq4IGqpe0Krgl","name":"이규원","score":940,"grade":6,"classNum":3,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226536289},{"id":"nnqoDFHAmpk8bxFAFKuW","name":"강다원","score":680,"grade":6,"classNum":5,"stuNum":1,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784163940611},{"id":"o9tfBV8Mv9WDUHKcB22m","name":"조아라","score":680,"grade":6,"classNum":5,"stuNum":23,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164160294},{"id":"okcOLOBNYTOnjEVLQHOC","name":"권범","score":960,"grade":6,"classNum":5,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143904733},{"id":"opB7Z6G8wAN8mLbwUeWO","name":"정시윤","score":610,"grade":6,"classNum":1,"stuNum":22,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506999470},{"id":"pRN5ASytll383lQZ04E0","name":"한태희","score":820,"grade":6,"classNum":3,"stuNum":23,"unitId":"Oq4er2FMoobnYy1JFF7k","unitTitle":"L04","createdAt":1779413161767},{"id":"pad9JkBXBGia0boBP2Uw","name":"박시후","score":860,"grade":6,"classNum":5,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143954409},{"id":"pqBYZdWmW1xqxbFgNPq7","name":"명종도","score":900,"grade":6,"classNum":2,"stuNum":8,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232916814},{"id":"pxnG3IvGScRHpfBkX9cZ","name":"오한울","score":970,"grade":6,"classNum":5,"stuNum":15,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329277740},{"id":"q401jKkg1yleEh3PIHlP","name":"송수민","score":980,"grade":6,"classNum":1,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140641286},{"id":"q5ckqHdeMBGNl9DC9sXJ","name":"이준우","score":960,"grade":6,"classNum":3,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226351847},{"id":"qANqGdUBmsfD8ZNsfh0z","name":"김민성","score":930,"grade":6,"classNum":1,"stuNum":1,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140654937},{"id":"qN4LqXmpeKVsDTECjEZi","name":"류호재","score":790,"grade":6,"classNum":1,"stuNum":6,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325861688},{"id":"qgUXoGm0psQ7wzofS3rP","name":"이시현","score":630,"grade":6,"classNum":5,"stuNum":19,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164095975},{"id":"rEpdHNXSyEAEDIYABLsN","name":"김태이","score":660,"grade":6,"classNum":4,"stuNum":9,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997592023},{"id":"rM5lU6KjS66JnwSDS2YH","name":"김재민","score":710,"grade":6,"classNum":2,"stuNum":5,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335646590},{"id":"rYwRhX7x3d5VdphemmZG","name":"이규민","score":890,"grade":6,"classNum":5,"stuNum":17,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329324347},{"id":"rd2gKoTETNZOB2IK43uj","name":"김지유","score":660,"grade":6,"classNum":1,"stuNum":4,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784506780658},{"id":"rjqQ4YNAWZTXCzNtPDSB","name":"박푸름","score":130,"grade":6,"classNum":6,"stuNum":10,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080846595},{"id":"rmPuBB7jKg4Yqo7XZyvu","name":"김수현","score":760,"grade":6,"classNum":1,"stuNum":3,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140677537},{"id":"s2edU0OyrASk15j1DFCR","name":"김지유","score":1000,"grade":6,"classNum":1,"stuNum":4,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140633284},{"id":"seLsTVL8vdlocfMgZZAP","name":"차민엽","score":830,"grade":6,"classNum":1,"stuNum":24,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140748947},{"id":"sf6wtjb7in9pmmeTJEe0","name":"김민재","score":940,"grade":6,"classNum":2,"stuNum":3,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232831140},{"id":"ss4vZHHwtrj0Why8OaB3","name":"wjddbcks","score":890,"grade":6,"classNum":1,"stuNum":23,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140801406},{"id":"swXtxuzopkIMdL9VqZhj","name":"강다원","score":1040,"grade":6,"classNum":5,"stuNum":1,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329189113},{"id":"tAHRxXdmUXKBnuLiQBZD","name":"선생님","score":0,"grade":6,"classNum":1,"stuNum":30,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325918021},{"id":"tLMKnIPDKIGTOjTkJSsO","name":"김가원","score":880,"grade":6,"classNum":3,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226213117},{"id":"tX0YxuaE6SOUftsAseoD","name":"유봄","score":830,"grade":6,"classNum":1,"stuNum":15,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325888844},{"id":"tfDnNDEdJ2SA8E3iOJK8","name":"김진서","score":740,"grade":6,"classNum":4,"stuNum":7,"unitId":"XXT0gN7KTgvZuPlVv7C3","unitTitle":"L03","createdAt":1779765044744},{"id":"trGfrciZQENLqhnjNW7G","name":"김지원","score":680,"grade":6,"classNum":2,"stuNum":4,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232775704},{"id":"tsGNvw9KSij1pICEGOuU","name":"오주호","score":840,"grade":6,"classNum":3,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781226227062},{"id":"u4TdT10nN8UeFyrR4sZc","name":"김태양","score":840,"grade":5,"classNum":4,"stuNum":8,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779332043247},{"id":"uCMsBeXkBCwhFxVrfySJ","name":"유재아","score":980,"grade":6,"classNum":5,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143808425},{"id":"uIAFwZxj8vLWevf3pwPT","name":"이시현","score":960,"grade":6,"classNum":5,"stuNum":19,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781144018848},{"id":"uf3TaxgM9SEb3ZjmuAmY","name":"김민지","score":620,"grade":6,"classNum":5,"stuNum":3,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164057212},{"id":"uoYLlqia1dDSC5XD3mHy","name":"김이든","score":850,"grade":6,"classNum":5,"stuNum":7,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143935068},{"id":"vBYretfsvzyGn86x7vTl","name":"심현석","score":980,"grade":6,"classNum":1,"stuNum":14,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140632518},{"id":"vMpzWgYnJGthn3EZJYHa","name":"이도윤","score":960,"grade":6,"classNum":2,"stuNum":16,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781233212449},{"id":"vRJxGrmDhdBgicthE3xa","name":"최준우(6767)","score":590,"grade":6,"classNum":2,"stuNum":23,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335667788},{"id":"vrbaz94aviORYQONyKSg","name":"송수민","score":880,"grade":6,"classNum":1,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325880976},{"id":"w1JEvFZdv4XXvL4NXRwV","name":"정예원","score":930,"grade":6,"classNum":2,"stuNum":20,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779335637874},{"id":"wDEBxEjPMwFFsQqb0S4V","name":"이규원","score":940,"grade":6,"classNum":3,"stuNum":12,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413385485},{"id":"wLIPvAduXPd78G8sBvwU","name":"주이든","score":1000,"grade":6,"classNum":2,"stuNum":22,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232833569},{"id":"wPdT1AC6HuqdGEa95dHI","name":"조윤영","score":660,"grade":3,"classNum":1,"stuNum":20,"unitId":"MNdfNU4PQwgjJ8jryWl4","unitTitle":"3G L07","createdAt":1789690399871},{"id":"wQSB0aLnJx2KihItSK3B","name":"손슬아","score":980,"grade":6,"classNum":1,"stuNum":11,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140653668},{"id":"wUHPrdbuLZLKTA5VBWcU","name":"유재아","score":1060,"grade":6,"classNum":5,"stuNum":16,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329201321},{"id":"wamd8DAerJCwSKW8YrJo","name":"이소민","score":230,"grade":3,"classNum":1,"stuNum":13,"unitId":"MNdfNU4PQwgjJ8jryWl4","unitTitle":"3G L07","createdAt":1789690404066},{"id":"wgCVrFuuCRSqI06YQFwr","name":"신리윤","score":590,"grade":6,"classNum":3,"stuNum":10,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783995070642},{"id":"x9fiHMOk3smD8laZs0Dt","name":"김준우","score":870,"grade":6,"classNum":6,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057524606},{"id":"xBw0ALxNc4x3XsfJE5Fv","name":"이미뉴","score":680,"grade":6,"classNum":6,"stuNum":16,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784080716769},{"id":"xERVMkTqpq8LGSSccj0K","name":"김시현","score":820,"grade":6,"classNum":3,"stuNum":4,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779412668911},{"id":"xEeBuD16taRQTrp0Jb2J","name":"박정율","score":540,"grade":6,"classNum":4,"stuNum":11,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1783997594938},{"id":"xEpxAfPGQdPvA6y4Fq4p","name":"서예지","score":670,"grade":6,"classNum":1,"stuNum":9,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140718022},{"id":"xNep28BHgdKgYJC2yqSl","name":"김재민","score":730,"grade":6,"classNum":2,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232812572},{"id":"xPDW0k6FSZZLIQPYHCD5","name":"이준희","score":760,"grade":6,"classNum":1,"stuNum":20,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140794018},{"id":"xPjHa27qUPo6uHVGxodB","name":"백주은","score":980,"grade":6,"classNum":6,"stuNum":12,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057474634},{"id":"xTUSGvKcgwhAEaBEVdwT","name":"김은솔","score":880,"grade":6,"classNum":4,"stuNum":5,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146936058},{"id":"xYcRX7atuWKzTeOFxnXU","name":"심서현","score":1100,"grade":6,"classNum":1,"stuNum":13,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779325887448},{"id":"xcyxVaJ0jWAhGigM2r0X","name":"황지원","score":820,"grade":6,"classNum":3,"stuNum":25,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413321930},{"id":"xjqfGBHbGqasN6uQAECO","name":"김강호","score":960,"grade":6,"classNum":2,"stuNum":2,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781232869226},{"id":"y8xW6G3YEAwSYnMsk9vV","name":"이규민","score":720,"grade":6,"classNum":5,"stuNum":17,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781143942245},{"id":"yKdFR6BFEp7Vh4nUUBNN","name":"정하이","score":430,"grade":6,"classNum":5,"stuNum":22,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164188027},{"id":"yrhMHWyRm3V043ACCF5e","name":"김진서","score":570,"grade":6,"classNum":5,"stuNum":7,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781146910036},{"id":"ysjh059CHKVBmoOCdDHf","name":"함지희","score":810,"grade":6,"classNum":5,"stuNum":25,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779329969348},{"id":"yuQcrCAwj0uWbNYVjPNs","name":"김이든","score":990,"grade":6,"classNum":5,"stuNum":7,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779330401019},{"id":"z6oYo6aKCMldJOXrZX3B","name":"석예준","score":540,"grade":6,"classNum":5,"stuNum":13,"unitId":"sWJcTfESmOY2MiN802T8","unitTitle":"L07","createdAt":1784164105944},{"id":"zJgVh3KarQckwCngyDox","name":"장준우","score":980,"grade":6,"classNum":1,"stuNum":21,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781140694912},{"id":"zVXpDRSm1iIOFTxOMvTo","name":"조아영","score":990,"grade":6,"classNum":3,"stuNum":21,"unitId":"xV9eZlK28gJv55Z6L19X","unitTitle":"L05","createdAt":1779413296908},{"id":"ztZy3gbswYy3lLNelONi","name":"홍삼십","score":880,"grade":6,"classNum":6,"stuNum":30,"unitId":"pt6TLKTaPprxJ9AN7XKQ","unitTitle":"L06","createdAt":1781057484640}];
+
+
+        // 추가: 기본 세계 여행 단원
+        LEGACY_DEFAULT_UNITS.push({
+            id: "def-countries",
+            title: "세계 여행 기본 단어 (기본 국가 퀴즈)",
+            targets: ["Korea", "Japan", "China", "Vietnam", "Thailand", "USA", "Canada", "Mexico", "Brazil", "Argentina", "UK", "France", "Germany", "Italy", "Spain", "Egypt", "Kenya", "South Africa", "Morocco", "Ghana"],
+            createdAt: 1789699999999
+        });
+
+        function formatUnitTitle(title) {
+            if (!title) return '단원';
+            const t = String(title).trim();
+            const lMatch = t.match(/^L0*(\d+)$/i);
+            if (lMatch) {
+                return t + ' (' + parseInt(lMatch[1], 10) + '단원)';
+            }
+            const gMatch = t.match(/^(\d+)G\s*L0*(\d+)$/i);
+            if (gMatch) {
+                return t + ' (' + gMatch[1] + '학년 ' + parseInt(gMatch[2], 10) + '단원)';
+            }
+            return t;
+        }
+
+        function sortUnits(units) {
+            if (!Array.isArray(units)) return [];
+            return [...units].sort((a, b) => {
+                const getOrderKey = (title) => {
+                    const t = (title || '').trim();
+                    const lMatch = t.match(/^L0*(\d+)/i);
+                    if (lMatch) return [1, parseInt(lMatch[1], 10)];
+                    const gMatch = t.match(/^(\d+)G\s*L0*(\d+)/i);
+                    if (gMatch) return [2, parseInt(gMatch[1], 10), parseInt(gMatch[2], 10)];
+                    if (t.includes('기본') || t.includes('세계 여행')) return [4, t];
+                    return [3, t];
+                };
+                const keyA = getOrderKey(a.title);
+                const keyB = getOrderKey(b.title);
+                if (keyA[0] !== keyB[0]) return keyA[0] - keyB[0];
+                if (keyA[0] === 1) return keyA[1] - keyB[1];
+                if (keyA[0] === 2) {
+                    if (keyA[1] !== keyB[1]) return keyA[1] - keyB[1];
+                    return keyA[2] - keyB[2];
+                }
+                return (a.title || '').localeCompare(b.title || '', 'ko', { numeric: true });
+            });
+        }
+
+        function maskStudentName(nameStr) {
+            if (!nameStr) return '선수';
+            let str = String(nameStr).trim();
+            str = str.replace(/\*/g, 'O');
+            if (str.includes('선생님') || str.includes('관리자')) return str;
+
+            const parts = str.split(/\s+/);
+            if (parts.length > 1) {
+                const rawName = parts[parts.length - 1];
+                if (!rawName.endsWith('반') && !rawName.endsWith('번') && !rawName.endsWith('학년')) {
+                    const prefix = parts.slice(0, -1).join(' ');
+                    return prefix + ' ' + maskSingleName(rawName);
+                }
+            }
+            return maskSingleName(str);
+        }
+
+        function maskSingleName(name) {
+            if (!name) return '';
+            const s = name.trim();
+            const match = s.match(/^([^가-힣a-zA-Z0-9]*)([가-힣a-zA-Z0-9].*?)([^가-힣a-zA-Z0-9]*)$/);
+            if (match) {
+                const prefix = match[1];
+                const core = match[2];
+                const suffix = match[3];
+                let maskedCore = core;
+                if (core.length === 2) {
+                    maskedCore = core[0] + 'O';
+                } else if (core.length === 3) {
+                    maskedCore = core[0] + 'O' + core[2];
+                } else if (core.length > 3) {
+                    maskedCore = core[0] + 'O'.repeat(core.length - 2) + core[core.length - 1];
+                }
+                return prefix + maskedCore + suffix;
+            }
+            if (s.length <= 1) return s;
+            if (s.length === 2) return s[0] + 'O';
+            if (s.length === 3) return s[0] + 'O' + s[2];
+            return s[0] + 'O'.repeat(s.length - 2) + s[s.length - 1];
+        }
 
         const DEFAULT_TILES = [
             { id: 0, name: '출발', flag: '🏁', type: 'start', col: 1, row: 1 },
@@ -507,7 +1168,6 @@
             { id: 31, name: '가나', flag: '🇬🇭', type: 'quiz', quizType: 'choice', price: 290, col: 1, row: 2, q: '가나', a: 'Ghana', options: ['Ghana', 'Egypt', 'Mali'] }
         ];
 
-        // 총 30종의 찬스 카드 (재미있는 기획 포함)
         const CHANCE_CARDS = [
             { title: "황금 열쇠 발견", msg: "숨겨진 보물을 찾았습니다! +$200", type: "money", val: 200 },
             { title: "지갑 분실", msg: "길을 잃고 지갑을 잃어버렸습니다. -$100", type: "money", val: -100 },
@@ -550,13 +1210,22 @@
             sessionStorage.setItem('myPlayerId', myPlayerId);
         }
 
+        // 전역 상태
+        const state = {
+            units: [],
+            scores: [],
+            currentUnit: null,
+            hofPeriod: 'all',
+            scoresUnsubscribe: null
+        };
+
+        let myUserInfo = { grade: "6", classNum: "1", studentNum: "1", name: "도전자" };
         let currentRoomId = null; 
         let currentUser = null; 
         let localGameState = null;
         let unsubscribeRoom = null;
         let gameTimerInterval = null;
 
-        // ★ 턴 안정성 보호 플래그
         window.botTurnInProgress = false; 
         window.voteResolving = false;
         let isRollingOrActing = false; 
@@ -564,7 +1233,33 @@
         let customQuizzes = {};
         let sysTeacherPw = "1234";
 
-        // 토스트 알림 (자동 닫힘 기능 추가)
+        // 화면 전환 함수
+        window.showScreen = (screenId) => {
+            ['screen-home', 'screen-lobby', 'screen-game', 'screen-teacher'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(screenId);
+            if (target) target.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.backToHome = () => {
+            if (gameTimerInterval) { clearInterval(gameTimerInterval); gameTimerInterval = null; }
+            if (unsubscribeRoom) { unsubscribeRoom(); unsubscribeRoom = null; }
+            currentRoomId = null;
+            localGameState = null;
+            document.getElementById('game-over-modal').classList.add('hidden');
+            window.showScreen('screen-home');
+        };
+
+        window.confirmExitGame = () => {
+            if (confirm("정말 게임에서 나가시겠습니까? 현재 진행 중인 게임이 종료됩니다.")) {
+                window.backToHome();
+            }
+        };
+
+        // 토스트 알림창
         window.showToast = function(title, message, icon = '🔔', autoCloseMs = 0) {
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-message').innerText = message;
@@ -575,65 +1270,71 @@
             if (autoCloseMs > 0) {
                 window.toastTimer = setTimeout(() => { closeToast(); }, autoCloseMs);
             }
-        }
-        window.closeToast = function() { document.getElementById('toast-modal').classList.add('hidden'); }
+        };
+        window.closeToast = function() { document.getElementById('toast-modal').classList.add('hidden'); };
 
-        // 전용 황금열쇠 애니메이션 모달 띄우기
         window.showChanceModal = function(title, desc) {
             document.getElementById('chance-title').innerText = title;
             document.getElementById('chance-desc').innerText = desc;
             document.getElementById('chance-modal').classList.remove('hidden');
             setTimeout(() => { document.getElementById('chance-modal').classList.add('hidden'); }, 3500);
-        }
+        };
 
         let selectedAvatar = AVATARS[0];
         const avatarContainer = document.getElementById('avatar-container');
         AVATARS.forEach((av, idx) => {
             const isChecked = idx === 0 ? 'checked' : '';
             avatarContainer.innerHTML += `
-                <div class="relative w-12 h-12 flex items-center justify-center">
+                <div class="relative w-10 h-10 flex items-center justify-center">
                     <input type="radio" name="avatarSelect" id="av-${idx}" value="${av}" class="avatar-radio" ${isChecked}>
-                    <label for="av-${idx}" class="avatar-label text-4xl block w-full h-full text-center leading-[48px]">${av}</label>
+                    <label for="av-${idx}" class="avatar-label text-3xl block w-full h-full text-center leading-[40px]">${av}</label>
                 </div>
             `;
         });
         avatarContainer.addEventListener('change', (e) => { if(e.target.name === 'avatarSelect') selectedAvatar = e.target.value; });
 
-        async function initApp() {
-            try { 
-                await signInAnonymously(auth); 
-                const adminRef = doc(db, 'settings', 'admin');
-                const adminSnap = await getDoc(adminRef);
-                if (adminSnap.exists()) sysTeacherPw = adminSnap.data().teacherPassword || "1234";
-                else await setDoc(adminRef, { teacherPassword: "1234" });
-
-                const quizRef = doc(db, 'settings', 'quizzes');
-                const quizSnap = await getDoc(quizRef);
-                if (quizSnap.exists()) customQuizzes = quizSnap.data().data || {};
-            } catch (error) { console.error(error); showToast("오류", "서버 인증에 실패했습니다.", "❌"); }
+        // GNB 프로필 연동
+        function refreshStudentProfile() {
+            try {
+                if (window.WaurimalStudent && typeof window.WaurimalStudent.get === 'function') {
+                    const profile = window.WaurimalStudent.get();
+                    if (profile && profile.name) {
+                        myUserInfo = {
+                            grade: String(profile.grade || "6"),
+                            classNum: String(profile.classNum || profile.class || "1"),
+                            studentNum: String(profile.studentNum || profile.number || "1"),
+                            name: String(profile.name || "도전자")
+                        };
+                        applyProfileToInputs();
+                        return;
+                    }
+                }
+                const saved = localStorage.getItem('waurimal_student_profile');
+                if (saved) {
+                    const p = JSON.parse(saved);
+                    myUserInfo = {
+                        grade: String(p.grade || "6"),
+                        classNum: String(p.classNum || p.class || "1"),
+                        studentNum: String(p.studentNum || p.number || "1"),
+                        name: String(p.name || "도전자")
+                    };
+                    applyProfileToInputs();
+                }
+            } catch (e) {
+                console.warn("Profile load notice:", e);
+            }
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loading-view').classList.add('hidden');
-                document.getElementById('login-view').classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('btn-show-join').addEventListener('click', () => {
-            document.getElementById('btn-group-main').classList.add('hidden');
-            document.getElementById('btn-single-play').classList.add('hidden');
-            document.getElementById('join-code-container').classList.remove('hidden');
-            document.getElementById('btn-group-join').classList.replace('hidden', 'grid');
-        });
-
-        document.getElementById('btn-cancel-join').addEventListener('click', () => {
-            document.getElementById('btn-group-main').classList.remove('hidden');
-            document.getElementById('btn-single-play').classList.remove('hidden');
-            document.getElementById('join-code-container').classList.add('hidden');
-            document.getElementById('btn-group-join').classList.replace('grid', 'hidden');
-        });
+        function applyProfileToInputs() {
+            const gEl = document.getElementById('student-grade');
+            const cEl = document.getElementById('student-class');
+            const nEl = document.getElementById('student-num');
+            const nameEl = document.getElementById('student-name');
+            if (gEl && myUserInfo.grade) gEl.value = myUserInfo.grade;
+            if (cEl && myUserInfo.classNum) cEl.value = myUserInfo.classNum;
+            if (nEl && myUserInfo.studentNum) nEl.value = myUserInfo.studentNum;
+            if (nameEl && myUserInfo.name) nameEl.value = myUserInfo.name;
+        }
 
         function validateForm() {
             const g = document.getElementById('student-grade').value;
@@ -643,8 +1344,160 @@
             if(!g || !c || !num || !name) {
                 showToast("알림", "학년, 반, 번호, 이름을 모두 입력해주세요!", "⚠️"); return null;
             }
+            myUserInfo = { grade: g, classNum: c, studentNum: num, name: name };
             return name;
         }
+
+        function updateUnitDropdowns() {
+            const homeSelect = document.getElementById('homeUnitSelect');
+            const hofFilterUnit = document.getElementById('hof-filter-unit');
+
+            if (homeSelect) {
+                homeSelect.innerHTML = '<option value="">단원을 선택해주세요</option>';
+                state.units.forEach(u => {
+                    const formatted = formatUnitTitle(u.title);
+                    homeSelect.innerHTML += `<option value="${u.id}">${formatted}</option>`;
+                });
+                if (state.units.length > 0) {
+                    homeSelect.value = state.units[0].id;
+                    state.currentUnit = state.units[0];
+                }
+            }
+
+            if (hofFilterUnit) {
+                const currentHofVal = hofFilterUnit.value || 'ALL';
+                hofFilterUnit.innerHTML = '<option value="ALL">전체 단원</option>';
+                state.units.forEach(u => {
+                    const formatted = formatUnitTitle(u.title);
+                    hofFilterUnit.innerHTML += `<option value="${u.id}">${formatted}</option>`;
+                });
+                if ([...hofFilterUnit.options].some(o => o.value === currentHofVal)) {
+                    hofFilterUnit.value = currentHofVal;
+                } else {
+                    hofFilterUnit.value = 'ALL';
+                }
+            }
+        }
+
+        document.getElementById('homeUnitSelect').addEventListener('change', (e) => {
+            const uId = e.target.value;
+            state.currentUnit = state.units.find(u => u.id === uId) || state.units[0];
+        });
+
+        // 명예의 전당 기간 필터 탭
+        window.setHofPeriod = (period) => {
+            state.hofPeriod = period;
+            ['all', 'month', 'week'].forEach(p => {
+                const tab = document.getElementById('hof-tab-' + p);
+                if (tab) {
+                    if (p === period) {
+                        tab.className = "hof-period-tab flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-white text-blue-700 shadow-2xs";
+                    } else {
+                        tab.className = "hof-period-tab flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-500 hover:text-slate-800";
+                    }
+                }
+            });
+            filterHofList();
+        };
+
+        window.filterHofList = () => {
+            const container = document.getElementById('hof-records-container');
+            if (!container) return;
+
+            const u = document.getElementById('hof-filter-unit') ? document.getElementById('hof-filter-unit').value : 'ALL';
+            const g = document.getElementById('hof-filter-grade') ? document.getElementById('hof-filter-grade').value : 'ALL';
+            const c = document.getElementById('hof-filter-class') ? document.getElementById('hof-filter-class').value : 'ALL';
+
+            const now = new Date();
+            const curYear = now.getFullYear();
+            const curMonth = now.getMonth();
+            const oneWeekAgoMs = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+
+            let filtered = state.scores.filter(item => {
+                if (u !== 'ALL') {
+                    const unitObj = state.units.find(un => un.id === u);
+                    const matchId = item.unitId === u;
+                    const matchTitle = (unitObj && item.unitTitle === unitObj.title) || item.unitTitle === u;
+                    if (!matchId && !matchTitle) return false;
+                }
+                if (g !== 'ALL' && String(item.grade) !== g) return false;
+                if (c !== 'ALL' && String(item.classNum) !== c) return false;
+
+                const ts = item.createdAt || 0;
+                if (state.hofPeriod !== 'all' && ts > 0) {
+                    const t = new Date(ts);
+                    if (state.hofPeriod === 'month') {
+                        if (t.getFullYear() !== curYear || t.getMonth() !== curMonth) return false;
+                    } else if (state.hofPeriod === 'week') {
+                        if (t.getTime() < oneWeekAgoMs) return false;
+                    }
+                } else if (state.hofPeriod !== 'all' && ts === 0) {
+                    return false;
+                }
+                return true;
+            });
+
+            const uniqueMap = new Map();
+            filtered.forEach(item => {
+                const sGrade = String(item.grade || '');
+                const sClass = String(item.classNum || '');
+                const rawName = item.name || '학생';
+                const key = `${rawName}_${sGrade}_${sClass}`;
+                const score = parseInt(item.score, 10) || 0;
+                if (!uniqueMap.has(key) || uniqueMap.get(key).score < score) {
+                    uniqueMap.set(key, {
+                        ...item,
+                        score,
+                        maskedName: maskStudentName(rawName),
+                        affiliation: (sGrade && sClass) ? `${sGrade}학년 ${sClass}반` : ''
+                    });
+                }
+            });
+
+            const displayList = Array.from(uniqueMap.values()).sort((a, b) => b.score - a.score).slice(0, 30);
+
+            if (displayList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-slate-400 text-xs font-bold">
+                        선택한 조건에 해당하는 명예의 전당 기록이 없습니다.<br>
+                        1인 플레이 또는 친구와 대결을 펼치고 첫 순위에 도전해보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = displayList.map((item, index) => {
+                const rank = index + 1;
+                let rankBadge = `<span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 font-black text-xs">${rank}</span>`;
+                if (rank === 1) rankBadge = '<span class="text-xl">🥇</span>';
+                else if (rank === 2) rankBadge = '<span class="text-xl">🥈</span>';
+                else if (rank === 3) rankBadge = '<span class="text-xl">🥉</span>';
+
+                const unitDisplay = formatUnitTitle(item.unitTitle || '단원');
+
+                return `
+                    <div class="flex items-center justify-between p-2.5 bg-white border border-blue-100 rounded-xl hover:border-blue-300 transition shadow-2xs">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-center w-8 text-center flex-shrink-0">
+                                ${rankBadge}
+                            </div>
+                            <div>
+                                <div class="font-black text-slate-800 text-xs flex items-center gap-1.5">
+                                    <span>${item.maskedName}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-blue-100 text-blue-800">$${item.score.toLocaleString()}</span>
+                                </div>
+                                <div class="text-[11px] text-slate-400 font-medium">
+                                    ${item.affiliation || '소속 정보 없음'} · <span class="text-slate-500">${unitDisplay}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-blue-600">$${item.score.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
 
         window.updateRuleParamsUI = function() {
             const type = document.getElementById('rule-type').value;
@@ -663,30 +1516,35 @@
                 paramSelect.innerHTML = `<option value="0">한 명이라도 파산하면 종료</option>`;
                 paramSelect.disabled = true;
             }
-        }
+        };
         updateRuleParamsUI();
 
+        // 1. 방 만들기
         document.getElementById('btn-create-room').addEventListener('click', async () => {
             const name = validateForm();
-            if(!name || !currentUser) return;
+            if(!name) return;
             currentRoomId = String(Math.floor(1000 + Math.random() * 9000));
             const roomRef = doc(db, 'rooms', currentRoomId);
             
             let players = {};
             players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
             
-            await setDoc(roomRef, { state: 'lobby', players: players, turnOrder: [myPlayerId], currentTurnIndex: 0, tilesInfo: {}, voteState: null });
+            try {
+                await setDoc(roomRef, { state: 'lobby', players: players, turnOrder: [myPlayerId], currentTurnIndex: 0, tilesInfo: {}, voteState: null });
+            } catch(e) {
+                console.warn("Room creation offline fallback:", e);
+            }
             
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('lobby-view').classList.remove('hidden');
+            window.showScreen('screen-lobby');
             document.getElementById('display-code').innerText = currentRoomId;
             listenToRoom();
         });
 
-        document.getElementById('btn-submit-join').addEventListener('click', async () => {
+        // 2. 코드 입장
+        document.getElementById('btn-join-room').addEventListener('click', async () => {
             const name = validateForm();
-            if(!name || !currentUser) return;
-            const code = document.getElementById('room-code').value.trim();
+            if(!name) return;
+            const code = document.getElementById('homeRoomInput').value.trim();
             if(code.length !== 4) { showToast("오류", "4자리 숫자 코드를 정확히 입력하세요.", "❌"); return; }
             currentRoomId = code;
             const roomRef = doc(db, 'rooms', currentRoomId);
@@ -704,16 +1562,16 @@
                     await updateDoc(roomRef, { players: roomData.players, turnOrder: roomData.turnOrder });
                 }
 
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('lobby-view').classList.remove('hidden');
+                window.showScreen('screen-lobby');
                 document.getElementById('display-code').innerText = currentRoomId;
                 listenToRoom();
             } catch (err) { showToast("오류", "방 입장 중 문제가 발생했습니다.", "❌"); }
         });
 
+        // 3. 1인 플레이 (vs 컴퓨터 AI)
         document.getElementById('btn-single-play').addEventListener('click', async () => {
             const name = validateForm();
-            if(!name || !currentUser) return;
+            if(!name) return;
             currentRoomId = String(Math.floor(1000 + Math.random() * 9000));
             const roomRef = doc(db, 'rooms', currentRoomId);
             
@@ -721,101 +1579,202 @@
             players[myPlayerId] = { name: name, avatar: selectedAvatar, color: COLORS[0], pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
             players['bot_1'] = { name: '컴퓨터(AI)', avatar: '🤖', color: '#94a3b8', pos: 0, balance: 1000, islandTurns: 0, round: 1, canTravel: false };
             
-            await setDoc(roomRef, { state: 'lobby', players: players, turnOrder: [myPlayerId, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}, voteState: null });
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('lobby-view').classList.remove('hidden');
+            const initialRoom = { state: 'lobby', players: players, turnOrder: [myPlayerId, 'bot_1'], currentTurnIndex: 0, tilesInfo: {}, voteState: null };
+            try {
+                await setDoc(roomRef, initialRoom);
+            } catch(e) {
+                console.warn("Single play local fallback:", e);
+            }
+            window.showScreen('screen-lobby');
             document.getElementById('display-code').innerText = currentRoomId;
             listenToRoom();
         });
 
-        // ------------------ 교사 모드 로직 ------------------ //
-        // (교사 모드 이전과 동일 유지 - 생략 가능하지만 완전성을 위해 남김)
-        document.getElementById('btn-show-teacher-auth').addEventListener('click', () => { document.getElementById('teacher-auth-modal').classList.remove('hidden'); document.getElementById('teacher-pw-input').value = ''; });
-        document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => { const pw = document.getElementById('teacher-pw-input').value; if (pw === sysTeacherPw) { document.getElementById('teacher-auth-modal').classList.add('hidden'); document.getElementById('login-view').classList.add('hidden'); document.getElementById('teacher-view').classList.remove('hidden'); renderTeacherTileList(); } else { showToast("인증 실패", "비밀번호가 틀렸습니다.", "❌"); } });
-        document.getElementById('btn-close-teacher').addEventListener('click', () => { document.getElementById('teacher-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); });
-        document.getElementById('btn-change-pw').addEventListener('click', () => { document.getElementById('pw-change-modal').classList.remove('hidden'); document.getElementById('new-pw-input').value = ''; });
-        document.getElementById('btn-save-new-pw').addEventListener('click', async () => { const newPw = document.getElementById('new-pw-input').value.trim(); if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; } await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw }); sysTeacherPw = newPw; document.getElementById('pw-change-modal').classList.add('hidden'); showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅"); });
+        // 교사 모드 로직
+        window.openTeacherAuthModal = () => {
+            document.getElementById('teacher-auth-modal').classList.remove('hidden');
+            document.getElementById('teacher-pw-input').value = '';
+            setTimeout(() => document.getElementById('teacher-pw-input').focus(), 100);
+        };
+
+        document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => {
+            const pw = document.getElementById('teacher-pw-input').value;
+            if (pw === sysTeacherPw) {
+                document.getElementById('teacher-auth-modal').classList.add('hidden');
+                window.showScreen('screen-teacher');
+                renderTeacherTileList();
+            } else {
+                showToast("인증 실패", "비밀번호가 틀렸습니다.", "❌");
+            }
+        });
+
+        document.getElementById('btn-change-pw').addEventListener('click', () => {
+            document.getElementById('pw-change-modal').classList.remove('hidden');
+            document.getElementById('new-pw-input').value = '';
+        });
+
+        document.getElementById('btn-save-new-pw').addEventListener('click', async () => {
+            const newPw = document.getElementById('new-pw-input').value.trim();
+            if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; }
+            try {
+                await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw });
+            } catch(e){}
+            sysTeacherPw = newPw;
+            document.getElementById('pw-change-modal').classList.add('hidden');
+            showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅");
+        });
 
         let currentEditingTileId = null;
         function renderTeacherTileList() {
             const list = document.getElementById('teacher-tile-list');
             list.innerHTML = '';
             DEFAULT_TILES.filter(t => t.type === 'quiz').forEach(t => {
-                const btn = document.createElement('button'); btn.className = "w-full text-left p-3 rounded-lg border-2 border-gray-200 hover:bg-blue-50 focus:bg-blue-100 font-bold text-gray-700 transition-colors"; btn.innerHTML = `${t.flag} ${t.name}`; btn.onclick = () => loadTileToEditor(t.id); list.appendChild(btn);
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-blue-50 focus:bg-blue-100 font-bold text-slate-700 transition-colors text-xs";
+                btn.innerHTML = `${t.flag} ${t.name}`;
+                btn.onclick = () => loadTileToEditor(t.id);
+                list.appendChild(btn);
             });
         }
+
         function loadTileToEditor(id) {
             currentEditingTileId = id;
             document.getElementById('editor-placeholder').classList.add('hidden');
             document.getElementById('teacher-editor').classList.replace('hidden', 'flex');
-            const baseTile = DEFAULT_TILES.find(t => t.id === id); const savedQuiz = customQuizzes[id] || {}; const qType = savedQuiz.quizType || baseTile.quizType;
-            document.getElementById('editor-title').innerText = `${baseTile.flag} ${baseTile.name} 출제하기`;
-            document.getElementById('edit-quiz-type').value = qType; document.getElementById('edit-q').value = savedQuiz.q || baseTile.q; document.getElementById('edit-a').value = savedQuiz.a || baseTile.a;
-            const optionsGroup = document.getElementById('choice-options-group');
-            if (qType === 'choice') { optionsGroup.classList.remove('hidden'); let opts = savedQuiz.options || baseTile.options; let wrongOpts = opts.filter(o => o.toLowerCase() !== (savedQuiz.a || baseTile.a).toLowerCase()); document.getElementById('edit-wrong1').value = wrongOpts[0] || ''; document.getElementById('edit-wrong2').value = wrongOpts[1] || ''; } else { optionsGroup.classList.add('hidden'); }
+            const tile = getMergedTile(DEFAULT_TILES[id]);
+            document.getElementById('editor-title').innerText = `[${tile.flag} ${tile.name}] 문제 출제`;
+            document.getElementById('edit-quiz-type').value = tile.quizType || 'choice';
+            document.getElementById('edit-q').value = tile.q || '';
+            document.getElementById('edit-a').value = tile.a || '';
+            
+            const choiceGroup = document.getElementById('choice-options-group');
+            if(tile.quizType === 'short') choiceGroup.classList.add('hidden');
+            else {
+                choiceGroup.classList.remove('hidden');
+                const wrongOptions = (tile.options || []).filter(o => o !== tile.a);
+                document.getElementById('edit-wrong1').value = wrongOptions[0] || '';
+                document.getElementById('edit-wrong2').value = wrongOptions[1] || '';
+            }
         }
-        document.getElementById('edit-quiz-type').addEventListener('change', (e) => { if(e.target.value === 'choice') document.getElementById('choice-options-group').classList.remove('hidden'); else document.getElementById('choice-options-group').classList.add('hidden'); });
-        document.getElementById('btn-save-quiz').addEventListener('click', async () => {
-            if (currentEditingTileId === null) return;
-            const qType = document.getElementById('edit-quiz-type').value; const q = document.getElementById('edit-q').value.trim(); const a = document.getElementById('edit-a').value.trim();
-            if(!q || !a) { showToast("경고", "질문과 정답을 모두 입력하세요.", "⚠️"); return; }
-            let dataToSave = { quizType: qType, q: q, a: a };
-            if (qType === 'choice') { const w1 = document.getElementById('edit-wrong1').value.trim(); const w2 = document.getElementById('edit-wrong2').value.trim(); if(!w1 || !w2) { showToast("경고", "오답 2개를 모두 입력하세요.", "⚠️"); return; } dataToSave.options = [a, w1, w2]; }
-            customQuizzes[currentEditingTileId] = dataToSave;
-            await setDoc(doc(db, 'settings', 'quizzes'), { data: customQuizzes }, { merge: true });
-            showToast("저장 완료", "해당 국가의 문제가 업데이트 되었습니다.", "✅");
+
+        document.getElementById('edit-quiz-type').addEventListener('change', (e) => {
+            const choiceGroup = document.getElementById('choice-options-group');
+            if (e.target.value === 'short') choiceGroup.classList.add('hidden');
+            else choiceGroup.classList.remove('hidden');
         });
 
-        // ------------------ 멀티플레이 및 로비 동기화 ------------------ //
+        document.getElementById('btn-save-quiz').addEventListener('click', async () => {
+            if(currentEditingTileId === null) return;
+            const qType = document.getElementById('edit-quiz-type').value;
+            const q = document.getElementById('edit-q').value.trim();
+            const a = document.getElementById('edit-a').value.trim();
+            
+            if(!q || !a) { showToast("입력 오류", "문제와 정답을 모두 입력하세요.", "⚠️"); return; }
+
+            let options = [];
+            if(qType === 'choice') {
+                const w1 = document.getElementById('edit-wrong1').value.trim();
+                const w2 = document.getElementById('edit-wrong2').value.trim();
+                if(!w1 || !w2) { showToast("입력 오류", "오답 2개를 모두 입력하세요.", "⚠️"); return; }
+                options = [a, w1, w2];
+            }
+
+            customQuizzes[currentEditingTileId] = { quizType: qType, q: q, a: a, options: options };
+            try {
+                await setDoc(doc(db, 'settings', 'quizzes'), { data: customQuizzes }, { merge: true });
+            } catch(e){}
+            showToast("저장 완료", "해당 국가의 문제가 저장되었습니다.", "✅");
+        });
+
         function listenToRoom() {
-            if(!currentRoomId) return;
             if(unsubscribeRoom) unsubscribeRoom();
             const roomRef = doc(db, 'rooms', currentRoomId);
-            
-            unsubscribeRoom = onSnapshot(roomRef, (snap) => {
-                if(!snap.exists()) return;
-                localGameState = snap.data();
-                
-                if (localGameState.state === 'lobby') {
-                    renderLobby();
-                } else if (localGameState.state === 'playing') {
-                    if (document.getElementById('game-view').classList.contains('hidden')) {
-                        document.getElementById('lobby-view').classList.add('hidden');
-                        document.getElementById('game-view').classList.remove('hidden');
-                        initBoard();
-                        startClientTimer();
-                        renderTravelModalOptions();
+            unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+                if(!docSnap.exists()) {
+                    window.backToHome();
+                    showToast("알림", "방이 종료되었거나 삭제되었습니다.", "⚠️");
+                    return;
+                }
+                const data = docSnap.data();
+                localGameState = data;
+
+                if(data.state === 'lobby') {
+                    window.showScreen('screen-lobby');
+                    const players = Object.values(data.players);
+                    document.getElementById('player-count').innerText = players.length;
+                    const list = document.getElementById('player-list');
+                    list.innerHTML = '';
+                    players.forEach(p => {
+                        list.innerHTML += `<li class="flex items-center gap-2 font-bold"><span class="text-2xl">${p.avatar}</span> <span>${p.name}</span></li>`;
+                    });
+
+                    const isHost = data.turnOrder[0] === myPlayerId;
+                    const startBtn = document.getElementById('start-game-btn');
+                    const waitMsg = document.getElementById('waiting-msg');
+                    const hostSettings = document.getElementById('host-settings-panel');
+
+                    if(isHost) {
+                        hostSettings.classList.remove('hidden');
+                        startBtn.classList.remove('hidden');
+                        waitMsg.classList.add('hidden');
+                        startBtn.disabled = players.length < 2;
+                        if(players.length < 2) startBtn.innerText = "여행자를 기다리는 중...";
+                        else startBtn.innerText = "게임 시작하기 🎮";
+                    } else {
+                        hostSettings.classList.add('hidden');
+                        startBtn.classList.add('hidden');
+                        waitMsg.classList.remove('hidden');
+                        waitMsg.innerText = "방장이 게임을 시작하기를 기다리고 있습니다...";
                     }
+                } else if(data.state === 'playing') {
+                    window.showScreen('screen-game');
+                    initBoard();
+                    renderTravelModalOptions();
                     updateGameUI();
-                } else if (localGameState.state === 'finished') {
-                    renderGameOver(localGameState.endReason);
+                    startClientTimer();
+                } else if(data.state === 'finished') {
+                    renderGameOver(data.endReason || "게임이 종료되었습니다!");
                 }
             });
         }
 
-        function renderLobby() {
-            const list = document.getElementById('player-list'); list.innerHTML = '';
-            const players = localGameState.players; const uids = localGameState.turnOrder;
-            document.getElementById('player-count').innerText = uids.length;
-            uids.forEach((uid, index) => {
-                const p = players[uid]; const isMe = uid === myPlayerId;
-                list.innerHTML += `<li class="flex items-center gap-3 p-2 rounded-lg ${isMe ? 'bg-blue-100 font-bold' : ''}"><span class="text-2xl">${p.avatar}</span><span style="color:${p.color}">${p.name} ${isMe ? '(나)' : ''}</span>${index === 0 ? '<span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full ml-auto">방장</span>' : ''}</li>`;
-            });
-            if (uids[0] === myPlayerId) {
-                document.getElementById('host-settings-panel').classList.remove('hidden');
-                if (uids.length >= 2) { document.getElementById('start-game-btn').classList.remove('hidden'); document.getElementById('waiting-msg').classList.add('hidden'); } 
-                else { document.getElementById('start-game-btn').classList.add('hidden'); document.getElementById('waiting-msg').classList.remove('hidden'); }
-            } else { document.getElementById('host-settings-panel').classList.add('hidden'); }
-        }
-
         document.getElementById('start-game-btn').addEventListener('click', async () => {
-            const ruleType = document.getElementById('rule-type').value; const ruleParam = parseInt(document.getElementById('rule-param').value) || 0; const now = Date.now();
-            await updateDoc(doc(db, 'rooms', currentRoomId), { state: 'playing', rule: { type: ruleType, value: ruleParam }, startTime: now, endTime: ruleType === 'time' ? now + (ruleParam * 60 * 1000) : null });
+            const ruleType = document.getElementById('rule-type').value;
+            const ruleParam = parseInt(document.getElementById('rule-param').value) || 0;
+            const now = Date.now();
+            try {
+                await updateDoc(doc(db, 'rooms', currentRoomId), {
+                    state: 'playing',
+                    rule: { type: ruleType, value: ruleParam },
+                    startTime: now,
+                    endTime: ruleType === 'time' ? now + (ruleParam * 60 * 1000) : null
+                });
+            } catch(e){}
         });
 
         function getMergedTile(baseTile) {
             if (baseTile.type !== 'quiz') return baseTile;
-            return { ...baseTile, ...(customQuizzes[baseTile.id] || {}) };
+            if (customQuizzes && customQuizzes[baseTile.id]) {
+                return { ...baseTile, ...customQuizzes[baseTile.id] };
+            }
+            if (state.currentUnit && state.currentUnit.targets && state.currentUnit.targets.length > 0) {
+                const words = state.currentUnit.targets;
+                const word = words[baseTile.id % words.length];
+                const otherWords = words.filter(w => w !== word);
+                let distractors = otherWords.sort(() => 0.5 - Math.random()).slice(0, 2);
+                if (distractors.length < 2) {
+                    const fallbackDistractors = ['apple', 'book', 'school', 'friend', 'happy', 'study'];
+                    distractors = fallbackDistractors.filter(w => w !== word).slice(0, 2);
+                }
+                const options = [word, ...distractors].sort(() => 0.5 - Math.random());
+                return {
+                    ...baseTile,
+                    q: `[${baseTile.name}] 단어 맞히기: "${word}"`,
+                    a: word,
+                    options: options
+                };
+            }
+            return baseTile;
         }
 
         function initBoard() {
@@ -823,19 +1782,26 @@
             document.querySelectorAll('.tile').forEach(e => e.remove());
             DEFAULT_TILES.forEach(t => {
                 const mergedTile = getMergedTile(t); 
-                const div = document.createElement('div'); div.className = `tile ${mergedTile.type}`; div.id = `tile-${mergedTile.id}`; div.style.gridColumn = mergedTile.col; div.style.gridRow = mergedTile.row;
+                const div = document.createElement('div');
+                div.className = `tile ${mergedTile.type}`;
+                div.id = `tile-${mergedTile.id}`;
+                div.style.gridColumn = mergedTile.col;
+                div.style.gridRow = mergedTile.row;
                 div.innerHTML = `<div class="tile-name">${mergedTile.name}</div>${mergedTile.flag ? `<div class="tile-flag">${mergedTile.flag}</div>` : ''}${mergedTile.price ? `<div class="tile-price">$${mergedTile.price}</div>` : ''}<div class="token-container" id="token-container-${mergedTile.id}"></div>`;
                 board.appendChild(div);
             });
         }
 
         function renderTravelModalOptions() {
-            const grid = document.getElementById('travel-tile-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('travel-tile-grid');
+            grid.innerHTML = '';
             DEFAULT_TILES.forEach(t => {
                 if(t.type !== 'start' && t.type !== 'travel' && t.type !== 'chance' && t.type !== 'island' && t.type !== 'rest') {
-                    const btn = document.createElement('button'); btn.className = "bg-gray-100 hover:bg-blue-100 border-2 border-gray-200 hover:border-blue-400 p-2 rounded-xl text-center transition-colors active-press";
+                    const btn = document.createElement('button');
+                    btn.className = "bg-gray-100 hover:bg-blue-100 border-2 border-gray-200 hover:border-blue-400 p-2 rounded-xl text-center transition-colors active-press";
                     btn.innerHTML = `<div class="text-2xl">${t.flag}</div><div class="font-bold text-sm truncate">${t.name}</div>`;
-                    btn.onclick = () => window.executeTravel(t.id); grid.appendChild(btn);
+                    btn.onclick = () => window.executeTravel(t.id);
+                    grid.appendChild(btn);
                 }
             });
         }
@@ -844,29 +1810,31 @@
             if(localGameState.state !== 'playing') return;
             const { players, turnOrder, currentTurnIndex, tilesInfo, voteState } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
+            const currentP = players[currentUid];
             const isMyTurn = currentUid === myPlayerId;
-            const isBotTurn = currentUid.startsWith('bot_');
             const isHost = turnOrder[0] === myPlayerId;
-            
-            const slots = ['left', 'right', 'bottom', 'top'];
-            slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
-            let myIndex = turnOrder.indexOf(myPlayerId);
-            if(myIndex === -1) myIndex = 0;
 
-            turnOrder.forEach((uid, idx) => {
+            const slots = ['bottom', 'left', 'top', 'right'];
+            slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
+            
+            const myIdxInTurn = turnOrder.indexOf(myPlayerId);
+            turnOrder.forEach((uid, i) => {
                 const p = players[uid];
-                let targetSlot = idx === myIndex ? 'left' : slots[(idx - myIndex + turnOrder.length) % turnOrder.length];
-                const container = document.getElementById(`status-${targetSlot}`);
+                let relativeIdx = (i - myIdxInTurn + turnOrder.length) % turnOrder.length;
+                let slotName = slots[relativeIdx] || 'bottom';
+                const container = document.getElementById(`status-${slotName}`);
                 if(container) {
+                    const isTurnNow = currentUid === uid;
                     container.innerHTML = `
-                        <div class="bg-white rounded-3xl p-3 shadow-xl border-4 transition-all duration-300 ${uid === currentUid ? 'scale-105 shadow-2xl' : 'opacity-80'}" style="border-color: ${p.color}">
-                            <div class="flex items-center justify-between mb-2 border-b-2 pb-2" style="border-bottom-color: ${p.color}40">
-                                <div class="flex items-center gap-2"><div class="text-3xl bg-gray-50 rounded-full w-12 h-12 flex items-center justify-center border border-gray-200">${p.avatar}</div><div class="font-black text-gray-800 text-lg">${p.name}</div></div>
-                                ${uid === myPlayerId ? '<span class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-bold shadow-sm">나</span>' : ''}
-                            </div>
-                            <div class="bg-gray-50 rounded-2xl p-2 border border-gray-200 text-center shadow-inner">
-                                <div class="text-xs text-gray-500 font-bold mb-1">자산</div><div class="text-2xl font-black tracking-wide" style="color: ${p.color}">$${p.balance}</div>
-                                ${(p.islandTurns && p.islandTurns > 0) ? `<div class="text-xs text-red-500 font-bold mt-1">무인도 (${p.islandTurns}턴)</div>` : ''}
+                        <div class="p-3 rounded-2xl border-4 transition-all ${isTurnNow ? 'bg-yellow-50 border-yellow-400 shadow-lg scale-105' : 'bg-white border-blue-200 shadow-md'} flex items-center gap-3">
+                            <span class="text-4xl">${p.avatar}</span>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-black text-gray-800 text-lg">${p.name} ${uid === myPlayerId ? '<span class="text-blue-500 font-bold text-sm">(나)</span>' : ''}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-gray-200 text-gray-600">${p.round || 1}바퀴</span>
+                                </div>
+                                <div class="font-black text-xl text-blue-600">$ ${p.balance}</div>
+                                ${p.islandTurns > 0 ? `<div class="text-xs text-red-500 font-bold mt-1">🏝️ 무인도 (${p.islandTurns}턴 남음)</div>` : ''}
                                 ${p.canTravel ? `<div class="text-xs text-blue-500 font-bold mt-1">✈️ 비행기 대기중</div>` : ''}
                             </div>
                         </div>`;
@@ -875,7 +1843,7 @@
             });
             slots.forEach(s => { if(document.getElementById(`status-${s}`).innerHTML === '') document.getElementById(`status-${s}`).classList.add('hidden'); });
 
-            // 오프라인 투표(장기자랑) UI 컨트롤
+            // 오프라인 투표 UI
             if (voteState && voteState.active) {
                 document.getElementById('vote-modal').classList.remove('hidden');
                 document.getElementById('vote-title').innerText = voteState.title;
@@ -899,7 +1867,6 @@
                     }
                 }
 
-                // 봇(컴퓨터) 투표 대리 수행
                 if (isHost && !window.voteResolving) {
                     let botVoted = false;
                     turnOrder.forEach((uid) => {
@@ -914,68 +1881,61 @@
                         return;
                     }
 
-                    // 투표 완료 시 결과 처리
                     if (voteState.voters.length >= expectedVoters) {
                         window.voteResolving = true;
                         setTimeout(async () => {
                             try {
-                                let rMsg = "";
-                                if (voteState.yes >= voteState.no && expectedVoters > 0) {
-                                    rMsg = `찬성 ${voteState.yes}표! 미션 성공! 상금 $${voteState.reward} 획득! 🎉`;
-                                    await updateDoc(doc(db, 'rooms', currentRoomId), { [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward, 'voteState.active': false });
+                                const isPassed = voteState.yes >= voteState.no;
+                                if (isPassed) {
+                                    showToast("미션 성공!", `축하합니다! 친구들의 투표로 $${voteState.reward}를 획득했습니다! 🎉`, "🏆", 3000);
+                                    await updateDoc(doc(db, 'rooms', currentRoomId), {
+                                        [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward,
+                                        'voteState.active': false
+                                    });
                                 } else {
-                                    rMsg = `반대 ${voteState.no}표... 미션 실패로 상금을 받지 못했습니다. 😢`;
+                                    showToast("미션 실패!", "아쉽게도 친구들의 인정을 받지 못했습니다. 😢", "💔", 3000);
                                     await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
                                 }
-                                showToast("투표 결과", rMsg, "📢", 3000);
-                                setTimeout(() => { 
-                                    window.voteResolving = false; 
-                                    document.getElementById('vote-modal').classList.add('hidden'); 
-                                    // 투표 종료 시 isDouble 유지하여 턴 인계
-                                    nextTurn(voteState.isDouble || false); 
-                                }, 4000);
-                            } catch(err) { console.error(err); window.voteResolving = false; nextTurn(false); }
-                        }, 1000);
+                                document.getElementById('vote-modal').classList.add('hidden');
+                                window.voteResolving = false;
+                                nextTurn(voteState.isDouble);
+                            } catch(e) { window.voteResolving = false; }
+                        }, 2000);
                     }
                 }
-                return;
-            } else { document.getElementById('vote-modal').classList.add('hidden'); }
+            } else {
+                document.getElementById('vote-modal').classList.add('hidden');
+            }
 
-            // 턴 제어 UI
-            const currentP = players[currentUid];
-            const turnBox = document.getElementById('turn-indicator');
             const turnText = document.getElementById('current-turn-text');
+            const turnBox = document.getElementById('turn-indicator-box');
             const diceBtn = document.getElementById('roll-dice-btn');
             const waitMsg = document.getElementById('not-my-turn-msg');
 
-            turnBox.className = 'border-4 rounded-2xl p-2 sm:p-3 text-center mb-2 sm:mb-4 transition-colors duration-300 shadow-md w-full max-w-[280px]';
-
+            turnBox.classList.remove('bg-yellow-100', 'border-yellow-400', 'bg-blue-100', 'border-blue-400');
+            
             if (isMyTurn) {
-                if (currentP.canTravel) {
-                    turnText.innerText = "비행기를 타고 원하는 곳으로 가세요!";
-                    diceBtn.innerText = "목적지 선택하기 ✈️";
-                    diceBtn.className = "w-full bg-purple-500 hover:bg-purple-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(168,85,247)] transition-all active-press";
-                } else if (currentP.islandTurns > 0) {
-                    turnText.innerText = `무인도 탈출 도전! (더블이 나오면 탈출)`;
-                    diceBtn.innerText = "주사위 굴리기 (탈출시도)";
-                    diceBtn.className = "w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press";
-                } else {
-                    turnText.innerText = "나의 턴입니다! 주사위를 굴리세요!";
-                    diceBtn.innerText = "주사위 굴리기! 🎲";
-                    diceBtn.className = "w-full bg-blue-500 hover:bg-blue-400 text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl shadow-[0_4px_0_rgb(59,130,246)] transition-all active-press";
-                }
+                turnText.innerText = "나의 턴! 주사위를 굴리세요!";
                 turnBox.classList.add('bg-blue-100', 'border-blue-400');
-                diceBtn.classList.remove('hidden');
-                diceBtn.disabled = false;
-                waitMsg.classList.add('hidden');
-            } else if (isBotTurn) {
-                turnText.innerText = "컴퓨터(AI)의 턴입니다... 🤖";
+                if (currentP.canTravel) {
+                    diceBtn.classList.add('hidden');
+                    waitMsg.classList.remove('hidden');
+                    waitMsg.innerText = "✈️ 비행기를 타고 이동할 나라를 선택하세요!";
+                    document.getElementById('travel-modal').classList.remove('hidden');
+                } else {
+                    diceBtn.classList.remove('hidden');
+                    diceBtn.disabled = isRollingOrActing;
+                    diceBtn.className = `w-full text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl transition-all active-press bounce-hover ${currentP.islandTurns > 0 ? 'bg-orange-500 hover:bg-orange-400 shadow-[0_4px_0_rgb(249,115,22)]' : 'bg-blue-500 hover:bg-blue-400 shadow-[0_4px_0_rgb(59,130,246)]'}`;
+                    diceBtn.innerText = currentP.islandTurns > 0 ? '무인도 탈출 시도 (더블 필요)' : '주사위 굴리기! 🎲';
+                    waitMsg.classList.add('hidden');
+                }
+            } else if (currentUid.startsWith('bot_')) {
+                turnText.innerText = `${currentP.name} 턴 진행 중...`;
                 turnBox.classList.add('bg-gray-100', 'border-gray-400');
                 diceBtn.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
-                waitMsg.innerText = "컴퓨터가 생각 중입니다⏳";
+                waitMsg.innerText = "컴퓨터가 생각하고 있습니다...🤖";
                 
-                // 봇 턴 실행 (중복 실행 방지)
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
                     setTimeout(() => runBotTurn(currentUid), 1500);
@@ -1024,119 +1984,121 @@
                 let p = localGameState.players[uid];
                 let passGo = false;
                 if (targetPos < p.pos && targetPos !== 0) passGo = true;
-                
-                let updatePayload = { [`players.${uid}.pos`]: targetPos, [`players.${uid}.canTravel`]: false };
-                if(passGo) {
-                    updatePayload[`players.${uid}.balance`] = p.balance + 200; updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
-                    if(!isBot) showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉", 2500);
-                }
-                await updateDoc(doc(db, 'rooms', currentRoomId), updatePayload);
-                setTimeout(() => { handleTileAction(targetPos, uid, isBot, false); }, 800);
-            } catch (err) { console.error(err); nextTurn(false); }
+
+                let newBal = p.balance + (passGo ? 200 : 0);
+                if (passGo) showToast("월급 획득!", "출발지를 지나쳐 월급 $200을 받았습니다! 💸", "💰", 2000);
+
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                let updatePayload = {
+                    [`players.${uid}.pos`]: targetPos,
+                    [`players.${uid}.canTravel`]: false,
+                    [`players.${uid}.balance`]: newBal,
+                    lastActionTime: Date.now()
+                };
+                if(passGo) updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
+
+                await updateDoc(roomRef, updatePayload);
+                setTimeout(() => handleTileAction(targetPos, uid, isBot, false), 1000);
+            } catch (err) { console.error("Travel Error:", err); }
         };
 
-        // ★ 플레이어 주사위 굴리기 (이중클릭 완벽 차단)
         document.getElementById('roll-dice-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('roll-dice-btn');
-            if (localGameState.turnOrder[localGameState.currentTurnIndex] !== myPlayerId) return;
-            if (btn.disabled || isRollingOrActing) return; 
-            
-            try {
-                btn.disabled = true; 
-                isRollingOrActing = true;
-                
-                const p = localGameState.players[myPlayerId];
+            if(isRollingOrActing) return;
+            isRollingOrActing = true;
+            document.getElementById('roll-dice-btn').disabled = true;
+
+            const d1El = document.getElementById('dice-display-1');
+            const d2El = document.getElementById('dice-display-2');
+            d1El.classList.add('rolling'); d2El.classList.add('rolling');
+
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            setTimeout(async () => {
+                const dice1 = Math.floor(Math.random() * 6) + 1;
+                const dice2 = Math.floor(Math.random() * 6) + 1;
+                const isDouble = dice1 === dice2;
+                d1El.innerText = diceFaces[dice1 - 1]; d2El.innerText = diceFaces[dice2 - 1];
+                d1El.classList.remove('rolling'); d2El.classList.remove('rolling');
+
                 const roomRef = doc(db, 'rooms', currentRoomId);
-                
-                if (p.canTravel) {
-                    document.getElementById('travel-modal').classList.remove('hidden');
-                    return; // 모달이 행동하므로 대기
-                }
+                let p = localGameState.players[myPlayerId];
 
-                const diceDiv1 = document.getElementById('dice-display-1');
-                const diceDiv2 = document.getElementById('dice-display-2');
-                diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
-                await new Promise(r => setTimeout(r, 600));
-                diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
-                
-                const diceNum1 = Math.floor(Math.random() * 6) + 1;
-                const diceNum2 = Math.floor(Math.random() * 6) + 1;
-                const isDouble = (diceNum1 === diceNum2);
-                const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-                diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
-
-                if (p.islandTurns && p.islandTurns > 0) {
+                if (p.islandTurns > 0) {
                     if (isDouble) {
-                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎲🎲", "🏝️", 2500);
+                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎉", "🏝️", 2000);
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
-                        // 계속 이동 진행
                     } else {
+                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "😢", 2000);
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
-                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️", 2500);
-                        setTimeout(() => nextTurn(false), 1500);
+                        nextTurn(false);
                         return;
                     }
                 }
-                
-                let newPos = (p.pos + diceNum1 + diceNum2) % 32;
-                let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
 
-                let updatePayload = { [`players.${myPlayerId}.pos`]: newPos };
-                if(passGo) {
-                    updatePayload[`players.${myPlayerId}.balance`] = p.balance + 200; updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
-                    showToast("월급 획득!", "출발점을 지나 보너스 $200을 받았습니다! 💸", "🎉", 2500);
-                }
+                let newPos = (p.pos + dice1 + dice2) % 32;
+                let passGo = (p.pos + dice1 + dice2) >= 32;
+                let newBal = p.balance + (passGo ? 200 : 0);
+                if (passGo) showToast("월급 획득!", "출발지를 지나쳐 월급 $200을 받았습니다! 💸", "💰", 2000);
+
+                let updatePayload = {
+                    [`players.${myPlayerId}.pos`]: newPos,
+                    [`players.${myPlayerId}.balance`]: newBal,
+                    lastActionTime: Date.now()
+                };
+                if(passGo) updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
+
                 await updateDoc(roomRef, updatePayload);
-                
-                setTimeout(() => { handleTileAction(newPos, myPlayerId, false, isDouble); }, 800);
-            } catch (err) { console.error(err); isRollingOrActing = false; nextTurn(false); }
+                setTimeout(() => handleTileAction(newPos, myPlayerId, false, isDouble), 1000);
+            }, 600);
         });
 
-        // ★ 컴퓨터(AI) 주사위 굴리기
         async function runBotTurn(botUid) {
-            try {
-                let p = localGameState.players[botUid];
-                const roomRef = doc(db, 'rooms', currentRoomId);
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            const isDouble = dice1 === dice2;
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            document.getElementById('dice-display-1').innerText = diceFaces[dice1 - 1];
+            document.getElementById('dice-display-2').innerText = diceFaces[dice2 - 1];
 
-                if (p.canTravel) {
-                    let randomTile = Math.floor(Math.random() * 31) + 1;
-                    executeTravel(randomTile, true, botUid);
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            let p = localGameState.players[botUid];
+
+            if(p.canTravel) {
+                const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
+                const target = candidates[Math.floor(Math.random()*candidates.length)];
+                await window.executeTravel(target, true, botUid);
+                window.botTurnInProgress = false;
+                return;
+            }
+
+            if (p.islandTurns > 0) {
+                if (isDouble) {
+                    showToast("컴퓨터 탈출", "컴퓨터가 더블로 무인도를 탈출했습니다!", "🤖", 2000);
+                    await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
+                } else {
+                    showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2000);
+                    await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                    window.botTurnInProgress = false;
+                    nextTurn(false);
                     return;
                 }
+            }
 
-                const diceDiv1 = document.getElementById('dice-display-1');
-                const diceDiv2 = document.getElementById('dice-display-2');
-                diceDiv1.classList.add('rolling'); diceDiv2.classList.add('rolling');
-                await new Promise(r => setTimeout(r, 600));
-                diceDiv1.classList.remove('rolling'); diceDiv2.classList.remove('rolling');
-                
-                const diceNum1 = Math.floor(Math.random() * 6) + 1;
-                const diceNum2 = Math.floor(Math.random() * 6) + 1;
-                const isDouble = (diceNum1 === diceNum2);
-                const diceFaces = ['🎲','⚀','⚁','⚂','⚃','⚄','⚅'];
-                diceDiv1.innerText = diceFaces[diceNum1]; diceDiv2.innerText = diceFaces[diceNum2];
+            let newPos = (p.pos + dice1 + dice2) % 32;
+            let passGo = (p.pos + dice1 + dice2) >= 32;
+            let newBal = p.balance + (passGo ? 200 : 0);
 
-                if (p.islandTurns && p.islandTurns > 0) {
-                    if (isDouble) {
-                        showToast("컴퓨터 탈출!", "컴퓨터가 더블로 무인도를 탈출합니다! 🤖🎲", "🏝️", 2500);
-                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
-                    } else {
-                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
-                        showToast("컴퓨터 휴식", `컴퓨터가 무인도에 갇혀있습니다. (${p.islandTurns - 1}턴 남음)`, "🏝️", 2500);
-                        setTimeout(() => nextTurn(false), 2000);
-                        return;
-                    }
-                }
+            let updatePayload = {
+                [`players.${botUid}.pos`]: newPos,
+                [`players.${botUid}.balance`]: newBal,
+                lastActionTime: Date.now()
+            };
+            if(passGo) updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
 
-                let newPos = (p.pos + diceNum1 + diceNum2) % 32;
-                let passGo = (p.pos + diceNum1 + diceNum2) >= 32;
-
-                let updatePayload = { [`players.${botUid}.pos`]: newPos };
-                if(passGo) { updatePayload[`players.${botUid}.balance`] = p.balance + 200; updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1; }
-                
-                await updateDoc(roomRef, updatePayload);
-                setTimeout(() => { handleTileAction(newPos, botUid, true, isDouble); }, 1200);
-            } catch (err) { console.error(err); nextTurn(false); }
+            await updateDoc(roomRef, updatePayload);
+            setTimeout(() => {
+                handleTileAction(newPos, botUid, true, isDouble);
+                window.botTurnInProgress = false;
+            }, 1000);
         }
 
         async function handleTileAction(pos, uid, isBot, isDouble) {
@@ -1162,7 +2124,6 @@
                             showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 반값($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸", 2500);
                         }
                         const ended = await checkWinConditions();
-                        // ★ (중요 버그 픽스) setTimeout 내부에서 isDouble 변수를 정상적으로 넘기도록 Arrow Function 사용
                         if(!ended) setTimeout(() => nextTurn(isDouble), 3000);
                         return;
                     } 
@@ -1198,59 +2159,53 @@
                 } 
                 else if (tile.type === 'chance') {
                     const card = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
+                    showChanceModal(card.title, card.msg);
                     if (card.type === 'vote') {
-                        // 투표 진행 중에도 isDouble 기록 보존
                         await updateDoc(roomRef, { voteState: { active: true, target: uid, title: card.title, msg: card.msg, yes: 0, no: 0, voters: [], reward: card.reward, isDouble: isDouble } });
                         return;
-                    } else {
-                        let updatePayload = {};
-                        if (card.type === "money") updatePayload[`players.${uid}.balance`] = players[uid].balance + card.val;
-                        else if (card.type === "move") {
-                            updatePayload[`players.${uid}.pos`] = card.pos;
-                            if (card.pos === 0) { updatePayload[`players.${uid}.balance`] = players[uid].balance + 200; updatePayload[`players.${uid}.round`] = (players[uid].round || 1) + 1; }
-                            else if (card.pos === 8) { updatePayload[`players.${uid}.islandTurns`] = 3; isDouble = false; }
-                            else if (card.pos === 24) { updatePayload[`players.${uid}.canTravel`] = true; isDouble = false; }
-                        }
-                        
-                        // ★ (중요) 토스트 대신 전용 황금열쇠 모달을 띄우고 3.5초 뒤 턴 넘김
-                        showChanceModal(card.title, card.msg);
+                    } 
+                    else if (card.type === 'money') {
+                        let newBal = players[uid].balance + card.val;
+                        await updateDoc(roomRef, { [`players.${uid}.balance`]: newBal });
+                    } 
+                    else if (card.type === 'move') {
+                        let passGo = card.pos < pos && card.pos !== 0;
+                        let newBal = players[uid].balance + (passGo ? 200 : 0);
+                        let updatePayload = { [`players.${uid}.pos`]: card.pos, [`players.${uid}.balance`]: newBal };
+                        if(passGo) updatePayload[`players.${uid}.round`] = (players[uid].round || 1) + 1;
+                        if(card.pos === 8) updatePayload[`players.${uid}.islandTurns`] = 3;
+                        if(card.pos === 24) updatePayload[`players.${uid}.canTravel`] = true;
                         await updateDoc(roomRef, updatePayload);
-                        const ended = await checkWinConditions();
-                        if(!ended) setTimeout(() => nextTurn(isDouble), 3500);
-                        return;
                     }
                 }
                 else if (tile.type === 'island') {
-                    showToast(isBot ? "컴퓨터 무인도!" : "무인도!", "무인도에 갇혔습니다! (최대 3턴 휴식, 더블 탈출 가능)", "🏝️", 3000);
+                    showToast("무인도 표류!", "무인도에 갇혔습니다! 탈출하려면 다음 턴에 더블이 나와야 합니다. (최대 3턴)", "🏝️", 3000);
                     await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3 });
-                    isDouble = false;
+                }
+                else if (tile.type === 'rest') {
+                    showToast("휴게소 휴식", "시원한 음료수를 마시며 편안하게 쉽니다.", "☕", 2000);
                 }
                 else if (tile.type === 'travel') {
-                    showToast(isBot ? "컴퓨터 비행기!" : "비행기 탑승!", "다음 턴에 원하는 곳으로 이동할 수 있습니다! ✈️", "✈️", 3000);
+                    showToast("세계 여행 비행기", "비행기를 탔습니다! 다음 턴에 원하는 칸으로 자유롭게 날아갈 수 있습니다!", "✈️", 3000);
                     await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true });
-                    isDouble = false; 
                 }
-                
+
                 const ended = await checkWinConditions();
                 if(!ended) nextTurn(isDouble);
-            } catch (err) { console.error("Action error:", err); nextTurn(false); }
+            } catch(err) { console.error("handleTileAction Error:", err); nextTurn(isDouble); }
         }
 
         async function nextTurn(isDouble = false) {
+            isRollingOrActing = false;
             try {
-                if(localGameState.state !== 'playing') return;
-                
-                // 내 턴 액션 완전히 종료 처리 (따닥 연타 방지 해제)
-                isRollingOrActing = false; 
-                window.botTurnInProgress = false; 
-                
                 const roomRef = doc(db, 'rooms', currentRoomId);
+                const { turnOrder, currentTurnIndex } = localGameState;
+                const nextIdx = (currentTurnIndex + 1) % turnOrder.length;
+
                 if (isDouble) {
-                    showToast("더블! 🎲🎲", "한 번 더 굴립니다!", "🎉", 2000);
-                    // 더블일 경우 턴 인덱스는 그대로 두고 lastActionTime만 갱신하여 onSnapshot 리트리거
-                    await updateDoc(roomRef, { lastActionTime: Date.now() }); 
+                    showToast("더블 보너스!", "주사위 눈이 같습니다! 한 번 더 굴리세요! 🎲", "✨", 2000);
+                    await updateDoc(roomRef, { lastActionTime: Date.now() });
                 } else {
-                    const nextIdx = (localGameState.currentTurnIndex + 1) % localGameState.turnOrder.length;
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
                 }
             } catch (err) { console.error("nextTurn Error:", err); isRollingOrActing = false; }
@@ -1307,7 +2262,10 @@
             return false;
         }
 
-        async function endGame(reasonMsg) { const roomRef = doc(db, 'rooms', currentRoomId); await updateDoc(roomRef, { state: 'finished', endReason: reasonMsg }); }
+        async function endGame(reasonMsg) {
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            await updateDoc(roomRef, { state: 'finished', endReason: reasonMsg });
+        }
 
         function renderGameOver(reasonMsg) {
             document.getElementById('game-over-reason').innerText = reasonMsg;
@@ -1315,9 +2273,47 @@
             const ranking = localGameState.turnOrder.map(uid => { return { uid: uid, name: localGameState.players[uid].name, avatar: localGameState.players[uid].avatar, totalAsset: calculateTotalAssets(uid) }; }).sort((a, b) => b.totalAsset - a.totalAsset);
             ranking.forEach((p, idx) => {
                 let badge = idx === 0 ? '🥇 1등' : idx === 1 ? '🥈 2등' : idx === 2 ? '🥉 3등' : `${idx+1}등`;
-                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${p.avatar}</span><span class="font-bold text-lg text-gray-800">${p.name}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset}</div></li>`;
+                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${p.avatar}</span><span class="font-bold text-lg text-gray-800">${p.name}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset.toLocaleString()}</div></li>`;
             });
             document.getElementById('game-over-modal').classList.remove('hidden');
+
+            try {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } catch(e){}
+
+            // 내 점수 명예의 전당 저장
+            const myPlayerObj = ranking.find(p => p.uid === myPlayerId);
+            if (myPlayerObj) {
+                saveScore(myPlayerObj.totalAsset);
+            }
+        }
+
+        async function saveScore(finalScore) {
+            try {
+                refreshStudentProfile();
+                const docData = {
+                    unitId: (state.currentUnit && state.currentUnit.id) ? state.currentUnit.id : 'unknown',
+                    unitTitle: (state.currentUnit && state.currentUnit.title) ? state.currentUnit.title : '기본 단원',
+                    mode: localGameState?.turnOrder?.length > 2 ? '다인용 대결' : '1인용 게임',
+                    grade: Number(myUserInfo.grade || 6),
+                    classNum: Number(myUserInfo.classNum || 1),
+                    stuNum: Number(myUserInfo.studentNum || 1),
+                    name: String(myUserInfo.name || '학생'),
+                    score: typeof finalScore === 'number' ? finalScore : 0,
+                    createdAt: Date.now()
+                };
+                state.scores.unshift({ id: 'local_' + Date.now(), ...docData });
+                filterHofList();
+
+                const targetAppIds = Array.from(new Set([appId, 'mapia-29b3a', firebaseConfig.projectId]));
+                for (const aId of targetAppIds) {
+                    try {
+                        await addDoc(collection(db, 'artifacts', aId, 'public', 'data', 'scores'), docData);
+                    } catch (e) {}
+                }
+            } catch (err) {
+                console.warn("Score save notice:", err);
+            }
         }
 
         function updateRuleInfoBar() {
@@ -1341,6 +2337,73 @@
                 }
             }, 1000);
         }
+
+        function listenToScoresRealtime() {
+            if (state.scoresUnsubscribe) return;
+            const targetAppIds = Array.from(new Set([appId, 'mapia-29b3a', firebaseConfig.projectId]));
+            const unsubs = [];
+            const scoresMap = new Map();
+
+            if (state.scores && state.scores.length > 0) {
+                state.scores.forEach(s => {
+                    if (s.id) scoresMap.set(s.id, s);
+                });
+            }
+
+            targetAppIds.forEach(aId => {
+                try {
+                    const scoresRef = collection(db, 'artifacts', aId, 'public', 'data', 'scores');
+                    const unsub = onSnapshot(scoresRef, (snapshot) => {
+                        snapshot.forEach(doc => {
+                            scoresMap.set(doc.id, { id: doc.id, ...doc.data() });
+                        });
+                        state.scores = Array.from(scoresMap.values());
+                        filterHofList();
+                    }, (error) => {
+                        console.warn(`Scores listen notice (${aId}):`, error);
+                    });
+                    unsubs.push(unsub);
+                } catch (e) {
+                    console.warn(`Scores listen setup notice (${aId}):`, e);
+                }
+            });
+
+            state.scoresUnsubscribe = () => {
+                unsubs.forEach(fn => { try { fn(); } catch(e){} });
+            };
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // ── 즉시 동기 로컬 렌더링 (0ms) - file:/// 로 열어도 1단원 및 랭킹 즉시 표시 ──
+        // ════════════════════════════════════════════════════════════════════
+        state.units = sortUnits(LEGACY_DEFAULT_UNITS);
+        state.scores = [...LEGACY_DEFAULT_SCORES];
+        refreshStudentProfile();
+        updateUnitDropdowns();
+        filterHofList();
+        window.showScreen('screen-home');
+
+        // 비동기 백그라운드 클라우드 동기화
+        async function initApp() {
+            try { 
+                await signInAnonymously(auth).catch(() => {}); 
+                const adminRef = doc(db, 'settings', 'admin');
+                const adminSnap = await getDoc(adminRef).catch(() => null);
+                if (adminSnap && adminSnap.exists()) sysTeacherPw = adminSnap.data().teacherPassword || "1234";
+
+                const quizRef = doc(db, 'settings', 'quizzes');
+                const quizSnap = await getDoc(quizRef).catch(() => null);
+                if (quizSnap && quizSnap.exists()) customQuizzes = quizSnap.data().data || {};
+
+                listenToScoresRealtime();
+            } catch (error) { 
+                console.warn("Background init notice:", error); 
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) currentUser = user;
+        });
 
         initApp();
     </script>
