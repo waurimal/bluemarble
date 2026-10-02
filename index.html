@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>영어 에듀마블 - 월드 투어 (Blue Marble - World Tour) - 와우리말 에듀테크</title>
     <!-- Pretendard & Jua Font -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -1234,6 +1237,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         window.botTurnInProgress = false; 
         window.voteResolving = false;
         let isRollingOrActing = false; 
+        let isBoardInitialized = false;
 
         let customQuizzes = {};
         let sysTeacherPw = "1234";
@@ -1281,7 +1285,15 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             if (unsubscribeRoom) { unsubscribeRoom(); unsubscribeRoom = null; }
             currentRoomId = null;
             localGameState = null;
+            isBoardInitialized = false;
+            window.botTurnInProgress = false;
+            window.voteResolving = false;
+            isRollingOrActing = false;
             document.getElementById('game-over-modal').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('vote-modal').classList.add('hidden');
+            document.getElementById('chance-modal').classList.add('hidden');
+            document.getElementById('travel-modal').classList.add('hidden');
             window.showScreen('screen-home');
         };
 
@@ -1435,6 +1447,9 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         window.filterHofList = () => {
             const container = document.getElementById('hof-records-container');
             if (!container) return;
+            // 게임 진행 중에는 백그라운드 DOM 렌더링 생략하여 랙 방지
+            const homeScreen = document.getElementById('screen-home');
+            if (homeScreen && homeScreen.classList.contains('hidden')) return;
 
             const u = document.getElementById('hof-filter-unit') ? document.getElementById('hof-filter-unit').value : 'ALL';
             const g = document.getElementById('hof-filter-grade') ? document.getElementById('hof-filter-grade').value : 'ALL';
@@ -1762,8 +1777,11 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     }
                 } else if(data.state === 'playing') {
                     window.showScreen('screen-game');
-                    initBoard();
-                    renderTravelModalOptions();
+                    if (!isBoardInitialized) {
+                        initBoard();
+                        renderTravelModalOptions();
+                        isBoardInitialized = true;
+                    }
                     updateGameUI();
                     startClientTimer();
                 } else if(data.state === 'finished') {
@@ -1901,6 +1919,9 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     }
                 }
 
+                const voteElapsed = voteState.startTime ? (Date.now() - voteState.startTime) : 0;
+                const isVoteTimeout = voteElapsed > 15000;
+
                 if (isHost && !window.voteResolving) {
                     let botVoted = false;
                     turnOrder.forEach((uid) => {
@@ -1915,26 +1936,29 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                         return;
                     }
 
-                    if (voteState.voters.length >= expectedVoters) {
+                    if (voteState.voters.length >= expectedVoters || isVoteTimeout) {
                         window.voteResolving = true;
                         setTimeout(async () => {
                             try {
                                 const isPassed = voteState.yes >= voteState.no;
                                 if (isPassed) {
-                                    showToast("미션 성공!", `축하합니다! 친구들의 투표로 $${voteState.reward}를 획득했습니다! 🎉`, "🏆", 3000);
+                                    showToast("미션 성공!", `축하합니다! 친구들의 투표로 ${voteState.reward}를 획득했습니다! 🎉`, "🏆", 2500);
                                     await updateDoc(doc(db, 'rooms', currentRoomId), {
                                         [`players.${voteState.target}.balance`]: players[voteState.target].balance + voteState.reward,
                                         'voteState.active': false
                                     });
                                 } else {
-                                    showToast("미션 실패!", "아쉽게도 친구들의 인정을 받지 못했습니다. 😢", "💔", 3000);
+                                    showToast("미션 종료", "아쉽게도 과반수의 인정을 받지 못했습니다. 😢", "💔", 2500);
                                     await updateDoc(doc(db, 'rooms', currentRoomId), { 'voteState.active': false });
                                 }
                                 document.getElementById('vote-modal').classList.add('hidden');
                                 window.voteResolving = false;
                                 nextTurn(voteState.isDouble);
-                            } catch(e) { window.voteResolving = false; }
-                        }, 2000);
+                            } catch(e) { 
+                                window.voteResolving = false;
+                                nextTurn(voteState.isDouble);
+                            }
+                        }, 1200);
                     }
                 }
             } else {
@@ -1948,6 +1972,19 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
             turnBox.classList.remove('bg-yellow-100', 'border-yellow-400', 'bg-blue-100', 'border-blue-400');
             
+            // 내 턴일 때 퀴즈 창이 닫혀있고 주사위 애니메이션 중이 아니면 락 자동 해제
+            const quizModal = document.getElementById('quiz-modal');
+            const isQuizOpen = quizModal && !quizModal.classList.contains('hidden');
+            const d1El = document.getElementById('dice-display-1');
+            const isDiceRolling = d1El && d1El.classList.contains('rolling');
+            if (isMyTurn) {
+                if (!isQuizOpen && !isDiceRolling) {
+                    isRollingOrActing = false;
+                }
+            } else {
+                isRollingOrActing = false;
+            }
+
             if (isMyTurn) {
                 turnText.innerText = "나의 턴! 주사위를 굴리세요!";
                 turnBox.classList.add('bg-blue-100', 'border-blue-400');
@@ -1972,7 +2009,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
-                    setTimeout(() => runBotTurn(currentUid), 1500);
+                    setTimeout(() => runBotTurn(currentUid), 1000);
                 }
             } else {
                 turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
@@ -2086,53 +2123,59 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         });
 
         async function runBotTurn(botUid) {
-            const dice1 = Math.floor(Math.random() * 6) + 1;
-            const dice2 = Math.floor(Math.random() * 6) + 1;
-            const isDouble = dice1 === dice2;
-            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-            document.getElementById('dice-display-1').innerText = diceFaces[dice1 - 1];
-            document.getElementById('dice-display-2').innerText = diceFaces[dice2 - 1];
+            try {
+                const dice1 = Math.floor(Math.random() * 6) + 1;
+                const dice2 = Math.floor(Math.random() * 6) + 1;
+                const isDouble = dice1 === dice2;
+                const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                document.getElementById('dice-display-1').innerText = diceFaces[dice1 - 1];
+                document.getElementById('dice-display-2').innerText = diceFaces[dice2 - 1];
 
-            const roomRef = doc(db, 'rooms', currentRoomId);
-            let p = localGameState.players[botUid];
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                let p = localGameState.players[botUid];
 
-            if(p.canTravel) {
-                const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
-                const target = candidates[Math.floor(Math.random()*candidates.length)];
-                await window.executeTravel(target, true, botUid);
-                window.botTurnInProgress = false;
-                return;
-            }
-
-            if (p.islandTurns > 0) {
-                if (isDouble) {
-                    showToast("컴퓨터 탈출", "컴퓨터가 더블로 무인도를 탈출했습니다!", "🤖", 2000);
-                    await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
-                } else {
-                    showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2000);
-                    await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                if(p.canTravel) {
+                    const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
+                    const target = candidates[Math.floor(Math.random()*candidates.length)];
+                    await window.executeTravel(target, true, botUid);
                     window.botTurnInProgress = false;
-                    nextTurn(false);
                     return;
                 }
-            }
 
-            let newPos = (p.pos + dice1 + dice2) % 32;
-            let passGo = (p.pos + dice1 + dice2) >= 32;
-            let newBal = p.balance + (passGo ? 200 : 0);
+                if (p.islandTurns > 0) {
+                    if (isDouble) {
+                        showToast("컴퓨터 탈출", "컴퓨터가 더블로 무인도를 탈출했습니다!", "🤖", 2000);
+                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
+                    } else {
+                        showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2000);
+                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                        window.botTurnInProgress = false;
+                        nextTurn(false);
+                        return;
+                    }
+                }
 
-            let updatePayload = {
-                [`players.${botUid}.pos`]: newPos,
-                [`players.${botUid}.balance`]: newBal,
-                lastActionTime: Date.now()
-            };
-            if(passGo) updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
+                let newPos = (p.pos + dice1 + dice2) % 32;
+                let passGo = (p.pos + dice1 + dice2) >= 32;
+                let newBal = p.balance + (passGo ? 200 : 0);
 
-            await updateDoc(roomRef, updatePayload);
-            setTimeout(() => {
-                handleTileAction(newPos, botUid, true, isDouble);
+                let updatePayload = {
+                    [`players.${botUid}.pos`]: newPos,
+                    [`players.${botUid}.balance`]: newBal,
+                    lastActionTime: Date.now()
+                };
+                if(passGo) updatePayload[`players.${botUid}.round`]: (p.round || 1) + 1;
+
+                await updateDoc(roomRef, updatePayload);
+                setTimeout(() => {
+                    handleTileAction(newPos, botUid, true, isDouble);
+                    window.botTurnInProgress = false;
+                }, 800);
+            } catch(e) {
+                console.error("runBotTurn error:", e);
                 window.botTurnInProgress = false;
-            }, 1000);
+                nextTurn(false);
+            }
         }
 
         async function handleTileAction(pos, uid, isBot, isDouble) {
@@ -2158,7 +2201,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                             showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 반값($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸", 2500);
                         }
                         const ended = await checkWinConditions();
-                        if(!ended) setTimeout(() => nextTurn(isDouble), 3000);
+                        if(!ended) setTimeout(() => nextTurn(isDouble), 1500);
                         return;
                     } 
                     else {
@@ -2195,7 +2238,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     const card = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
                     showChanceModal(card.title, card.msg);
                     if (card.type === 'vote') {
-                        await updateDoc(roomRef, { voteState: { active: true, target: uid, title: card.title, msg: card.msg, yes: 0, no: 0, voters: [], reward: card.reward, isDouble: isDouble } });
+                        await updateDoc(roomRef, { voteState: { active: true, target: uid, title: card.title, msg: card.msg, yes: 0, no: 0, voters: [], reward: card.reward, isDouble: isDouble, startTime: Date.now() } });
                         return;
                     } 
                     else if (card.type === 'money') {
@@ -2231,6 +2274,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
         async function nextTurn(isDouble = false) {
             isRollingOrActing = false;
+            window.botTurnInProgress = false;
             try {
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 const { turnOrder, currentTurnIndex } = localGameState;
@@ -2242,7 +2286,11 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 } else {
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
                 }
-            } catch (err) { console.error("nextTurn Error:", err); isRollingOrActing = false; }
+            } catch (err) { 
+                console.error("nextTurn Error:", err); 
+                isRollingOrActing = false; 
+                window.botTurnInProgress = false;
+            }
         }
 
         function triggerQuiz(tile, callback, subtitle) {
@@ -2363,19 +2411,38 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             if(gameTimerInterval) clearInterval(gameTimerInterval);
             gameTimerInterval = setInterval(() => {
                 if(!localGameState || localGameState.state !== 'playing' || !localGameState.rule) return;
+                
+                // 1. 전체 게임 시간 제한 체크
                 if(localGameState.rule.type === 'time') {
                     const timeLeft = Math.max(0, localGameState.endTime - Date.now());
                     const m = Math.floor(timeLeft / 60000).toString().padStart(2, '0'); const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
                     document.getElementById('rule-status-display').innerText = `${m}:${s}`;
                     if(timeLeft === 0 && localGameState.turnOrder[0] === myPlayerId) endGame("약속된 시간이 모두 종료되었습니다!");
                 }
+
+                // 2. 턴 타임아웃(Turn Timeout Auto-skip) 안전장치: 35초 무응답 시 자동 넘김
+                const isHost = localGameState.turnOrder && localGameState.turnOrder[0] === myPlayerId;
+                if (isHost && localGameState.lastActionTime) {
+                    const elapsedSinceAction = Date.now() - localGameState.lastActionTime;
+                    if (elapsedSinceAction > 35000) {
+                        const currentUid = localGameState.turnOrder[localGameState.currentTurnIndex];
+                        const currentP = localGameState.players ? localGameState.players[currentUid] : null;
+                        console.warn(`Turn timeout (${currentP?.name || currentUid}), auto-skipping turn...`);
+                        showToast("시간 초과", `${currentP?.name || '플레이어'} 님의 시간이 초과되어 다음 차례로 넘어갑니다.`, "⏰", 2500);
+                        window.botTurnInProgress = false;
+                        window.voteResolving = false;
+                        isRollingOrActing = false;
+                        document.getElementById('quiz-modal').classList.add('hidden');
+                        document.getElementById('vote-modal').classList.add('hidden');
+                        nextTurn(false);
+                    }
+                }
             }, 1000);
         }
 
         function listenToScoresRealtime() {
             if (state.scoresUnsubscribe) return;
-            const targetAppIds = Array.from(new Set([appId, 'mapia-29b3a', firebaseConfig.projectId]));
-            const unsubs = [];
+            const targetAppId = appId;
             const scoresMap = new Map();
 
             if (state.scores && state.scores.length > 0) {
@@ -2384,27 +2451,24 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 });
             }
 
-            targetAppIds.forEach(aId => {
-                try {
-                    const scoresRef = collection(db, 'artifacts', aId, 'public', 'data', 'scores');
-                    const unsub = onSnapshot(scoresRef, (snapshot) => {
-                        snapshot.forEach(doc => {
-                            scoresMap.set(doc.id, { id: doc.id, ...doc.data() });
-                        });
-                        state.scores = Array.from(scoresMap.values());
-                        filterHofList();
-                    }, (error) => {
-                        console.warn(`Scores listen notice (${aId}):`, error);
+            try {
+                const scoresRef = collection(db, 'artifacts', targetAppId, 'public', 'data', 'scores');
+                const unsub = onSnapshot(scoresRef, (snapshot) => {
+                    snapshot.forEach(doc => {
+                        scoresMap.set(doc.id, { id: doc.id, ...doc.data() });
                     });
-                    unsubs.push(unsub);
-                } catch (e) {
-                    console.warn(`Scores listen setup notice (${aId}):`, e);
-                }
-            });
+                    state.scores = Array.from(scoresMap.values());
+                    filterHofList();
+                }, (error) => {
+                    console.warn(`Scores listen notice (${targetAppId}):`, error);
+                });
 
-            state.scoresUnsubscribe = () => {
-                unsubs.forEach(fn => { try { fn(); } catch(e){} });
-            };
+                state.scoresUnsubscribe = () => {
+                    try { unsub(); } catch(e){}
+                };
+            } catch (e) {
+                console.warn(`Scores listen setup notice (${targetAppId}):`, e);
+            }
         }
 
         // ════════════════════════════════════════════════════════════════════
