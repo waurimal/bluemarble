@@ -2164,7 +2164,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     [`players.${botUid}.balance`]: newBal,
                     lastActionTime: Date.now()
                 };
-                if(passGo) updatePayload[`players.${botUid}.round`]: (p.round || 1) + 1;
+                if(passGo) updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
 
                 await updateDoc(roomRef, updatePayload);
                 setTimeout(() => {
