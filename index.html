@@ -318,6 +318,26 @@
             100% { transform: rotate(360deg) scale(1); }
         }
         .rolling { animation: diceRoll 0.6s ease-in-out; }
+
+        @keyframes tokenHop {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-16px) scale(1.4); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        .token-hopping {
+            animation: tokenHop 0.14s ease-in-out;
+            z-index: 30 !important;
+        }
+
+        @keyframes tileLanding {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+            100% { transform: scale(1); }
+        }
+        .tile-landing {
+            animation: tileLanding 0.45s ease-out;
+            z-index: 25 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
@@ -606,18 +626,25 @@
                 </div>
 
                 <div class="board-container" id="board">
-                    <div class="absolute inset-[11.11%] bg-sky-100 rounded-2xl flex flex-col items-center justify-center p-4 border-4 border-dashed border-sky-300 pointer-events-auto">
-                        <div id="turn-indicator-box" class="bg-white px-6 py-2 rounded-2xl shadow-md border-2 border-blue-400 mb-2 text-center transition-all">
-                            <span id="current-turn-text" class="text-xl sm:text-2xl font-black text-blue-600">게임 준비 중...</span>
+                    <div class="absolute inset-[11.11%] bg-sky-100 rounded-2xl flex flex-col items-center justify-center p-3 sm:p-4 border-4 border-dashed border-sky-300 pointer-events-auto">
+                        <div id="turn-indicator-box" class="w-full max-w-[280px] bg-white px-3.5 py-2 rounded-2xl shadow-md border-2 border-blue-400 mb-1.5 text-center transition-all flex flex-col items-center">
+                            <div class="flex items-center justify-between w-full gap-2">
+                                <span id="current-turn-text" class="text-sm sm:text-base font-black text-blue-600 truncate flex-1 text-left">게임 준비 중...</span>
+                                <span id="turn-timer-badge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 whitespace-nowrap">⏳ 35초</span>
+                            </div>
+                            <div id="turn-timer-bar-wrap" class="hidden w-full bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                                <div id="turn-timer-bar" class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 100%;"></div>
+                            </div>
                         </div>
-                        <div class="flex items-center justify-center gap-3 my-2" id="dice-container">
+                        <div class="flex items-center justify-center gap-3 my-1" id="dice-container">
                             <div id="dice-display-1" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                             <div id="dice-display-2" class="text-5xl sm:text-6xl transition-all inline-block">🎲</div>
                         </div>
+                        <div id="dice-result-text" class="text-xs sm:text-sm font-black text-indigo-700 h-5 mb-1 text-center transition-opacity flex items-center justify-center"></div>
                         <button id="roll-dice-btn" class="w-full text-white font-bold text-xl sm:text-2xl py-3 sm:py-4 rounded-xl transition-all active-press disabled:opacity-50 disabled:cursor-not-allowed hidden">
                             주사위 굴리기!
                         </button>
-                        <p id="not-my-turn-msg" class="text-gray-500 font-bold text-base sm:text-lg">친구의 턴을 기다리세요⏳</p>
+                        <p id="not-my-turn-msg" class="text-gray-500 font-bold text-sm sm:text-base">친구의 턴을 기다리세요⏳</p>
                     </div>
                 </div>
             </div>
@@ -796,7 +823,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc, collection, addDoc, getDocs, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD6YK02DdhaSVN9mx3Acd5amiiphxcobG8",
@@ -1288,6 +1315,41 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             window.scrollTo({ top: 0, behavior: 'instant' });
         };
 
+        async function exitCurrentRoom() {
+            if (!currentRoomId || !localGameState || !myPlayerId) return;
+            try {
+                const roomRef = doc(db, 'rooms', currentRoomId);
+                const { turnOrder, players, state, currentTurnIndex } = localGameState;
+                if (!turnOrder || !turnOrder.includes(myPlayerId)) return;
+
+                const remainingOrder = turnOrder.filter(uid => uid !== myPlayerId);
+                const remainingHumans = remainingOrder.filter(uid => !uid.startsWith('bot_'));
+
+                // 방에 남은 실제 사용자가 없으면 방 정리
+                if (remainingHumans.length === 0) {
+                    await deleteDoc(roomRef).catch(() => {});
+                    return;
+                }
+
+                const updatePayload = {
+                    turnOrder: remainingOrder,
+                    [`players.${myPlayerId}`]: deleteField()
+                };
+
+                // 만약 나가는 사람이 현재 턴 플레이어였다면 다음 사람에게 턴 넘김
+                if (turnOrder[currentTurnIndex] === myPlayerId) {
+                    updatePayload.currentTurnIndex = currentTurnIndex % remainingOrder.length;
+                    updatePayload.lastActionTime = Date.now();
+                } else if (currentTurnIndex >= remainingOrder.length) {
+                    updatePayload.currentTurnIndex = 0;
+                }
+
+                await updateDoc(roomRef, updatePayload);
+            } catch(e) {
+                console.warn("exitCurrentRoom notice:", e);
+            }
+        }
+
         window.backToHome = () => {
             if (gameTimerInterval) { clearInterval(gameTimerInterval); gameTimerInterval = null; }
             if (unsubscribeRoom) { unsubscribeRoom(); unsubscribeRoom = null; }
@@ -1297,19 +1359,31 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             window.botTurnInProgress = false;
             window.voteResolving = false;
             isRollingOrActing = false;
+            window.animatingTokens = {};
+            window.lastSeenPos = {};
+            window.lastTurnUid = null;
             document.getElementById('game-over-modal').classList.add('hidden');
             document.getElementById('quiz-modal').classList.add('hidden');
             document.getElementById('vote-modal').classList.add('hidden');
             document.getElementById('chance-modal').classList.add('hidden');
             document.getElementById('travel-modal').classList.add('hidden');
+            const diceResultText = document.getElementById('dice-result-text');
+            if (diceResultText) diceResultText.innerText = '';
             window.showScreen('screen-home');
         };
 
-        window.confirmExitGame = () => {
+        window.confirmExitGame = async () => {
             if (confirm("정말 게임에서 나가시겠습니까? 현재 진행 중인 게임이 종료됩니다.")) {
+                await exitCurrentRoom();
                 window.backToHome();
             }
         };
+
+        window.addEventListener('beforeunload', () => {
+            if (currentRoomId && localGameState && myPlayerId) {
+                exitCurrentRoom();
+            }
+        });
 
         // 토스트 알림창
         window.showToast = function(title, message, icon = '🔔', autoCloseMs = 0) {
@@ -1752,6 +1826,26 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             showToast("저장 완료", "해당 국가의 문제가 저장되었습니다.", "✅");
         });
 
+        function getActiveHostId(data) {
+            if (!data || !data.turnOrder || data.turnOrder.length === 0) return null;
+            const now = Date.now();
+            const humanUids = data.turnOrder.filter(uid => !uid.startsWith('bot_'));
+            if (humanUids.length === 0) return data.turnOrder[0];
+
+            for (let uid of humanUids) {
+                const p = data.players ? data.players[uid] : null;
+                if (p) {
+                    const isFresh = !p.lastSeen || (now - p.lastSeen < 25000);
+                    if (isFresh) return uid;
+                }
+            }
+            return humanUids[0];
+        }
+
+        function isCurrentHost(data) {
+            return getActiveHostId(data) === myPlayerId;
+        }
+
         function listenToRoom() {
             if(unsubscribeRoom) unsubscribeRoom();
             const roomRef = doc(db, 'rooms', currentRoomId);
@@ -1777,7 +1871,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                         list.innerHTML += `<li class="flex items-center gap-2 font-bold"><span class="text-2xl">${safeAvatar}</span> <span>${safeName}</span></li>`;
                     });
 
-                    const isHost = data.turnOrder[0] === myPlayerId;
+                    const isHost = isCurrentHost(data);
                     const startBtn = document.getElementById('start-game-btn');
                     const waitMsg = document.getElementById('waiting-msg');
                     const hostSettings = document.getElementById('host-settings-panel');
@@ -1964,13 +2058,72 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             });
         }
 
+        window.animatingTokens = window.animatingTokens || {};
+        window.lastSeenPos = window.lastSeenPos || {};
+
+        function renderAllTokens(customPosOverrides = {}) {
+            if (!localGameState || !localGameState.players || !localGameState.turnOrder) return;
+            document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
+            const posMap = {};
+            localGameState.turnOrder.forEach(uid => {
+                const p = localGameState.players[uid];
+                if (!p) return;
+                const pos = customPosOverrides[uid] !== undefined ? customPosOverrides[uid] : p.pos;
+                if (!posMap[pos]) posMap[pos] = [];
+                const isHopping = customPosOverrides[uid] !== undefined;
+                posMap[pos].push({
+                    avatar: p.avatar || '😊',
+                    name: p.name || '',
+                    isHopping: isHopping
+                });
+            });
+            Object.keys(posMap).forEach(pos => {
+                const c = document.getElementById(`token-container-${pos}`);
+                if (c) {
+                    c.innerHTML = posMap[pos].map(item => `
+                        <div class="player-token ${item.isHopping ? 'token-hopping' : ''}" title="${item.name}">${item.avatar}</div>
+                    `).join('');
+                }
+            });
+        }
+
+        async function animateTokenMovement(uid, fromPos, steps) {
+            if (steps <= 0) return fromPos;
+            window.animatingTokens[uid] = true;
+            return new Promise((resolve) => {
+                let curStep = 0;
+                let curPos = fromPos;
+                const hopInterval = setInterval(() => {
+                    curStep++;
+                    curPos = (curPos + 1) % 32;
+                    renderAllTokens({ [uid]: curPos });
+                    if (window.WaurimalAudio) {
+                        try { WaurimalAudio.play('click'); } catch(e){}
+                    }
+                    if (curStep >= steps) {
+                        clearInterval(hopInterval);
+                        delete window.animatingTokens[uid];
+                        window.lastSeenPos[uid] = curPos;
+                        renderAllTokens();
+                        const landedTile = document.getElementById(`tile-${curPos}`);
+                        if (landedTile) {
+                            landedTile.classList.add('tile-landing');
+                            setTimeout(() => landedTile.classList.remove('tile-landing'), 500);
+                        }
+                        setTimeout(() => resolve(curPos), 350);
+                    }
+                }, 130);
+            });
+        }
+
         function updateGameUI() {
             if(localGameState.state !== 'playing') return;
             const { players, turnOrder, currentTurnIndex, tilesInfo, voteState } = localGameState;
             const currentUid = turnOrder[currentTurnIndex];
             const currentP = players[currentUid];
+            if (!currentP) return;
             const isMyTurn = currentUid === myPlayerId;
-            const isHost = turnOrder[0] === myPlayerId;
+            const isHost = isCurrentHost(localGameState);
 
             const slots = ['bottom', 'left', 'top', 'right'];
             slots.forEach(s => document.getElementById(`status-${s}`).innerHTML = '');
@@ -1978,6 +2131,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             const myIdxInTurn = turnOrder.indexOf(myPlayerId);
             turnOrder.forEach((uid, i) => {
                 const p = players[uid];
+                if (!p) return;
                 let relativeIdx = (i - myIdxInTurn + turnOrder.length) % turnOrder.length;
                 let slotName = slots[relativeIdx] || 'bottom';
                 const container = document.getElementById(`status-${slotName}`);
@@ -1985,7 +2139,9 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     const isTurnNow = currentUid === uid;
                     const sanitize = window.WaurimalSanitize || (s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
                     const safeAvatar = sanitize(p.avatar || '😊');
-                    const safeName = sanitize(p.name || '');
+                    const rawName = p.name || '';
+                    const displayName = (uid.startsWith('bot_') || uid === myPlayerId) ? rawName : maskStudentName(rawName);
+                    const safeName = sanitize(displayName);
                     container.innerHTML = `
                         <div class="p-3 rounded-2xl border-4 transition-all ${isTurnNow ? 'bg-yellow-50 border-yellow-400 shadow-lg scale-105' : 'bg-white border-blue-200 shadow-md'} flex items-center gap-3">
                             <span class="text-4xl">${safeAvatar}</span>
@@ -2095,6 +2251,13 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             }
 
             if (isMyTurn) {
+                if (window.lastTurnUid !== currentUid) {
+                    window.lastTurnUid = currentUid;
+                    if (window.WaurimalAudio) {
+                        try { WaurimalAudio.play('complete'); } catch(e){}
+                    }
+                    showToast("나의 턴!", "주사위를 굴려 세계 여행을 떠나세요! 🎲", "🎯", 1800);
+                }
                 turnText.innerText = "나의 턴! 주사위를 굴리세요!";
                 turnBox.classList.add('bg-blue-100', 'border-blue-400');
                 if (currentP.canTravel) {
@@ -2110,28 +2273,57 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     waitMsg.classList.add('hidden');
                 }
             } else if (currentUid.startsWith('bot_')) {
-                turnText.innerText = `${currentP.name} 턴 진행 중...`;
+                if (window.lastTurnUid !== currentUid) {
+                    window.lastTurnUid = currentUid;
+                    const diceResultEl = document.getElementById('dice-result-text');
+                    if (diceResultEl) diceResultEl.innerText = '';
+                }
+                turnText.innerText = `🤖 ${currentP.name} 턴 진행 중...`;
                 turnBox.classList.add('bg-gray-100', 'border-gray-400');
                 diceBtn.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
-                waitMsg.innerText = "컴퓨터가 생각하고 있습니다...🤖";
+                waitMsg.innerText = "컴퓨터가 생각하고 있습니다... 🤖";
                 
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
-                    setTimeout(() => runBotTurn(currentUid), 1800);
+                    setTimeout(() => runBotTurn(currentUid), 1500);
                 }
             } else {
-                turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
+                if (window.lastTurnUid !== currentUid) {
+                    window.lastTurnUid = currentUid;
+                    const diceResultEl = document.getElementById('dice-result-text');
+                    if (diceResultEl) diceResultEl.innerText = '';
+                }
+                const safeOtherName = maskStudentName(currentP.name || '친구');
+                turnText.innerText = `${safeOtherName} 친구의 턴입니다...`;
                 turnBox.classList.add('bg-yellow-100', 'border-yellow-400');
                 diceBtn.classList.add('hidden');
                 waitMsg.classList.remove('hidden');
                 waitMsg.innerText = "친구의 턴을 기다리세요⏳";
             }
 
-            document.querySelectorAll('.token-container').forEach(el => el.innerHTML = '');
-            const posMap = {};
-            turnOrder.forEach(uid => { const pos = players[uid].pos; if(!posMap[pos]) posMap[pos] = []; posMap[pos].push(players[uid].avatar); });
-            Object.keys(posMap).forEach(pos => { const c = document.getElementById(`token-container-${pos}`); if (c) c.innerHTML = posMap[pos].map(a => `<div class="player-token">${a}</div>`).join(''); });
+            // 원격 플레이어의 위치 이동 애니메이션 감지 및 렌더링
+            turnOrder.forEach(uid => {
+                if (uid !== myPlayerId && !window.animatingTokens[uid]) {
+                    const currentTargetPos = players[uid]?.pos;
+                    if (currentTargetPos !== undefined) {
+                        if (window.lastSeenPos[uid] !== undefined && window.lastSeenPos[uid] !== currentTargetPos) {
+                            const prev = window.lastSeenPos[uid];
+                            const steps = (currentTargetPos - prev + 32) % 32;
+                            if (steps > 0 && steps <= 12) {
+                                animateTokenMovement(uid, prev, steps);
+                            } else {
+                                window.lastSeenPos[uid] = currentTargetPos;
+                            }
+                        } else if (window.lastSeenPos[uid] === undefined) {
+                            window.lastSeenPos[uid] = currentTargetPos;
+                        }
+                    }
+                } else if (uid === myPlayerId && players[myPlayerId]) {
+                    window.lastSeenPos[myPlayerId] = players[myPlayerId].pos;
+                }
+            });
+            renderAllTokens();
 
             DEFAULT_TILES.forEach(t => {
                 const tileDiv = document.getElementById(`tile-${t.id}`);
@@ -2189,7 +2381,13 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
             const d1El = document.getElementById('dice-display-1');
             const d2El = document.getElementById('dice-display-2');
+            const diceResultEl = document.getElementById('dice-result-text');
+            if (diceResultEl) diceResultEl.innerText = '주사위를 힘차게 굴립니다... 🎲';
+
             d1El.classList.add('rolling'); d2El.classList.add('rolling');
+            if (window.WaurimalAudio) {
+                try { WaurimalAudio.play('click'); } catch(e){}
+            }
 
             const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             setTimeout(async () => {
@@ -2199,25 +2397,36 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 d1El.innerText = diceFaces[dice1 - 1]; d2El.innerText = diceFaces[dice2 - 1];
                 d1El.classList.remove('rolling'); d2El.classList.remove('rolling');
 
+                if (diceResultEl) {
+                    diceResultEl.innerText = isDouble
+                        ? `🎲 주사위 합: ${dice1 + dice2} (${dice1}+${dice2}) ✨더블 보너스!✨`
+                        : `🎲 주사위 합: ${dice1 + dice2} (${dice1}+${dice2})`;
+                }
+
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 let p = localGameState.players[myPlayerId];
 
                 if (p.islandTurns > 0) {
                     if (isDouble) {
-                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎉", "🏝️", 2200);
-                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
+                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎉", "🏝️", 2500);
+                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0, lastActionTime: Date.now() });
                     } else {
-                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "😢", 2200);
-                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
-                        setTimeout(() => nextTurn(false), 2200);
+                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "😢", 2500);
+                        await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1, lastActionTime: Date.now() });
+                        setTimeout(() => nextTurn(false), 2500);
                         return;
                     }
                 }
 
-                let newPos = (p.pos + dice1 + dice2) % 32;
-                let passGo = (p.pos + dice1 + dice2) >= 32;
+                let fromPos = p.pos;
+                let newPos = (fromPos + dice1 + dice2) % 32;
+                let passGo = (fromPos + dice1 + dice2) >= 32;
                 let newBal = p.balance + (passGo ? 200 : 0);
-                if (passGo) showToast("월급 획득!", "출발지를 지나쳐 월급 $200을 받았습니다! 💸", "💰", 2000);
+
+                // 콩콩콩 타일 이동 애니메이션
+                await animateTokenMovement(myPlayerId, fromPos, dice1 + dice2);
+
+                if (passGo) showToast("월급 획득!", "출발지를 지나쳐 월급 $200을 받았습니다! 💸", "💰", 2200);
 
                 let updatePayload = {
                     [`players.${myPlayerId}.pos`]: newPos,
@@ -2227,12 +2436,13 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 if(passGo) updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
 
                 await updateDoc(roomRef, updatePayload);
-                setTimeout(() => handleTileAction(newPos, myPlayerId, false, isDouble), 1200);
-            }, 600);
+                setTimeout(() => handleTileAction(newPos, myPlayerId, false, isDouble), 500);
+            }, 700);
         });
 
         async function runBotTurn(botUid) {
             try {
+                if (!isCurrentHost(localGameState)) return;
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 let p = localGameState.players[botUid];
                 if (!p) {
@@ -2240,13 +2450,21 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     return;
                 }
 
+                const waitMsg = document.getElementById('not-my-turn-msg');
+                const diceResultEl = document.getElementById('dice-result-text');
+                if (waitMsg) waitMsg.innerText = `${p.name}가 주사위를 준비 중입니다... 🤖`;
+                if (diceResultEl) diceResultEl.innerText = `${p.name} 차례 진행 중...`;
+
+                // 봇 생각하는 여유 시간 (1.2초)
+                await new Promise(r => setTimeout(r, 1200));
+
                 if(p.canTravel) {
-                    showToast("컴퓨터 세계 여행", `${p.name}가 비행기를 타고 세계 여행을 떠납니다! ✈️`, "✈️", 2000);
+                    showToast("컴퓨터 세계 여행", `${p.name}가 비행기를 타고 세계 여행을 떠납니다! ✈️`, "✈️", 2500);
                     setTimeout(async () => {
                         const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
                         const target = candidates[Math.floor(Math.random()*candidates.length)];
                         await window.executeTravel(target, true, botUid);
-                    }, 1500);
+                    }, 1800);
                     return;
                 }
 
@@ -2255,6 +2473,9 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 if (d1El && d2El) {
                     d1El.classList.add('rolling');
                     d2El.classList.add('rolling');
+                }
+                if (window.WaurimalAudio) {
+                    try { WaurimalAudio.play('click'); } catch(e){}
                 }
 
                 setTimeout(async () => {
@@ -2269,25 +2490,36 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                         d2El.classList.remove('rolling');
                     }
 
+                    if (diceResultEl) {
+                        diceResultEl.innerText = isDouble
+                            ? `🤖 ${p.name}: 주사위 ${dice1 + dice2} (${dice1}+${dice2}) ✨더블!✨`
+                            : `🤖 ${p.name}: 주사위 ${dice1 + dice2} (${dice1}+${dice2})`;
+                    }
+
                     if (p.islandTurns > 0) {
                         if (isDouble) {
-                            showToast("컴퓨터 탈출!", "컴퓨터가 더블로 무인도를 탈출했습니다! 🎉", "🤖", 2200);
-                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
+                            showToast("컴퓨터 탈출!", `${p.name}가 더블로 무인도를 탈출했습니다! 🎉`, "🤖", 2500);
+                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0, lastActionTime: Date.now() });
                         } else {
-                            showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2200);
-                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                            showToast("컴퓨터 탈출 실패", `${p.name}가 무인도 탈출에 실패했습니다. (${p.islandTurns - 1}턴 남음)`, "🤖", 2500);
+                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1, lastActionTime: Date.now() });
                             setTimeout(() => {
                                 window.botTurnInProgress = false;
                                 nextTurn(false);
-                            }, 2200);
+                            }, 2500);
                             return;
                         }
                     }
 
-                    let newPos = (p.pos + dice1 + dice2) % 32;
-                    let passGo = (p.pos + dice1 + dice2) >= 32;
+                    let fromPos = p.pos;
+                    let newPos = (fromPos + dice1 + dice2) % 32;
+                    let passGo = (fromPos + dice1 + dice2) >= 32;
                     let newBal = p.balance + (passGo ? 200 : 0);
-                    if (passGo) showToast("월급 획득!", `${p.name}가 출발지를 지나쳐 월급 $200을 받았습니다! 💸`, "💰", 2000);
+
+                    // 봇 말도 보드 위를 1칸씩 콩콩콩 이동!
+                    await animateTokenMovement(botUid, fromPos, dice1 + dice2);
+
+                    if (passGo) showToast("월급 획득!", `${p.name}가 출발지를 지나쳐 월급 $200을 받았습니다! 💸`, "💰", 2200);
 
                     let updatePayload = {
                         [`players.${botUid}.pos`]: newPos,
@@ -2299,7 +2531,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     await updateDoc(roomRef, updatePayload);
                     setTimeout(() => {
                         handleTileAction(newPos, botUid, true, isDouble);
-                    }, 1400);
+                    }, 600);
                 }, 700);
             } catch(e) {
                 console.error("runBotTurn error:", e);
@@ -2318,22 +2550,25 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 if (tile.type === 'quiz') {
                     const owner = tilesInfo[pos]?.owner;
                     if (isBot) {
-                        const isCorrect = Math.random() < 0.7; 
-                        if (!owner) {
-                            if (isCorrect && players[uid].balance >= tile.price) {
-                                await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
-                                showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 샀습니다!`, "🤖", 2500);
-                            } else showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖", 2200);
-                        } else if (owner !== uid) {
-                            const toll = Math.floor(tile.price / 2);
-                            const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                            await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
-                            showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 반값($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸", 2500);
-                        } else {
-                            showToast("컴퓨터 휴식", `컴퓨터가 자신의 땅 [${tile.name}]에 도착했습니다. 🏰`, "🤖", 2000);
-                        }
-                        const ended = await checkWinConditions();
-                        if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                        showToast("컴퓨터 퀴즈 풀이 중", `[${tile.flag || ''} ${tile.name}] 문제에 도전하고 있습니다... 🤔`, "🤖", 1400);
+                        setTimeout(async () => {
+                            const isCorrect = Math.random() < 0.7; 
+                            if (!owner) {
+                                if (isCorrect && players[uid].balance >= tile.price) {
+                                    await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid, lastActionTime: Date.now() });
+                                    showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 구매했습니다! 🏰`, "🤖", 2800);
+                                } else showToast("컴퓨터 구매 실패", "컴퓨터가 퀴즈를 틀렸거나 잔액이 부족합니다.", "🤖", 2500);
+                            } else if (owner !== uid) {
+                                const toll = Math.floor(tile.price / 2);
+                                const finalToll = isCorrect ? Math.floor(toll/2) : toll;
+                                await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll, lastActionTime: Date.now() });
+                                showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 할인($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸", 2800);
+                            } else {
+                                showToast("컴퓨터 휴식", `컴퓨터가 자신의 땅 [${tile.name}]에 도착했습니다. 🏰`, "🤖", 2200);
+                            }
+                            const ended = await checkWinConditions();
+                            if(!ended) setTimeout(() => nextTurn(isDouble), 2800);
+                        }, 1200);
                         return;
                     } 
                     else {
@@ -2342,13 +2577,13 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                                 try {
                                     if (isCorrect) {
                                         if (players[uid].balance >= tile.price) {
-                                            await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
-                                            showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰", 2500);
-                                        } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢", 2200);
-                                    } else showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌", 2500);
+                                            await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid, lastActionTime: Date.now() });
+                                            showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다. 🎉`, "🏰", 2800);
+                                        } else showToast("잔액 부족", "정답이지만 잔액이 부족해요. 😢", "😢", 2500);
+                                    } else showToast("오답!", `아쉽습니다! 정답은 [${tile.a}] 입니다.`, "❌", 2800);
                                     const ended = await checkWinConditions();
-                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
-                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2200); }
+                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2600);
+                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2600); }
                             }, "새로운 나라 발견! 퀴즈를 맞히면 구매할 수 있어요.");
                             return; 
                         } else if (owner !== uid) {
@@ -2356,17 +2591,17 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                             triggerQuiz(tile, async (isCorrect) => {
                                 try {
                                     const finalToll = isCorrect ? Math.floor(toll/2) : toll;
-                                    await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
-                                    showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸", 2500);
+                                    await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll, lastActionTime: Date.now() });
+                                    showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸", 2800);
                                     const ended = await checkWinConditions();
-                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
-                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2200); }
+                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2600);
+                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2600); }
                             }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
                             return;
                         } else {
-                            showToast("내 땅 도착!", `내가 소유한 [${tile.name}]에 도착했습니다! 편안하게 휴식합니다. 🏰`, "🏰", 2000);
+                            showToast("내 땅 도착!", `내가 소유한 [${tile.name}]에 도착했습니다! 편안하게 휴식합니다. 🏰`, "🏰", 2200);
                             const ended = await checkWinConditions();
-                            if(!ended) setTimeout(() => nextTurn(isDouble), 2000);
+                            if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
                             return;
                         }
                     }
@@ -2380,58 +2615,57 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     } 
                     else if (card.type === 'money') {
                         let newBal = players[uid].balance + card.val;
-                        await updateDoc(roomRef, { [`players.${uid}.balance`]: newBal });
+                        await updateDoc(roomRef, { [`players.${uid}.balance`]: newBal, lastActionTime: Date.now() });
                     } 
                     else if (card.type === 'move') {
                         let passGo = card.pos < pos && card.pos !== 0;
                         let newBal = players[uid].balance + (passGo ? 200 : 0);
-                        let updatePayload = { [`players.${uid}.pos`]: card.pos, [`players.${uid}.balance`]: newBal };
+                        let updatePayload = { [`players.${uid}.pos`]: card.pos, [`players.${uid}.balance`]: newBal, lastActionTime: Date.now() };
                         if(passGo) updatePayload[`players.${uid}.round`] = (players[uid].round || 1) + 1;
                         if(card.pos === 8) updatePayload[`players.${uid}.islandTurns`] = 3;
                         if(card.pos === 24) updatePayload[`players.${uid}.canTravel`] = true;
                         await updateDoc(roomRef, updatePayload);
                     }
                     const ended = await checkWinConditions();
-                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2800);
                     return;
                 }
                 else if (tile.type === 'island') {
                     showToast("무인도 표류!", "무인도에 갇혔습니다! 탈출하려면 다음 턴에 더블이 나와야 합니다. (최대 3턴)", "🏝️", 3000);
-                    await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3 });
+                    await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3, lastActionTime: Date.now() });
                     const ended = await checkWinConditions();
-                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2800);
                     return;
                 }
                 else if (tile.type === 'rest') {
-                    showToast("휴게소 휴식", "시원한 음료수를 마시며 편안하게 쉽니다.", "☕", 2200);
+                    showToast("휴게소 휴식", "시원한 음료수를 마시며 편안하게 쉽니다.", "☕", 2500);
                     const ended = await checkWinConditions();
-                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
                     return;
                 }
                 else if (tile.type === 'travel') {
                     showToast("세계 여행 비행기", "비행기를 탔습니다! 다음 턴에 원하는 칸으로 자유롭게 날아갈 수 있습니다!", "✈️", 3000);
-                    await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true });
+                    await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true, lastActionTime: Date.now() });
                     const ended = await checkWinConditions();
-                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2800);
                     return;
                 }
                 else if (tile.type === 'start') {
-                    showToast("출발지 도착!", "출발지에 도착했습니다! 활기차게 세계 여행을 이어가세요!", "🚩", 2000);
+                    showToast("출발지 도착!", "출발지에 도착했습니다! 활기차게 세계 여행을 이어가세요!", "🚩", 2200);
                     const ended = await checkWinConditions();
-                    if(!ended) setTimeout(() => nextTurn(isDouble), 2000);
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
                     return;
                 }
 
                 const ended = await checkWinConditions();
-                if(!ended) setTimeout(() => nextTurn(isDouble), 1800);
+                if(!ended) setTimeout(() => nextTurn(isDouble), 2000);
             } catch(err) { 
                 console.error("handleTileAction Error:", err); 
-                setTimeout(() => nextTurn(isDouble), 1800); 
+                setTimeout(() => nextTurn(isDouble), 2000); 
             }
         }
 
         async function nextTurn(isDouble = false) {
-            closeToast();
             isRollingOrActing = false;
             window.botTurnInProgress = false;
             try {
@@ -2440,7 +2674,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 const nextIdx = (currentTurnIndex + 1) % turnOrder.length;
 
                 if (isDouble) {
-                    showToast("더블 보너스!", "주사위 눈이 같습니다! 한 번 더 굴리세요! 🎲", "✨", 2200);
+                    showToast("더블 보너스!", "주사위 눈이 같습니다! 한 번 더 굴리세요! 🎲", "✨", 2500);
                     await updateDoc(roomRef, { lastActionTime: Date.now() });
                 } else {
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
@@ -2491,17 +2725,18 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         }
 
         async function checkWinConditions() {
-            if (localGameState.turnOrder[0] !== myPlayerId) return false; 
+            if (!isCurrentHost(localGameState)) return false; 
             const rule = localGameState.rule; if(!rule) return false;
 
             for (let uid of localGameState.turnOrder) {
                 const p = localGameState.players[uid];
+                if (!p) continue;
                 if (rule.type === 'asset' && calculateTotalAssets(uid) >= rule.value) { await endGame(`${p.name} 님이 목표 자산($${rule.value})을 달성했습니다!`); return true; }
                 if (rule.type === 'bankrupt' && p.balance < 0) { await endGame(`${p.name} 님이 파산했습니다!`); return true; }
             }
             if (rule.type === 'turn') {
                 let allFinished = true;
-                localGameState.turnOrder.forEach(uid => { if ((localGameState.players[uid].round||1) <= rule.value) allFinished = false; });
+                localGameState.turnOrder.forEach(uid => { if ((localGameState.players[uid]?.round||1) <= rule.value) allFinished = false; });
                 if (allFinished) { await endGame(`모든 플레이어가 ${rule.value} 바퀴를 완주했습니다!`); return true; }
             }
             return false;
@@ -2515,13 +2750,30 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         function renderGameOver(reasonMsg) {
             document.getElementById('game-over-reason').innerText = reasonMsg;
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
-            const ranking = localGameState.turnOrder.map(uid => { return { uid: uid, name: localGameState.players[uid].name, avatar: localGameState.players[uid].avatar, totalAsset: calculateTotalAssets(uid) }; }).sort((a, b) => b.totalAsset - a.totalAsset);
+            const ranking = localGameState.turnOrder.map(uid => { 
+                return { 
+                    uid: uid, 
+                    name: localGameState.players[uid]?.name || '플레이어', 
+                    avatar: localGameState.players[uid]?.avatar || '😊', 
+                    totalAsset: calculateTotalAssets(uid) 
+                }; 
+            }).sort((a, b) => b.totalAsset - a.totalAsset);
+
             const sanitize = window.WaurimalSanitize || (s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
             ranking.forEach((p, idx) => {
                 let badge = idx === 0 ? '🥇 1등' : idx === 1 ? '🥈 2등' : idx === 2 ? '🥉 3등' : `${idx+1}등`;
                 const safeAvatar = sanitize(p.avatar || '😊');
-                const safeName = sanitize(p.name || '');
-                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${safeAvatar}</span><span class="font-bold text-lg text-gray-800">${safeName}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset.toLocaleString()}</div></li>`;
+                const displayName = p.uid.startsWith('bot_') ? p.name : maskStudentName(p.name);
+                const safeName = sanitize(displayName);
+                const isMe = p.uid === myPlayerId;
+                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}">
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span>
+                        <span class="text-3xl">${safeAvatar}</span>
+                        <span class="font-bold text-lg text-gray-800">${safeName} ${isMe ? '<span class="text-blue-500 font-bold text-xs ml-1">(나)</span>' : ''}</span>
+                    </div>
+                    <div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset.toLocaleString()}</div>
+                </li>`;
             });
             document.getElementById('game-over-modal').classList.remove('hidden');
 
@@ -2573,24 +2825,105 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             else if(rule.type === 'bankrupt') { icon.innerText = '💀'; text.innerText = '파산 서바이벌'; status.innerText = `생존 경쟁`; }
         }
 
+        let lastHeartbeatSent = 0;
+        function sendHeartbeat() {
+            if (!currentRoomId || !myPlayerId || !localGameState || localGameState.state !== 'playing') return;
+            const now = Date.now();
+            if (now - lastHeartbeatSent < 5000) return;
+            lastHeartbeatSent = now;
+            const roomRef = doc(db, 'rooms', currentRoomId);
+            updateDoc(roomRef, {
+                [`players.${myPlayerId}.lastSeen`]: now
+            }).catch(() => {});
+        }
+
+        let lastGhostCheck = 0;
+        async function checkAndCleanGhostPlayers() {
+            if (!currentRoomId || !localGameState || localGameState.state !== 'playing') return;
+            const now = Date.now();
+            if (now - lastGhostCheck < 10000) return; // 10초마다 점검
+            lastGhostCheck = now;
+
+            const { turnOrder, players, currentTurnIndex } = localGameState;
+            if (!turnOrder || turnOrder.length <= 1) return;
+
+            // 45초 이상 응답 없는 유령 플레이어 감지 (탭 종료/네트워크 단절 등)
+            let dirty = false;
+            let newOrder = [...turnOrder];
+            let removedNames = [];
+
+            for (let uid of turnOrder) {
+                if (uid.startsWith('bot_')) continue;
+                if (uid === myPlayerId) continue;
+                const p = players[uid];
+                if (p && p.lastSeen && (now - p.lastSeen > 45000)) {
+                    newOrder = newOrder.filter(u => u !== uid);
+                    removedNames.push(p.name || '플레이어');
+                    dirty = true;
+                }
+            }
+
+            if (dirty && newOrder.length > 0) {
+                try {
+                    const roomRef = doc(db, 'rooms', currentRoomId);
+                    const newTurnIdx = currentTurnIndex >= newOrder.length ? 0 : currentTurnIndex;
+                    await updateDoc(roomRef, {
+                        turnOrder: newOrder,
+                        currentTurnIndex: newTurnIdx,
+                        lastActionTime: Date.now()
+                    });
+                    showToast("접속 종료 알림", `${removedNames.join(', ')} 님의 연결이 끊겨 게임에서 제외되었습니다.`, "👋", 3000);
+                } catch(e) {
+                    console.warn("Ghost clean notice:", e);
+                }
+            }
+        }
+
         function startClientTimer() {
             if(gameTimerInterval) clearInterval(gameTimerInterval);
             gameTimerInterval = setInterval(() => {
-                if(!localGameState || localGameState.state !== 'playing' || !localGameState.rule) return;
+                if(!localGameState || localGameState.state !== 'playing') return;
                 
-                // 1. 전체 게임 시간 제한 체크
-                if(localGameState.rule.type === 'time') {
+                // 1. 전체 게임 규칙(시간 제한) 체크
+                if(localGameState.rule && localGameState.rule.type === 'time') {
                     const timeLeft = Math.max(0, localGameState.endTime - Date.now());
                     const m = Math.floor(timeLeft / 60000).toString().padStart(2, '0'); const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
                     document.getElementById('rule-status-display').innerText = `${m}:${s}`;
-                    if(timeLeft === 0 && localGameState.turnOrder[0] === myPlayerId) endGame("약속된 시간이 모두 종료되었습니다!");
+                    if(timeLeft === 0 && isCurrentHost(localGameState)) endGame("약속된 시간이 모두 종료되었습니다!");
                 }
 
-                // 2. 턴 타임아웃(Turn Timeout Auto-skip) 안전장치: 35초 무응답 시 자동 넘김
-                const isHost = localGameState.turnOrder && localGameState.turnOrder[0] === myPlayerId;
+                // 2. 턴 남은 시간(Turn Countdown) UI 갱신 (모든 플레이어 화면)
+                const lastAction = localGameState.lastActionTime || localGameState.startTime || Date.now();
+                const elapsed = Math.floor((Date.now() - lastAction) / 1000);
+                const turnTimeLeft = Math.max(0, 35 - elapsed);
+                
+                const badge = document.getElementById('turn-timer-badge');
+                const barWrap = document.getElementById('turn-timer-bar-wrap');
+                const bar = document.getElementById('turn-timer-bar');
+                
+                if (badge && barWrap && bar) {
+                    badge.classList.remove('hidden');
+                    barWrap.classList.remove('hidden');
+                    badge.innerText = `⏳ ${turnTimeLeft}초`;
+                    const pct = Math.max(0, Math.min(100, (turnTimeLeft / 35) * 100));
+                    bar.style.width = `${pct}%`;
+                    
+                    if (turnTimeLeft > 15) {
+                        badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 whitespace-nowrap';
+                        bar.className = 'bg-blue-500 h-full rounded-full transition-all duration-1000 ease-linear';
+                    } else if (turnTimeLeft > 8) {
+                        badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap';
+                        bar.className = 'bg-amber-500 h-full rounded-full transition-all duration-1000 ease-linear';
+                    } else {
+                        badge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 whitespace-nowrap animate-pulse';
+                        bar.className = 'bg-rose-500 h-full rounded-full transition-all duration-1000 ease-linear';
+                    }
+                }
+
+                // 3. 턴 타임아웃(Turn Timeout Auto-skip) 안전장치 (호스트만 실행)
+                const isHost = isCurrentHost(localGameState);
                 if (isHost && localGameState.lastActionTime) {
-                    const elapsedSinceAction = Date.now() - localGameState.lastActionTime;
-                    if (elapsedSinceAction > 35000) {
+                    if (elapsed > 35) {
                         const currentUid = localGameState.turnOrder[localGameState.currentTurnIndex];
                         const currentP = localGameState.players ? localGameState.players[currentUid] : null;
                         console.warn(`Turn timeout (${currentP?.name || currentUid}), auto-skipping turn...`);
@@ -2602,6 +2935,14 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                         document.getElementById('vote-modal').classList.add('hidden');
                         nextTurn(false);
                     }
+                }
+
+                // 4. 하트비트 전송
+                sendHeartbeat();
+
+                // 5. 방장 마이그레이션 및 유령 플레이어 정리
+                if (isHost) {
+                    checkAndCleanGhostPlayers();
                 }
             }, 1000);
         }
