@@ -2039,10 +2039,10 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                                 }
                                 document.getElementById('vote-modal').classList.add('hidden');
                                 window.voteResolving = false;
-                                nextTurn(voteState.isDouble);
+                                setTimeout(() => nextTurn(voteState.isDouble), 2200);
                             } catch(e) { 
                                 window.voteResolving = false;
-                                nextTurn(voteState.isDouble);
+                                setTimeout(() => nextTurn(voteState.isDouble), 2200);
                             }
                         }, 1200);
                     }
@@ -2095,7 +2095,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 
                 if (isHost && !window.botTurnInProgress) {
                     window.botTurnInProgress = true;
-                    setTimeout(() => runBotTurn(currentUid), 1000);
+                    setTimeout(() => runBotTurn(currentUid), 1800);
                 }
             } else {
                 turnText.innerText = `${currentP.name} 친구의 턴입니다...`;
@@ -2155,7 +2155,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 if(passGo) updatePayload[`players.${uid}.round`] = (p.round || 1) + 1;
 
                 await updateDoc(roomRef, updatePayload);
-                setTimeout(() => handleTileAction(targetPos, uid, isBot, false), 1000);
+                setTimeout(() => handleTileAction(targetPos, uid, isBot, false), 1400);
             } catch (err) { console.error("Travel Error:", err); }
         };
 
@@ -2181,12 +2181,12 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
                 if (p.islandTurns > 0) {
                     if (isDouble) {
-                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎉", "🏝️", 2000);
+                        showToast("무인도 탈출!", "더블이 나왔습니다! 무인도를 탈출합니다! 🎉", "🏝️", 2200);
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: 0 });
                     } else {
-                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "😢", 2000);
+                        showToast("탈출 실패", `더블이 나오지 않았습니다. (${p.islandTurns - 1}턴 남음)`, "😢", 2200);
                         await updateDoc(roomRef, { [`players.${myPlayerId}.islandTurns`]: p.islandTurns - 1 });
-                        nextTurn(false);
+                        setTimeout(() => nextTurn(false), 2200);
                         return;
                     }
                 }
@@ -2204,59 +2204,80 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 if(passGo) updatePayload[`players.${myPlayerId}.round`] = (p.round || 1) + 1;
 
                 await updateDoc(roomRef, updatePayload);
-                setTimeout(() => handleTileAction(newPos, myPlayerId, false, isDouble), 1000);
+                setTimeout(() => handleTileAction(newPos, myPlayerId, false, isDouble), 1200);
             }, 600);
         });
 
         async function runBotTurn(botUid) {
             try {
-                const dice1 = Math.floor(Math.random() * 6) + 1;
-                const dice2 = Math.floor(Math.random() * 6) + 1;
-                const isDouble = dice1 === dice2;
-                const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-                document.getElementById('dice-display-1').innerText = diceFaces[dice1 - 1];
-                document.getElementById('dice-display-2').innerText = diceFaces[dice2 - 1];
-
                 const roomRef = doc(db, 'rooms', currentRoomId);
                 let p = localGameState.players[botUid];
-
-                if(p.canTravel) {
-                    const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
-                    const target = candidates[Math.floor(Math.random()*candidates.length)];
-                    await window.executeTravel(target, true, botUid);
+                if (!p) {
                     window.botTurnInProgress = false;
                     return;
                 }
 
-                if (p.islandTurns > 0) {
-                    if (isDouble) {
-                        showToast("컴퓨터 탈출", "컴퓨터가 더블로 무인도를 탈출했습니다!", "🤖", 2000);
-                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
-                    } else {
-                        showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2000);
-                        await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
-                        window.botTurnInProgress = false;
-                        nextTurn(false);
-                        return;
-                    }
+                if(p.canTravel) {
+                    showToast("컴퓨터 세계 여행", `${p.name}가 비행기를 타고 세계 여행을 떠납니다! ✈️`, "✈️", 2000);
+                    setTimeout(async () => {
+                        const candidates = [1, 2, 4, 7, 9, 13, 17, 20, 23, 28];
+                        const target = candidates[Math.floor(Math.random()*candidates.length)];
+                        await window.executeTravel(target, true, botUid);
+                    }, 1500);
+                    return;
                 }
 
-                let newPos = (p.pos + dice1 + dice2) % 32;
-                let passGo = (p.pos + dice1 + dice2) >= 32;
-                let newBal = p.balance + (passGo ? 200 : 0);
+                const d1El = document.getElementById('dice-display-1');
+                const d2El = document.getElementById('dice-display-2');
+                if (d1El && d2El) {
+                    d1El.classList.add('rolling');
+                    d2El.classList.add('rolling');
+                }
 
-                let updatePayload = {
-                    [`players.${botUid}.pos`]: newPos,
-                    [`players.${botUid}.balance`]: newBal,
-                    lastActionTime: Date.now()
-                };
-                if(passGo) updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
+                setTimeout(async () => {
+                    const dice1 = Math.floor(Math.random() * 6) + 1;
+                    const dice2 = Math.floor(Math.random() * 6) + 1;
+                    const isDouble = dice1 === dice2;
+                    const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                    if (d1El && d2El) {
+                        d1El.innerText = diceFaces[dice1 - 1];
+                        d2El.innerText = diceFaces[dice2 - 1];
+                        d1El.classList.remove('rolling');
+                        d2El.classList.remove('rolling');
+                    }
 
-                await updateDoc(roomRef, updatePayload);
-                setTimeout(() => {
-                    handleTileAction(newPos, botUid, true, isDouble);
-                    window.botTurnInProgress = false;
-                }, 800);
+                    if (p.islandTurns > 0) {
+                        if (isDouble) {
+                            showToast("컴퓨터 탈출!", "컴퓨터가 더블로 무인도를 탈출했습니다! 🎉", "🤖", 2200);
+                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: 0 });
+                        } else {
+                            showToast("컴퓨터 탈출 실패", "컴퓨터가 무인도 탈출에 실패했습니다.", "🤖", 2200);
+                            await updateDoc(roomRef, { [`players.${botUid}.islandTurns`]: p.islandTurns - 1 });
+                            setTimeout(() => {
+                                window.botTurnInProgress = false;
+                                nextTurn(false);
+                            }, 2200);
+                            return;
+                        }
+                    }
+
+                    let newPos = (p.pos + dice1 + dice2) % 32;
+                    let passGo = (p.pos + dice1 + dice2) >= 32;
+                    let newBal = p.balance + (passGo ? 200 : 0);
+                    if (passGo) showToast("월급 획득!", `${p.name}가 출발지를 지나쳐 월급 $200을 받았습니다! 💸`, "💰", 2000);
+
+                    let updatePayload = {
+                        [`players.${botUid}.pos`]: newPos,
+                        [`players.${botUid}.balance`]: newBal,
+                        lastActionTime: Date.now()
+                    };
+                    if(passGo) updatePayload[`players.${botUid}.round`] = (p.round || 1) + 1;
+
+                    await updateDoc(roomRef, updatePayload);
+                    setTimeout(() => {
+                        handleTileAction(newPos, botUid, true, isDouble);
+                    }, 1400);
+                }, 700);
             } catch(e) {
                 console.error("runBotTurn error:", e);
                 window.botTurnInProgress = false;
@@ -2279,15 +2300,17 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                             if (isCorrect && players[uid].balance >= tile.price) {
                                 await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
                                 showToast("컴퓨터 땅 구매", `컴퓨터가 퀴즈를 맞혀 [${tile.name}]을(를) 샀습니다!`, "🤖", 2500);
-                            } else showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖", 2500);
+                            } else showToast("컴퓨터 퀴즈 실패", "컴퓨터가 퀴즈를 틀렸거나 돈이 부족합니다.", "🤖", 2200);
                         } else if (owner !== uid) {
                             const toll = Math.floor(tile.price / 2);
                             const finalToll = isCorrect ? Math.floor(toll/2) : toll;
                             await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
                             showToast("컴퓨터 통행료 지불", isCorrect ? `컴퓨터 정답! 통행료 반값($${finalToll}) 지불.` : `컴퓨터 오답! 통행료 $${finalToll} 지불.`, "💸", 2500);
+                        } else {
+                            showToast("컴퓨터 휴식", `컴퓨터가 자신의 땅 [${tile.name}]에 도착했습니다. 🏰`, "🤖", 2000);
                         }
                         const ended = await checkWinConditions();
-                        if(!ended) setTimeout(() => nextTurn(isDouble), 1500);
+                        if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
                         return;
                     } 
                     else {
@@ -2298,11 +2321,11 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                                         if (players[uid].balance >= tile.price) {
                                             await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - tile.price, [`tilesInfo.${pos}.owner`]: uid });
                                             showToast("땅 획득 성공!", `정답입니다! [${tile.name}]의 소유자가 되었습니다.`, "🏰", 2500);
-                                        } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢", 2500);
+                                        } else showToast("잔액 부족", "정답이지만 돈이 부족해요.", "😢", 2200);
                                     } else showToast("오답!", `정답은 [${tile.a}] 입니다.`, "❌", 2500);
                                     const ended = await checkWinConditions();
-                                    if(!ended) nextTurn(isDouble);
-                                } catch(e) { console.error(e); nextTurn(isDouble); }
+                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
+                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2200); }
                             }, "새로운 나라 발견! 퀴즈를 맞히면 구매할 수 있어요.");
                             return; 
                         } else if (owner !== uid) {
@@ -2313,9 +2336,14 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                                     await updateDoc(roomRef, { [`players.${uid}.balance`]: players[uid].balance - finalToll, [`players.${owner}.balance`]: players[owner].balance + finalToll });
                                     showToast("통행료 지불", isCorrect ? `정답! 통행료가 반값($${finalToll})으로 할인됩니다.` : `오답! 통행료 $${finalToll}을 지불합니다.`, "💸", 2500);
                                     const ended = await checkWinConditions();
-                                    if(!ended) nextTurn(isDouble);
-                                } catch(e) { console.error(e); nextTurn(isDouble); }
+                                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
+                                } catch(e) { console.error(e); setTimeout(() => nextTurn(isDouble), 2200); }
                             }, `${players[owner].name}의 땅입니다! 정답 시 통행료 반값!`);
+                            return;
+                        } else {
+                            showToast("내 땅 도착!", `내가 소유한 [${tile.name}]에 도착했습니다! 편안하게 휴식합니다. 🏰`, "🏰", 2000);
+                            const ended = await checkWinConditions();
+                            if(!ended) setTimeout(() => nextTurn(isDouble), 2000);
                             return;
                         }
                     }
@@ -2340,25 +2368,47 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                         if(card.pos === 24) updatePayload[`players.${uid}.canTravel`] = true;
                         await updateDoc(roomRef, updatePayload);
                     }
+                    const ended = await checkWinConditions();
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    return;
                 }
                 else if (tile.type === 'island') {
                     showToast("무인도 표류!", "무인도에 갇혔습니다! 탈출하려면 다음 턴에 더블이 나와야 합니다. (최대 3턴)", "🏝️", 3000);
                     await updateDoc(roomRef, { [`players.${uid}.islandTurns`]: 3 });
+                    const ended = await checkWinConditions();
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    return;
                 }
                 else if (tile.type === 'rest') {
-                    showToast("휴게소 휴식", "시원한 음료수를 마시며 편안하게 쉽니다.", "☕", 2000);
+                    showToast("휴게소 휴식", "시원한 음료수를 마시며 편안하게 쉽니다.", "☕", 2200);
+                    const ended = await checkWinConditions();
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2200);
+                    return;
                 }
                 else if (tile.type === 'travel') {
                     showToast("세계 여행 비행기", "비행기를 탔습니다! 다음 턴에 원하는 칸으로 자유롭게 날아갈 수 있습니다!", "✈️", 3000);
                     await updateDoc(roomRef, { [`players.${uid}.canTravel`]: true });
+                    const ended = await checkWinConditions();
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2500);
+                    return;
+                }
+                else if (tile.type === 'start') {
+                    showToast("출발지 도착!", "출발지에 도착했습니다! 활기차게 세계 여행을 이어가세요!", "🚩", 2000);
+                    const ended = await checkWinConditions();
+                    if(!ended) setTimeout(() => nextTurn(isDouble), 2000);
+                    return;
                 }
 
                 const ended = await checkWinConditions();
-                if(!ended) nextTurn(isDouble);
-            } catch(err) { console.error("handleTileAction Error:", err); nextTurn(isDouble); }
+                if(!ended) setTimeout(() => nextTurn(isDouble), 1800);
+            } catch(err) { 
+                console.error("handleTileAction Error:", err); 
+                setTimeout(() => nextTurn(isDouble), 1800); 
+            }
         }
 
         async function nextTurn(isDouble = false) {
+            closeToast();
             isRollingOrActing = false;
             window.botTurnInProgress = false;
             try {
@@ -2367,7 +2417,7 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 const nextIdx = (currentTurnIndex + 1) % turnOrder.length;
 
                 if (isDouble) {
-                    showToast("더블 보너스!", "주사위 눈이 같습니다! 한 번 더 굴리세요! 🎲", "✨", 2000);
+                    showToast("더블 보너스!", "주사위 눈이 같습니다! 한 번 더 굴리세요! 🎲", "✨", 2200);
                     await updateDoc(roomRef, { lastActionTime: Date.now() });
                 } else {
                     await updateDoc(roomRef, { currentTurnIndex: nextIdx, lastActionTime: Date.now() });
