@@ -1244,6 +1244,14 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
         // 화면 전환 함수
         window.showScreen = (screenId) => {
+            if (screenId === 'screen-teacher' && (!window.WaurimalAuth || !window.WaurimalAuth.isAuthenticated())) {
+                if (typeof window.openTeacherAuthModal === 'function') {
+                    window.openTeacherAuthModal();
+                } else {
+                    alert('교사 인증이 필요합니다.');
+                }
+                return;
+            }
             const screens = ['screen-home', 'screen-lobby', 'screen-game', 'screen-teacher'];
             screens.forEach(id => {
                 const el = document.getElementById(id);
@@ -1639,6 +1647,11 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
         // 교사 모드 로직
         window.openTeacherAuthModal = () => {
+            if (window.WaurimalAuth && window.WaurimalAuth.isAuthenticated()) {
+                window.showScreen('screen-teacher');
+                renderTeacherTileList();
+                return;
+            }
             document.getElementById('teacher-auth-modal').classList.remove('hidden');
             document.getElementById('teacher-pw-input').value = '';
             setTimeout(() => document.getElementById('teacher-pw-input').focus(), 100);
@@ -1646,8 +1659,8 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
         document.getElementById('btn-submit-teacher-auth').addEventListener('click', () => {
             const pw = document.getElementById('teacher-pw-input').value.trim();
-            const waurimalPw = localStorage.getItem('waurimal_admin_pw');
-            if (pw === sysTeacherPw || pw === "1234" || pw === "0000" || pw === "4657" || pw === "wauri1234" || (waurimalPw && pw === waurimalPw)) {
+            const isValid = window.WaurimalAuth ? window.WaurimalAuth.authenticate(pw) : (pw === (localStorage.getItem('waurimal_admin_pw') || sysTeacherPw || '1234'));
+            if (isValid) {
                 document.getElementById('teacher-auth-modal').classList.add('hidden');
                 window.showScreen('screen-teacher');
                 renderTeacherTileList();
@@ -1664,11 +1677,15 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
         document.getElementById('btn-save-new-pw').addEventListener('click', async () => {
             const newPw = document.getElementById('new-pw-input').value.trim();
             if(newPw.length < 4) { showToast("오류", "4자리 이상 입력해주세요.", "⚠️"); return; }
+            if (window.WaurimalAuth) {
+                window.WaurimalAuth.setPw(newPw);
+            } else {
+                localStorage.setItem('waurimal_admin_pw', newPw);
+            }
             try {
                 await updateDoc(doc(db, 'settings', 'admin'), { teacherPassword: newPw });
             } catch(e){}
             sysTeacherPw = newPw;
-            localStorage.setItem('waurimal_admin_pw', newPw);
             document.getElementById('pw-change-modal').classList.add('hidden');
             showToast("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "✅");
         });
@@ -1753,8 +1770,11 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     document.getElementById('player-count').innerText = players.length;
                     const list = document.getElementById('player-list');
                     list.innerHTML = '';
+                    const sanitize = window.WaurimalSanitize || (s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
                     players.forEach(p => {
-                        list.innerHTML += `<li class="flex items-center gap-2 font-bold"><span class="text-2xl">${p.avatar}</span> <span>${p.name}</span></li>`;
+                        const safeAvatar = sanitize(p.avatar || '😊');
+                        const safeName = sanitize(p.name || '');
+                        list.innerHTML += `<li class="flex items-center gap-2 font-bold"><span class="text-2xl">${safeAvatar}</span> <span>${safeName}</span></li>`;
                     });
 
                     const isHost = data.turnOrder[0] === myPlayerId;
@@ -1963,12 +1983,15 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                 const container = document.getElementById(`status-${slotName}`);
                 if(container) {
                     const isTurnNow = currentUid === uid;
+                    const sanitize = window.WaurimalSanitize || (s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
+                    const safeAvatar = sanitize(p.avatar || '😊');
+                    const safeName = sanitize(p.name || '');
                     container.innerHTML = `
                         <div class="p-3 rounded-2xl border-4 transition-all ${isTurnNow ? 'bg-yellow-50 border-yellow-400 shadow-lg scale-105' : 'bg-white border-blue-200 shadow-md'} flex items-center gap-3">
-                            <span class="text-4xl">${p.avatar}</span>
+                            <span class="text-4xl">${safeAvatar}</span>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center">
-                                    <span class="font-black text-gray-800 text-lg">${p.name} ${uid === myPlayerId ? '<span class="text-blue-500 font-bold text-sm">(나)</span>' : ''}</span>
+                                    <span class="font-black text-gray-800 text-lg">${safeName} ${uid === myPlayerId ? '<span class="text-blue-500 font-bold text-sm">(나)</span>' : ''}</span>
                                     <span class="text-xs px-2 py-0.5 rounded-full font-bold bg-gray-200 text-gray-600">${p.round || 1}바퀴</span>
                                 </div>
                                 <div class="font-black text-xl text-blue-600">$ ${p.balance}</div>
@@ -2493,9 +2516,12 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             document.getElementById('game-over-reason').innerText = reasonMsg;
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
             const ranking = localGameState.turnOrder.map(uid => { return { uid: uid, name: localGameState.players[uid].name, avatar: localGameState.players[uid].avatar, totalAsset: calculateTotalAssets(uid) }; }).sort((a, b) => b.totalAsset - a.totalAsset);
+            const sanitize = window.WaurimalSanitize || (s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
             ranking.forEach((p, idx) => {
                 let badge = idx === 0 ? '🥇 1등' : idx === 1 ? '🥈 2등' : idx === 2 ? '🥉 3등' : `${idx+1}등`;
-                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${p.avatar}</span><span class="font-bold text-lg text-gray-800">${p.name}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset.toLocaleString()}</div></li>`;
+                const safeAvatar = sanitize(p.avatar || '😊');
+                const safeName = sanitize(p.name || '');
+                list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-xl border-2 ${idx===0 ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}"><div class="flex items-center gap-3"><span class="font-black text-lg w-12 text-center text-gray-500">${badge}</span><span class="text-3xl">${safeAvatar}</span><span class="font-bold text-lg text-gray-800">${safeName}</span></div><div class="font-black text-xl ${idx===0 ? 'text-yellow-600' : 'text-blue-600'}">총 $${p.totalAsset.toLocaleString()}</div></li>`;
             });
             document.getElementById('game-over-modal').classList.remove('hidden');
 
