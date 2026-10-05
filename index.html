@@ -1804,6 +1804,89 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
             } catch(e){}
         });
 
+        // ════════════════════════════════════════════════════════════════════
+        // ── 초등 영어 교과 단어 한국어 뜻 매핑 사전 (100% 매핑 보장) ──
+        // ════════════════════════════════════════════════════════════════════
+        const WORD_MEANINGS_MAP = {
+            // L01 서수 및 학교생활
+            'first': '첫 번째의', 'second': '두 번째의', 'third': '세 번째의', 'fourth': '네 번째의',
+            'fifth': '다섯 번째의', 'sixth': '여섯 번째의', 'grade': '학년', 'spell': '철자를 쓰다',
+            'join': '가입하다', 'club': '동아리', 'dance': '춤추다', 'draw': '그리다',
+            'play': '놀다, 연주하다', 'listen': '듣다', 'read': '읽다', 'ride': '타다',
+            // L02 계절 및 날씨
+            'season': '계절', 'spring': '봄', 'summer': '여름', 'fall': '가을', 'winter': '겨울',
+            'beautiful': '아름다운', 'flower': '꽃', 'cold': '추운', 'warm': '따뜻한', 'delicious': '맛있는',
+            'also': '또한', 'colorful': '다채로운', 'swim': '수영하다', 'field trip': '현장학습',
+            'clear': '맑은', 'bright': '밝은',
+            // L03 지구와 환경
+            'campaign': '홍보활동, 캠페인', 'earth': '지구', 'paper': '종이', 'poster': '포스터',
+            'save': '구하다, 절약하다', 'shirt': '셔츠', 'turn off': '끄다', 'world': '세상, 지구',
+            'when': '언제', 'why': '왜', 'wrong': '잘못된, 틀린',
+            // L04 축하 및 일상
+            'because': '왜냐하면', 'belt': '안전벨트', 'birdhouse': '새집', 'break': '부서지다, 휴식',
+            'congratulation': '축하', 'test': '시험', 'worry': '걱정하다',
+            // L05 길 찾기 및 장소
+            'bank': '은행', 'block': '블록, 구역', 'hospital': '병원', 'hungry': '배고픈',
+            'restaurant': '식당', 'left': '왼쪽', 'restroom': '화장실', 'straight': '직진',
+            'stop': '멈추다, 정지', 'store': '가게, 상점', 'town': '마을, 동네',
+            // L06 가족 및 외모
+            'aunt': '이모, 고모', 'daughter': '딸', 'dress': '원피스, 옷', 'eyes': '눈',
+            'hair': '머리카락', 'short': '키가 작은, 짧은', 'tall': '키가 큰', 'wear': '입다, 착용하다',
+            // L07 일상 활동
+            'after': '후에', 'biscuit': '비스킷, 과자', 'laser': '레이저', 'light': '빛',
+            'number': '숫자', 'shadow': '그림자', 'sun': '태양, 해',
+            'soft drink': '탄산음료', 'tell': '말하다, 알려주다',
+            // L08 스포츠 및 능력
+            'always': '항상', 'baby': '아기', 'catch': '잡다', 'clock': '시계',
+            'dribble': '드리블하다', 'fast': '빠른, 빨리', 'goal': '골, 목표', 'long': '긴',
+            'race': '경주, 시합', 'shoot': '슛하다, 쏘다', 'smart': '똑똑한', 'strong': '힘센, 강한',
+            'heavy': '무거운', 'than': '~보다', 'tower': '탑, 타워', 'win': '이기다, 우승하다',
+            // L09 여가 및 자연
+            'any': '어떤', 'children': '어린이들', 'forest': '숲', 'hamburger': '햄버거',
+            'plan': '계획', 'room': '방', 'sand': '모래', 'tree': '나무', 'visit': '방문하다',
+            'program': '프로그램', 'stay': '머무르다', 'tent': '텐트', 'village': '마을', 'zoo': '동물원',
+            // L10 건강 및 생활습관
+            'a lot of': '많은', 'almost': '거의', 'enough': '충분한', 'exercise': '운동, 운동하다',
+            'habit': '습관', 'healthy': '건강한', 'life': '생활, 삶', 'member': '회원, 멤버',
+            'often': '자주, 종종', 'once': '한 번', 'should': '~해야 한다', 'teeth': '이, 치아',
+            'twice': '두 번',
+            // L11 물건 및 동작
+            'air': '공기', 'boomerang': '부메랑', 'clever': '영리한', 'hit': '치다, 때리다',
+            'into': '~안으로', 'sari': '사리 (인도 전통의상)',
+            // L12 소원 및 인물
+            'boy': '소년', 'forget': '잊다', 'quiz': '퀴즈', 'street': '거리, 길',
+            'wall': '벽', 'wish': '소원, 바라다',
+            // 3학년 학용품
+            'crayon': '크레용', 'eraser': '지우개', 'glue stick': '풀', 'notebook': '공책',
+            'pencil': '연필', 'pencil case': '필통', 'ruler': '자', 'scissors': '가위',
+            // 기타 및 동물
+            'giraffe': '기린', 'give': '주다', 'like': '좋아하다', 'of': '~의', 'side': '옆, 쪽',
+            // 기본 국가 단어
+            'korea': '대한민국', 'japan': '일본', 'china': '중국', 'vietnam': '베트남', 'thailand': '태국',
+            'usa': '미국', 'canada': '캐나다', 'mexico': '멕시코', 'brazil': '브라질', 'argentina': '아르헨티나',
+            'uk': '영국', 'france': '프랑스', 'germany': '독일', 'italy': '이탈리아', 'spain': '스페인',
+            'egypt': '이집트', 'kenya': '케냐', 'south africa': '남아프리카공화국', 'morocco': '모로코', 'ghana': '가나'
+        };
+
+        function getWordMeaning(word) {
+            if (!word) return '';
+            const clean = String(word).trim().toLowerCase();
+
+            // 1. WaurimalCurriculum 글로벌 객체 우선 조회
+            if (typeof window !== 'undefined' && window.WaurimalCurriculum && typeof window.WaurimalCurriculum.getAllWords === 'function') {
+                try {
+                    const cWords = window.WaurimalCurriculum.getAllWords();
+                    const found = cWords.find(w => w.en && w.en.trim().toLowerCase() === clean);
+                    if (found && found.kr) return found.kr;
+                } catch (e) {}
+            }
+
+            // 2. 내장 단어 뜻 사전 조회
+            if (WORD_MEANINGS_MAP[clean]) return WORD_MEANINGS_MAP[clean];
+
+            return '';
+        }
+
         function getMergedTile(baseTile) {
             if (baseTile.type !== 'quiz') return baseTile;
             if (customQuizzes && customQuizzes[baseTile.id]) {
@@ -1819,9 +1902,12 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
                     distractors = fallbackDistractors.filter(w => w !== word).slice(0, 2);
                 }
                 const options = [word, ...distractors].sort(() => 0.5 - Math.random());
+                const meaning = getWordMeaning(word);
+                const questionText = meaning || word;
+
                 return {
                     ...baseTile,
-                    q: `[${baseTile.name}] 단어 맞히기: "${word}"`,
+                    q: questionText,
                     a: word,
                     options: options
                 };
@@ -2295,6 +2381,10 @@ const LEGACY_DEFAULT_SCORES = [{"id":"0F76va1svVQMv6ysVcFK","name":"이준후","
 
         function triggerQuiz(tile, callback, subtitle) {
             const modal = document.getElementById('quiz-modal');
+            const titleEl = document.getElementById('quiz-title');
+            if (titleEl && tile) {
+                titleEl.innerText = `${tile.flag ? tile.flag + ' ' : ''}${tile.name} - 영어 퀴즈!`;
+            }
             document.getElementById('quiz-subtitle').innerText = subtitle;
             document.getElementById('quiz-question').innerText = tile.q;
             const choiceContainer = document.getElementById('quiz-options-container');
